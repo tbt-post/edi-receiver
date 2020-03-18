@@ -10,9 +10,9 @@
                  [luposlip/json-schema "0.1.8"]
                  [cheshire "5.10.0"]
 
-                 ; TODO: aleph -> pedestal, get rid clj-http
+                 ; TODO: aleph -> pedestal
                  ;; HTTP
-                 [clj-http "3.10.0"]
+                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"]
                  [aleph "0.4.6"]
                  [metosin/reitit "0.3.9"]
 

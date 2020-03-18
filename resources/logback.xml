@@ -16,4 +16,5 @@
   <logger name="io.netty" level="ERROR" />
   <logger name="com.mchange.v2" level="ERROR"/>
   <logger name="org.apache" level="ERROR" />
+  <logger name="org.eclipse.jetty" level="ERROR" />
 </configuration>

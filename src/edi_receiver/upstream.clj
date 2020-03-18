@@ -1,9 +1,9 @@
 (ns edi-receiver.upstream
   (:require [cheshire.core :as json]
-            [clj-http.client :as http]
-            [clojure.pprint :refer [pprint]]
             [clojure.tools.logging :as log]
-            [json-schema.core :as json-schema]))
+            [json-schema.core :as json-schema])
+  (:import [org.eclipse.jetty.util.ssl SslContextFactory$Client]
+           [org.eclipse.jetty.client HttpClient]))
 
 
 (defn- log-download [url]
@@ -11,29 +11,35 @@
   url)
 
 
-(defn- make-item [url]
+(defn- get-body [^String url ^HttpClient client]
+  (-> client
+      (.GET url)
+      (.getContentAsString)))
+
+
+(defn- make-item [^HttpClient client ^String url]
   [(->> url
         (re-find #"/([^/]+)\.json$")
         second
         keyword)
    (-> url
        log-download
-       http/get
-       :body
+       (get-body client)
        json-schema/prepare-schema)])
 
 
 (defn create-upstream [{:keys [upstream-list-url]}]
   (log/debug "Creating Upstream")
-  (->> (-> upstream-list-url
-           log-download
-           http/get
-           :body
-           json/parse-string)
-       (map #(get % "download_url"))
-       (take 1)
-       (map make-item)
-       (into {})))
+  (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
+    (.start client)
+    (->> (-> upstream-list-url
+             log-download
+             (get-body client)
+             json/parse-string)
+         (map #(get % "download_url"))
+         ;(take 1)
+         (map #(make-item client %))
+         (into {}))))
 
 
 (defn upstream-validate [this schema value]
