@@ -1,17 +1,15 @@
 (ns edi-receiver.api.core
-  (:require [aleph.http :as http]
-            [clojure.tools.logging :as log]
-            [reitit.coercion.schema]
-            [reitit.ring :as ring]
-            [reitit.ring.coercion :as coercion]
-            [reitit.ring.middleware.exception :as exception]
-            [reitit.ring.middleware.muuntaja :as muuntaja]
-            [ring.middleware.content-type :refer [wrap-content-type]]
-            [ring.middleware.content-type :refer [wrap-content-type]]
-            [ring.middleware.not-modified :refer [wrap-not-modified]]
-            [ring.middleware.params :as params]
-            [ring.middleware.resource :refer [wrap-resource]]
+  (:require [clojure.tools.logging :as log]
+            [io.pedestal.http :as server]
             [muuntaja.core :as m]
+            [reitit.coercion.schema]
+            [reitit.http :as http]
+            [reitit.http.coercion :as coercion]
+            [reitit.http.interceptors.exception :as exception]
+            [reitit.http.interceptors.muuntaja :as muuntaja]
+            [reitit.http.interceptors.parameters :as parameters]
+            [reitit.pedestal :as pedestal]
+            [reitit.ring :as ring]
             [edi-receiver.api.routes :as routes])
   (:import (java.sql SQLException)))
 
@@ -21,40 +19,62 @@
    :body   (str exception)})
 
 
-(defn with-context [handler context]
-  (fn [request] (handler (assoc request :context context))))
+(defn- context-interceptor [context]
+  {:name  ::parameters
+   :enter (fn [ctx]
+            (update ctx :request #(assoc % :context context)))})
 
 
-(defn create-app [context]
+(defn- create-router [context]
   (log/debug "Creating api")
-  (-> routes/routes
-      (ring/router {:conflicts nil
-                    :data      {:muuntaja   (m/create m/default-options)
-                                :middleware [#(with-context % context)
-                                             params/wrap-params
-                                             (exception/create-exception-middleware
-                                               (merge
-                                                 exception/default-handlers
-                                                 {SQLException str-exception}))
-                                             muuntaja/format-middleware
-                                             coercion/coerce-exceptions-middleware
-                                             coercion/coerce-request-middleware
-                                             coercion/coerce-response-middleware
-                                             #_#(wrap-resource % "static")
-                                             #_wrap-content-type
-                                             #_wrap-not-modified]}})
+  (pedestal/routing-interceptor
+    (http/router
+      routes/routes
+      {;:exception pretty/exception
+       :data {:coercion     reitit.coercion.schema/coercion
+              :muuntaja     m/instance
+              :interceptors [(context-interceptor context)
+                             ;; query-params & form-params
+                             (parameters/parameters-interceptor)
+                             ;; content-negotiation
+                             (muuntaja/format-negotiate-interceptor)
+                             ;; encoding response body
+                             (muuntaja/format-response-interceptor)
+                             ;; exception handling
+                             (exception/exception-interceptor
+                               (merge
+                                 exception/default-handlers
+                                 {SQLException str-exception}))
+                             ;; decoding request body
+                             (muuntaja/format-request-interceptor)
+                             ;; coercing exceptions
+                             ;(coercion2/coerce-exceptions-interceptor)
+                             ;; coercing response bodys
+                             (coercion/coerce-response-interceptor)
+                             ;; coercing request parameters
+                             (coercion/coerce-request-interceptor)]}})
+    ;; optional default ring handlers (if no routes have matched)
+    (ring/routes (ring/create-default-handler))))
 
-      (ring/ring-handler
-        (ring/routes
-          (ring/create-default-handler)))))
+
+(defn start-server [host port context]
+  (log/info "Starting HTTP server on" host ":" port)
+  (let [pedestal (-> {::server/type   :jetty
+                      ::server/host   host
+                      ::server/port   port
+                      ::server/join?  false
+                      ;; no pedestal routes
+                      ::server/routes []}
+                     (server/default-interceptors)
+                     ;; use the reitit router
+                     (pedestal/replace-last-interceptor (create-router context))
+                     (server/dev-interceptors)
+                     (server/create-server))]
+    (server/start pedestal)
+    (log/info "Joined HTTP Server")
+    pedestal))
 
 
-(defn start-server [app {:keys [api-host api-port]}]
-  (log/info "Started API on" api-host ":" api-port)
-  (http/start-server app {:host api-host
-                          :port api-port}))
-
-(defn stop-server [server]
-  (do
-    (log/info "Stopping HTTP server")
-    (.close server)))
+(defn stop-server [pedestal]
+  (log/info "Stopping HTTP server")
+  (server/stop pedestal))

@@ -22,12 +22,13 @@
 
 (defn- run-app! [options]
   (log/debug "Options:" options)
-  (let [config (create-config options)]
-    (api/start-server
-      (api/create-app {:config   config
-                       :upstream (create-upstream config)
-                       :db       nil})
-      config)))
+  (let [{:keys [api-host api-port upstream-list-url] :as config} (create-config options)
+        server (api/start-server api-host api-port
+                                 {:config   config
+                                  :upstream (create-upstream upstream-list-url)
+                                  :db       nil})]
+    (-> (Runtime/getRuntime)
+        (.addShutdownHook (Thread. #(api/stop-server server))))))
 
 
 (defn -main [& args]

@@ -28,7 +28,7 @@
        json-schema/prepare-schema)])
 
 
-(defn create-upstream [{:keys [upstream-list-url]}]
+(defn create-upstream [upstream-list-url]
   (log/debug "Creating Upstream")
   (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
     (.start client)
