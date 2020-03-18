@@ -1,14 +1,7 @@
 (ns edi-receiver.config
   (:require [clojure.java.io :as io]
-            [mount.core :as mount]
-            [clojure.string :as string]))
-
-
-(defn version [] (or (some-> "edi_receiver.VERSION"
-                             io/resource
-                             slurp
-                             string/trim)
-                     "devel-current"))
+            [clojure.string :as string]
+            [clojure.tools.logging :as log]))
 
 
 (defn- load-props [file]
@@ -18,19 +11,14 @@
       (into {} (for [[k v] props] [(keyword k) (read-string v)])))))
 
 
-(defn create [{:keys [config]}]
+(defn create-config [{:keys [config]}]
+  (log/debug "Creating config")
   (merge
-    (-> ".properties" io/resource load-props)
+    (-> "edi-receiver.properties" io/resource load-props
+        (assoc :version (or (some-> "edi_receiver.VERSION"
+                                    io/resource
+                                    slurp
+                                    string/trim)
+                            "devel-current")))
     (when config
       (-> config string/trim io/file load-props))))
-
-
-(mount/defstate config
-  :start (create (mount/args)))
-
-(defn properties []
-  config)
-
-
-(defn prop [k]
-  (k config))

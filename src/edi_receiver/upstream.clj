@@ -1,12 +1,9 @@
 (ns edi-receiver.upstream
-  (:require
-    [cheshire.core :as json]
-    [clj-http.client :as http]
-    [clojure.pprint :refer [pprint]]
-    [json-schema.core :as json-schema]
-    [mount.core :as mount]
-    [edi-receiver.config :as config]
-    [clojure.tools.logging :as log]))
+  (:require [cheshire.core :as json]
+            [clj-http.client :as http]
+            [clojure.pprint :refer [pprint]]
+            [clojure.tools.logging :as log]
+            [json-schema.core :as json-schema]))
 
 
 (defn- log-download [url]
@@ -26,25 +23,22 @@
        json-schema/prepare-schema)])
 
 
-(defn- create [_]
-  (->> (-> (config/prop :upstream.list)
+(defn create-upstream [{:keys [upstream-list-url]}]
+  (log/debug "Creating Upstream")
+  (->> (-> upstream-list-url
            log-download
            http/get
            :body
            json/parse-string)
        (map #(get % "download_url"))
-       ;(take 1)
+       (take 1)
        (map make-item)
        (into {})))
 
 
-(mount/defstate schemas
-  :start (create (mount/args)))
-
-
-(defn validate [schema value]
+(defn upstream-validate [this schema value]
   (try
-    {:result (json-schema/validate (schema schemas) value)}
+    {:result (json-schema/validate (schema this) value)}
     (catch Exception e
       {:error {:class   (class e)
                :message (.getMessage e)

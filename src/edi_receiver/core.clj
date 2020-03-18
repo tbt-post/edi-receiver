@@ -1,18 +1,13 @@
 (ns edi-receiver.core
   (:gen-class)
-  (:require
-    [clojure.java.io :as io]
-    [clojure.string :as string]
-    [clojure.tools.cli :as cli]
-    [clojure.tools.namespace.repl :as tn]
-    [hawk.core :as hawk]
-    [mount.core :as mount]
-    [clojure.tools.logging :as log]
-    [edi-receiver.config]
-    [clojure.pprint :refer [pprint]]
-    [edi-receiver.config :as config]
-    [edi-receiver.upstream]
-    [edi-receiver.api.core]))
+  (:require [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
+            [clojure.string :as string]
+            [clojure.tools.cli :as cli]
+            [clojure.tools.logging :as log]
+            [edi-receiver.config :refer [create-config]]
+            [edi-receiver.upstream :refer [create-upstream]]
+            [edi-receiver.api.core :as api]))
 
 
 (def cli-options
@@ -25,40 +20,14 @@
    [nil "--dump-config" "dump system configuration"]])
 
 
-(defn start-autoreload! []
-  (tn/set-refresh-dirs "src")
-  (let [-last-reload (volatile! 0)]
-    (hawk/watch!
-      [{:paths   ["src"]
-        :filter  (fn [_ {:keys [file]}]
-                   (and (.isFile file)
-                        (re-find #".cljc?$" (.getName file))))
-        :handler (fn [_ {:keys [file]}]
-                   (when (> (System/currentTimeMillis) (+ @-last-reload 1000))
-                     (vreset! -last-reload (System/currentTimeMillis))
-                     ;; this binding prevents clojure.tools.namespace.repl blowing
-                     ;; up with "Can't set!: *ns* from non-binding thread"
-                     (binding [*ns* *ns*]
-                       (let [res (tn/refresh)]
-                         (cond
-                           (= res :ok) :pass
-                           (instance? Exception res)
-                           (loop [ex res]
-                             (when ex
-                               (println "  " (.getMessage ex))
-                               (recur (.getCause ex))))
-                           :else (prn res))))))}])))
-
-
 (defn- run-app! [options]
-  (when (-> ".properties" io/resource .getProtocol (not= "jar"))
-    (log/debug "Entering developer mode...")
-    (start-autoreload!))
-
   (log/debug "Options:" options)
-  (mount/start-with-args options)
-
-  #_(log/info "API:" api/api))
+  (let [config (create-config options)]
+    (api/start-server
+      (api/create-app {:config   config
+                       :upstream (create-upstream config)
+                       :db       nil})
+      config)))
 
 
 (defn -main [& args]
@@ -73,7 +42,7 @@
       (println summary)
 
       (:dump-config options)
-      (pprint (config/create options))
+      (pprint (create-config options))
 
       :else
       (run-app! options))))

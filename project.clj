@@ -5,31 +5,29 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/tools.cli "1.0.194"]
-                 [mount "0.1.16"]
+
+                 ;; JSON
                  [luposlip/json-schema "0.1.8"]
-                 [clj-http "3.10.0"]
                  [cheshire "5.10.0"]
 
+                 ; TODO: aleph -> pedestal, get rid clj-http
+                 ;; HTTP
+                 [clj-http "3.10.0"]
                  [aleph "0.4.6"]
                  [metosin/reitit "0.3.9"]
 
-                 ;[org.clojure/tools.nrepl "0.2.13"]
-
-                 ; log
                  ;; Logger
+                 ; TODO: move logger to dev
                  [ch.qos.logback/logback-classic "1.2.3"
                   :exclusions [org.slf4j/slf4j-api]]
                  [org.slf4j/jul-to-slf4j "1.7.28"]
                  [org.slf4j/jcl-over-slf4j "1.7.28"]
                  [org.slf4j/log4j-over-slf4j "1.7.28"]
-                 [org.clojure/tools.logging "0.5.0"]
-                 [ring-logger "1.0.1"]
+                 [org.clojure/tools.logging "0.5.0"]]
 
-                 ; dev
-                 [org.clojure/tools.namespace "0.3.1"]
-                 [hawk "0.2.11"]
-
-                 [local.1st/clj-helpers-common "0.1.25"]]
-
-  :repl-options {:init-ns edi-receiver.core}
-  :repositories [["private-jars" "http://local.repo:9180/repo"]])
+  :main edi-receiver.core
+  :omit-source true
+  ;:warn-on-reflection true
+  :profiles {:uberjar {:aot :all}}
+  :resource-paths ["resources"]
+  :repl-options {:init-ns edi-receiver.core})
