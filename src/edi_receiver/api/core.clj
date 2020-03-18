@@ -26,7 +26,6 @@
 
 
 (defn- create-router [context]
-  (log/debug "Creating api")
   (pedestal/routing-interceptor
     (http/router
       routes/routes
@@ -57,24 +56,23 @@
     (ring/routes (ring/create-default-handler))))
 
 
-(defn start-server [host port context]
-  (log/info "Starting HTTP server on" host ":" port)
-  (let [pedestal (-> {::server/type   :jetty
-                      ::server/host   host
-                      ::server/port   port
-                      ::server/join?  false
-                      ;; no pedestal routes
-                      ::server/routes []}
-                     (server/default-interceptors)
-                     ;; use the reitit router
-                     (pedestal/replace-last-interceptor (create-router context))
-                     (server/dev-interceptors)
-                     (server/create-server))]
-    (server/start pedestal)
-    (log/info "Joined HTTP Server")
-    pedestal))
+(defn start [{:keys [host port]} context]
+  (let [server (-> {::server/type   :jetty
+                    ::server/host   host
+                    ::server/port   port
+                    ::server/join?  false
+                    ;; no pedestal routes
+                    ::server/routes []}
+                   (server/default-interceptors)
+                   ;; use the reitit router
+                   (pedestal/replace-last-interceptor (create-router context))
+                   (server/dev-interceptors)
+                   (server/create-server))]
+    (server/start server)
+    (log/info "Started HTTP server on" host ":" port)
+    server))
 
 
-(defn stop-server [pedestal]
+(defn stop [server]
   (log/info "Stopping HTTP server")
-  (server/stop pedestal))
+  (server/stop server))

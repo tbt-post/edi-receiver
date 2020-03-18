@@ -13,8 +13,6 @@
   </root>
   <logger name="user" level="ALL" />
   <logger name="wms-control" level="ALL" />
-  <logger name="io.netty" level="ERROR" />
   <logger name="com.mchange.v2" level="ERROR"/>
-  <logger name="org.apache" level="ERROR" />
   <logger name="org.eclipse.jetty" level="ERROR" />
 </configuration>

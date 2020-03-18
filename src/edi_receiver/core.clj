@@ -5,8 +5,9 @@
             [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]
-            [edi-receiver.config :refer [create-config]]
-            [edi-receiver.upstream :refer [create-upstream]]
+            [edi-receiver.config :as config]
+            [edi-receiver.upstream :as upstream]
+            [edi-receiver.db.pg :as pg]
             [edi-receiver.api.core :as api]))
 
 
@@ -22,13 +23,16 @@
 
 (defn- run-app! [options]
   (log/debug "Options:" options)
-  (let [{:keys [api-host api-port upstream-list-url] :as config} (create-config options)
-        server (api/start-server api-host api-port
-                                 {:config   config
-                                  :upstream (create-upstream upstream-list-url)
-                                  :db       nil})]
+  (let [config (config/create options)
+        _      (pprint config)
+        pg     (pg/connect (:pg config))
+        server (api/start (:api config)
+                          {:config   config
+                           :upstream (upstream/create (:upstream config))
+                           :pg       pg})]
     (-> (Runtime/getRuntime)
-        (.addShutdownHook (Thread. #(api/stop-server server))))))
+        (.addShutdownHook (Thread. #(do (api/stop server)
+                                        (pg/close pg)))))))
 
 
 (defn -main [& args]
@@ -43,7 +47,7 @@
       (println summary)
 
       (:dump-config options)
-      (pprint (create-config options))
+      (pprint (config/create options))
 
       :else
       (run-app! options))))

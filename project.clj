@@ -1,5 +1,5 @@
 (defproject edi-receiver "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "EDI receiver"
   :url "http://example.com/FIXME"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
@@ -10,12 +10,17 @@
                  [cheshire "5.10.0"]
                  [luposlip/json-schema "0.1.8"]
 
+                 ;; postgres
+                 [org.clojure/java.jdbc "0.7.11"]
+                 [org.postgresql/postgresql "42.2.11"]
+                 [com.mchange/c3p0 "0.9.5.5"]
+
                  ;; HTTP
-                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"]  ; same version as in pedestal
                  [io.pedestal/pedestal.service "0.5.7"]
                  [io.pedestal/pedestal.jetty "0.5.7"]
                  [metosin/reitit "0.4.2"]
                  [metosin/reitit-pedestal "0.4.2"]
+                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal uses
 
                  ;; Logger
                  ; TODO: move logger to dev
@@ -26,10 +31,15 @@
                  [org.slf4j/log4j-over-slf4j "1.7.30"]
                  [org.clojure/tools.logging "1.0.0"]]
 
-  :main edi-receiver.core
+
   :omit-source true
   ;:warn-on-reflection true
-  :profiles {:uberjar {:aot :all}}
-  :resource-paths ["resources"]
-  :repl-options {:init-ns edi-receiver.core}
+
+  :profiles {:dev     {:dependencies [[com.stuartsierra/component.repl "0.2.0"]
+                                      [org.clojure/tools.namespace "1.0.0"]
+                                      [hawk "0.2.11"]]
+                       :source-paths ["dev"]}
+             :uberjar {:aot  :all
+                       :main edi-receiver.core}}
+
   :plugins [[lein-ancient "0.6.15"]])
