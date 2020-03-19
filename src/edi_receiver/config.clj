@@ -41,14 +41,16 @@
 
 
 (defn create [{:keys [config]}]
-  (log/debug "Creating config")
-  (group-config
-    (merge
-      (-> "edi-receiver.properties" io/resource load-props
-          (assoc "version" (or (some-> "edi_receiver.VERSION"
-                                       io/resource
-                                       slurp
-                                       string/trim)
-                               "devel-current")))
-      (when config
-        (-> config string/trim io/file load-props)))))
+  (log/debug "Creating config" (io/resource "edi-receiver.properties"))
+  (let [config (group-config
+                 (merge
+                   (-> "edi-receiver.properties" io/resource load-props
+                       (assoc "version" (or (some-> "edi_receiver.VERSION"
+                                                    io/resource
+                                                    slurp
+                                                    string/trim)
+                                            "devel-current")))
+                   (when config
+                     (-> config string/trim io/file load-props))))]
+    (clojure.pprint/pprint config)
+    config))
