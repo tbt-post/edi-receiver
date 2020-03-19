@@ -10,6 +10,7 @@
             [reitit.http.interceptors.parameters :as parameters]
             [reitit.pedestal :as pedestal]
             [reitit.ring :as ring]
+            [reitit.dev.pretty :as pretty]
             [edi-receiver.api.routes :as routes])
   (:import (java.sql SQLException)))
 
@@ -29,7 +30,7 @@
   (pedestal/routing-interceptor
     (http/router
       routes/routes
-      {;:exception pretty/exception
+      {:exception pretty/exception
        :data {:coercion     reitit.coercion.schema/coercion
               :muuntaja     m/instance
               :interceptors [(context-interceptor context)
@@ -40,14 +41,14 @@
                              ;; encoding response body
                              (muuntaja/format-response-interceptor)
                              ;; exception handling
-                             (exception/exception-interceptor
+                             #_(exception/exception-interceptor
                                (merge
                                  exception/default-handlers
                                  {SQLException str-exception}))
                              ;; decoding request body
                              (muuntaja/format-request-interceptor)
                              ;; coercing exceptions
-                             ;(coercion2/coerce-exceptions-interceptor)
+                             ;(coercion/coerce-exceptions-interceptor)
                              ;; coercing response bodys
                              (coercion/coerce-response-interceptor)
                              ;; coercing request parameters

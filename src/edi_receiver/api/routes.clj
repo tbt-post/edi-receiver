@@ -8,7 +8,8 @@
   [["/api" {:coercion reitit.coercion.schema/coercion}
     ["" {:get       misc/version
          :summary   "Version info"
-         :responses {200 {:body {:version s/Str}}}}]
+         :responses {200 {:body {:version s/Str
+                                 :pg-version s/Str}}}}]
     ["/debug" {:get     misc/dump-req
                :summary "Dumps request"}]
     ["/topic/:topic" {:post       topic/post

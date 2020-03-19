@@ -43,7 +43,7 @@
          (into {}))))
 
 
-(defn upstream-validate [this schema value]
+(defn validate [this schema value]
   (try
     {:result (json-schema/validate (schema this) value)}
     (catch Exception e

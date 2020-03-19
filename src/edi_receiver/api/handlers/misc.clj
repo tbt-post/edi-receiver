@@ -1,4 +1,5 @@
-(ns edi-receiver.api.handlers.misc)
+(ns edi-receiver.api.handlers.misc
+  (:require [edi-receiver.db.pg :as pg]))
 
 
 (defn dump-req [request]
@@ -8,6 +9,7 @@
                        :reitit.core/router))})
 
 
-(defn version [request]
+(defn version [{{:keys [config pg]} :context}]
   {:status 200
-   :body   {:version (-> request :context :config :version)}})
+   :body   {:version    (:version config)
+            :pg-version (:version (first (pg/query pg "SELECT version()")))}})

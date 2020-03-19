@@ -35,33 +35,37 @@
                        unreturned-connection-timeout    0}}]
   (log/info "Creating PostgreSQL pool")
   (System/setProperty "user.timezone" "UTC")
-  (doto
-    (ComboPooledDataSource.)
-    (.setDriverClass driver-class)
-    (.setJdbcUrl (format "jdbc:postgresql://%s:%s/%s?prepareThreshold=0"
-                         host
-                         port
-                         database))
-    (.setUser user)
-    (.setPassword password)
-    ;; expire excess connections after 30 minutes of inactivity:
-    (.setMaxIdleTimeExcessConnections max-idle-time-excess-connections)
-    ;; expire connections after 3 hours of inactivity:
-    (.setMaxIdleTime max-idle-time)
-    (.setInitialPoolSize initial-pool-size)
-    (.setMinPoolSize min-pool-size)
-    (.setMaxPoolSize max-pool-size)
-    (.setMaxStatements max-statements)
-    (.setMaxStatementsPerConnection max-statements-per-connection)
-    (.setDescription description)
-    (.setAcquireIncrement acquire-increment)
-    (.setUnreturnedConnectionTimeout unreturned-connection-timeout)))
+  {:datasource (doto
+                 (ComboPooledDataSource.)
+                 (.setDriverClass driver-class)
+                 (.setJdbcUrl (format "jdbc:postgresql://%s:%s/%s?prepareThreshold=0"
+                                      host
+                                      port
+                                      database))
+                 (.setUser user)
+                 (.setPassword password)
+                 ;; expire excess connections after 30 minutes of inactivity:
+                 (.setMaxIdleTimeExcessConnections max-idle-time-excess-connections)
+                 ;; expire connections after 3 hours of inactivity:
+                 (.setMaxIdleTime max-idle-time)
+                 (.setInitialPoolSize initial-pool-size)
+                 (.setMinPoolSize min-pool-size)
+                 (.setMaxPoolSize max-pool-size)
+                 (.setMaxStatements max-statements)
+                 (.setMaxStatementsPerConnection max-statements-per-connection)
+                 (.setDescription description)
+                 (.setAcquireIncrement acquire-increment)
+                 (.setUnreturnedConnectionTimeout unreturned-connection-timeout))})
 
 
 (defn close [pool]
   (log/info "Destroing PostgreSQL pool")
-  (.close pool))
+  (.close (:datasource pool)))
 
 
 (defn execute! [pool query]
   (first (jdbc/execute! pool query)))
+
+
+(defn query [pool query]
+  (jdbc/query pool query))

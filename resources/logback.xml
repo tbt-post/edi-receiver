@@ -15,4 +15,6 @@
   <logger name="wms-control" level="ALL" />
   <logger name="com.mchange.v2" level="ERROR"/>
   <logger name="org.eclipse.jetty" level="ERROR" />
+  <logger name="i.p.http" level="ERROR" />
+  <logger name="io.pedestal" level="ERROR" />
 </configuration>
