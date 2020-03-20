@@ -43,10 +43,13 @@
          (into {}))))
 
 
-(defn validate [this schema value]
-  (try
-    {:result (json-schema/validate (schema this) value)}
-    (catch Exception e
-      {:error {:class   (class e)
-               :message (.getMessage e)
-               :data    (ex-data e)}})))
+(defn validate [this topic value]
+  (if-let [schema (topic this)]
+    (try
+      (json-schema/validate schema value)
+      nil
+      (catch Exception e
+        {:message (.getMessage e)
+         :data    (ex-data e)}))
+    (log/warn "Schema not found for:" topic)))
+
