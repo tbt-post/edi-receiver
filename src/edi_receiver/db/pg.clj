@@ -1,6 +1,7 @@
 (ns edi-receiver.db.pg
   (:require [clojure.java.jdbc :as jdbc]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.string :as string])
   (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
 
 
@@ -69,3 +70,16 @@
 
 (defn query [pool query]
   (jdbc/query pool query))
+
+
+(defn insert-q [table fields]
+  (str "INSERT INTO " (name table) " ("
+       (string/join "," (map name fields))
+       ") VALUES ("
+       (string/join "," (repeat (count fields) "?"))
+       ")"))
+
+(defn insert! [pool table values]
+  (let [fields (keys values)]
+    (execute! pool (cons (insert-q table fields)
+                         (for [field fields] (field values))))))

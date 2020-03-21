@@ -57,7 +57,7 @@
     (ring/routes (ring/create-default-handler))))
 
 
-(defn start [{:keys [host port]} context]
+(defn start [{:keys [host port] :as config} context]
   (let [server (-> {::server/type   :jetty
                     ::server/host   host
                     ::server/port   port

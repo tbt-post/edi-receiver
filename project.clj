@@ -32,14 +32,13 @@
                  [org.clojure/tools.logging "1.0.0"]]
 
 
-  :omit-source true
+  ;:omit-source true
   ;:warn-on-reflection true
 
   :profiles {:dev     {:dependencies [[com.stuartsierra/component.repl "0.2.0"]
                                       [org.clojure/tools.namespace "1.0.0"]
                                       [hawk "0.2.11"]]
-                       :source-paths ["dev"]
-                       :main edi-receiver.core}
+                       :source-paths ["dev"]}
              :uberjar {:aot  :all
                        :main edi-receiver.core}}
 

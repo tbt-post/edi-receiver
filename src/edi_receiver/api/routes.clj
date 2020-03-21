@@ -1,14 +1,15 @@
 (ns edi-receiver.api.routes
-  (:require [schema.core :as s]
+  (:require [reitit.coercion.schema :as schema]
+            [schema.core :as s]
             [edi-receiver.api.handlers.misc :as misc]
             [edi-receiver.api.handlers.topic :as topic]))
 
 
 (def routes
-  [["/api" {:coercion reitit.coercion.schema/coercion}
+  [["/api" {:coercion schema/coercion}
     ["" {:get       misc/version
          :summary   "Version info"
-         :responses {200 {:body {:version s/Str
+         :responses {200 {:body {:version    s/Str
                                  :pg-version s/Str}}}}]
     ["/debug" {:get     misc/dump-req
                :summary "Dumps request"}]
