@@ -52,5 +52,4 @@
                                             "devel-current")))
                    (when config
                      (-> config string/trim io/file load-props))))]
-    (clojure.pprint/pprint config)
     config))

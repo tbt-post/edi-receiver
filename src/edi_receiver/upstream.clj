@@ -1,7 +1,10 @@
 (ns edi-receiver.upstream
   (:require [cheshire.core :as json]
             [clojure.tools.logging :as log]
-            [json-schema.core :as json-schema])
+            [json-schema.core :as json-schema]
+            [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
+            [clojure.string :as string])
   (:import [org.eclipse.jetty.util.ssl SslContextFactory$Client]
            [org.eclipse.jetty.client HttpClient]))
 
@@ -28,8 +31,7 @@
        json-schema/prepare-schema)])
 
 
-(defn create [config]
-  (log/debug "Creating Upstream")
+(defn create-schemas [config]
   (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
     (.start client)
     (->> (-> config
@@ -43,8 +45,33 @@
          (into {}))))
 
 
+(defn- create-test [filename]
+  {:topic    (keyword (first (string/split filename, #"\." 2)))
+   :filename filename
+   :message  (-> (str "tests/" filename)
+                 io/resource
+                 slurp
+                 (json/parse-string true))})
+
+
+(defn- create-tests []
+  (->> (-> "tests/index.txt"
+           io/resource
+           slurp
+           string/split-lines)
+       (map string/trim)
+       (remove #(string/starts-with? % "#"))
+       (map create-test)))
+
+
+(defn create [config]
+  (log/debug "Creating Upstream")
+  {:schemas (create-schemas config)
+   :tests   (create-tests)})
+
+
 (defn validate [this topic value]
-  (if-let [schema (topic this)]
+  (if-let [schema (topic (:schemas this))]
     (try
       (json-schema/validate schema value)
       nil
@@ -53,3 +80,19 @@
          :data    (ex-data e)}))
     (log/warn "Schema not found for:" topic)))
 
+
+(defn run-tests! [this executor]
+  (->> (for [{:keys [topic message filename]} (:tests this)]
+         (try
+           (executor topic message)
+           (log/info (format "PASSED %s" filename))
+           true
+           (catch Exception e
+             (log/error (format "FAILED %s: %s %s %s"
+                                filename
+                                (class e)
+                                (ex-message e)
+                                (ex-data e)))
+             false)))
+       (doall)
+       (every? identity)))

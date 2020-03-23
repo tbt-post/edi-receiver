@@ -1,0 +1,21 @@
+{
+  "serial": "BAfaDCdF-EA3d-19F2-Ce9c-BBA4028FDfBa",
+  "items": [
+    "some",
+    "items"
+  ],
+  "condition": "exception",
+  "ev_type": "creating",
+  "ev_task": "ABCDEFGHIJKLMNOPQR",
+  "ev_stage": "ABCDEFGHIJKLMNOPQRSTU",
+  "coordinates": [
+    "123",
+    "456"
+  ],
+  "flow": "bidirectional",
+  "direction": "direct",
+  "reason": "ABCDEFGHI",
+  "version": "ABCDEFGHIJK",
+  "origin": "c54A3B1C-BBfA-ade3-A4BD-2DfdB0bAEDbA",
+  "owner": "F6C63D8e-EA1E-cd79-8cFc-e443f7AfE4Ed"
+}

@@ -1,21 +1,19 @@
 (ns system
   (:require
     [com.stuartsierra.component :as component]
-    [edi-receiver.db.pg :as pg]
-    [edi-receiver.upstream :as upstream]
     [edi-receiver.api.core :as api]
-    [edi-receiver.config :as config]))
+    [edi-receiver.config :as config]
+    [edi-receiver.db.pg :as pg]
+    [edi-receiver.upstream :as upstream]))
 
 
 (defrecord Config [options config]
   component/Lifecycle
 
   (start [this]
-    (println "\tStarting Config ...")
     (assoc this :config (config/create options)))
 
   (stop [this]
-    (println "\tStopping Config ...")
     (assoc this :config nil)
     this))
 

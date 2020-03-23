@@ -1,0 +1,17 @@
+{
+  "sender": "tbt_bms",
+  "timestamp": "2004-10-19 10:23:54+02",
+  "msgtype": "ChangeState",
+  "id": "3d9cddc1-f71d-0d6a-6343-010ccfc800a6",
+  "state": "delivered",
+  "pentity": "fd6b34c5-a331-cbbf-cade-ea4bd225fdb0",
+  "weight": 343,
+  "dimensions": [
+    1,
+    2,
+    3
+  ],
+  "parcel_source": "external",
+  "delivery_service": "meest",
+  "is_quasi": false
+}
