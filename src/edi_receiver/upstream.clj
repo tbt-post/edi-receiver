@@ -20,7 +20,7 @@
       (.getContentAsString)))
 
 
-(defn- make-item [^HttpClient client ^String url]
+(defn- create-schema [^HttpClient client ^String url]
   [(->> url
         (re-find #"/([^/]+)\.json$")
         second
@@ -31,7 +31,7 @@
        json-schema/prepare-schema)])
 
 
-(defn create-schemas [config]
+(defn- create-schemas [config]
   (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
     (.start client)
     (->> (-> config
@@ -41,11 +41,25 @@
              json/parse-string)
          (map #(get % "download_url"))
          ;(take 1)
-         (map #(make-item client %))
+         (map #(create-schema client %))
          (into {}))))
 
 
+(defn- create-schema-dev [file]
+  (log/debug "creating dev schema" (-> file .getName (string/split #"\." 2) first keyword))
+  [(-> file .getName (string/split #"\." 2) first keyword)
+   (-> file slurp json-schema/prepare-schema)])
+
+(defn- create-schemas-dev [_]
+  (->> (-> (clojure.java.io/file "/home/oleg/projects/tabata/tbtapi-docs/edi/json-schema")
+           file-seq
+           next)
+       (map create-schema-dev)
+       (into {})))
+
+
 (defn- create-test [filename]
+  (log/debug "loading test from" filename)
   {:topic    (keyword (first (string/split filename, #"\." 2)))
    :filename filename
    :message  (-> (str "tests/" filename)
@@ -88,11 +102,10 @@
            (log/info (format "PASSED %s" filename))
            true
            (catch Exception e
-             (log/error (format "FAILED %s: %s %s %s"
+             (log/error (format "FAILED %s: %s %s"
                                 filename
-                                (class e)
                                 (ex-message e)
-                                (ex-data e)))
+                                (or (ex-data e) "")))
              false)))
        (doall)
        (every? identity)))

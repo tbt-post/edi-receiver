@@ -4,7 +4,8 @@
     [edi-receiver.api.core :as api]
     [edi-receiver.config :as config]
     [edi-receiver.db.pg :as pg]
-    [edi-receiver.upstream :as upstream]))
+    [edi-receiver.upstream :as upstream]
+    [edi-receiver.saver :as saver]))
 
 
 (defrecord Config [options config]
@@ -43,10 +44,12 @@
   component/Lifecycle
 
   (start [this]
-    (assoc this :server (api/start (-> config :config :api)
-                                   {:config   (:config config)
-                                    :upstream (:upstream upstream)
-                                    :pg       (:pg pg)})))
+    (let [context {:config   (:config config)
+                   :upstream (:upstream upstream)
+                   :pg       (:pg pg)}]
+      (saver/run-tests! context)
+      (assoc this :server (api/start (-> config :config :api)
+                                     context))))
 
   (stop [this]
     (api/stop (-> this :server))

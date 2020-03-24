@@ -1,21 +1,18 @@
 {
-  "serial": "BAfaDCdF-EA3d-19F2-Ce9c-BBA4028FDfBa",
-  "items": [
-    "some",
-    "items"
-  ],
-  "condition": "exception",
-  "ev_type": "creating",
-  "ev_task": "ABCDEFGHIJKLMNOPQR",
-  "ev_stage": "ABCDEFGHIJKLMNOPQRSTU",
+  "serial": "c861e640-6d28-11ea-b8ee-db02b56522a1",
+  "items": ["50000336505771"],
+  "condition": "action",
+  "ev_type": "sorting",
+  "ev_task": "fulfillment",
+  "ev_stage": "fulfill",
   "coordinates": [
     "123",
     "456"
   ],
-  "flow": "bidirectional",
+  "flow": "auto",
   "direction": "direct",
   "reason": "ABCDEFGHI",
-  "version": "ABCDEFGHIJK",
-  "origin": "c54A3B1C-BBfA-ade3-A4BD-2DfdB0bAEDbA",
-  "owner": "F6C63D8e-EA1E-cd79-8cFc-e443f7AfE4Ed"
+  "version": "v2019.2",
+  "origin": "aac099d5-f520-4c00-95ab-cc445bec8920",
+  "owner": "46f69d00-4389-444b-9174-26b1f6f0bafa"
 }

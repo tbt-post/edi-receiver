@@ -1,13 +1,13 @@
 {
-  "sender": "tbt",
-  "timestamp": "2004-10-19T10:23:54Z",
-  "id": "f3d9cddc-9f71-b0d6-e634-2010ccfc800a",
-  "parcel_id": "dcdfce03-2a60-1576-7d56-eb8d355c04ef",
-  "contragent_id": "b0b0edba-ad0b-bedd-05ff-bbf0f5f2fb02",
+  "sender": "tabata",
+  "timestamp": "2020-03-23T17:07:43.203Z",
+  "id": "2f81e1f0-a3e6-4101-ba8f-14fb15ddedb3",
+  "parcel_id": "67604246-7a25-472d-916f-d1473de05e69",
+  "contragent_id": "af700204-bd96-4caa-989d-bd5d4408f0e8",
   "posop": "fcs_term",
-  "posorder_id": "ABCDEFGHIJKLMNOPQRSTUVWX",
-  "merchant_id": "ABCDEFGHIJKLMNOPQRSTUV",
-  "amount": "7",
+  "posorder_id": "159691293",
+  "merchant_id": "672",
+  "amount": "25",
   "payer_phone": "380110913888",
-  "comment": "ABCDEFGHIJK"
+  "comment": "{\"account\": \"K3BZZ2A\", \"ucode\": \"K3BZZ2A:__delivery\", \"identity\": \"0\", \"terminal_id\": \"8515\", \"date\": \"20200323190742\"}"
 }

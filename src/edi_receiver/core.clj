@@ -22,10 +22,6 @@
    [nil "--dump-config" "dump system configuration"]])
 
 
-(defn run-tests! [{:keys [upstream] :as context}]
-  (upstream/run-tests! upstream (partial saver/test-message! context)))
-
-
 (defn- run-app! [options]
   (log/debug "Options:" options)
   (let [config  (config/create options)
@@ -33,7 +29,7 @@
         context {:config   config
                  :upstream (upstream/create (:upstream config))
                  :pg       pg}]
-    (if (run-tests! context)
+    (if (saver/run-tests! context)
       (let [server (api/start (:api config) context)]
         (-> (Runtime/getRuntime)
             (.addShutdownHook (Thread. #(do (api/stop server)

@@ -1,10 +1,10 @@
 {
-  "serial": "BAfaDCdF-EA3d-19F2-Ce9c-BBA4028FDfBa",
-  "reference": "0a6FEFdD-34c5-A3B1-cBBf-Cade3eA4BDB2",
+  "serial": "bafadcdf-ea3d-19f2-ce9c-bba4028fdfba",
+  "reference": "0a6fefdd-34c5-a3b1-cbbf-cade3ea4bdb2",
   "message_type": "error",
-  "label": "wZ!",
-  "item": "ABCDEFGHIJKL",
-  "version": "ABCDEFGHIJKLMNOPQRSTUVW",
-  "origin": "F68F6C63-8eEE-1Efc-79a8-Fc8e443f7AfE",
-  "owner": "DfDe514f-Ddaf-eC1b-e78e-AF1Fd6Cce9Ec"
+  "label": "some_label",
+  "item": ["some", "items"],
+  "version": "abcdefghijklmnopqrstuvw",
+  "origin": "f68f6c63-8eee-1efc-79a8-fc8e443f7afe",
+  "owner": "dfde514f-ddaf-ec1b-e78e-af1fd6cce9ec"
 }
