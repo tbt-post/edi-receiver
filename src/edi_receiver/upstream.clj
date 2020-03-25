@@ -3,7 +3,6 @@
             [clojure.tools.logging :as log]
             [json-schema.core :as json-schema]
             [clojure.java.io :as io]
-            [clojure.pprint :refer [pprint]]
             [clojure.string :as string])
   (:import [org.eclipse.jetty.util.ssl SslContextFactory$Client]
            [org.eclipse.jetty.client HttpClient]))
@@ -20,68 +19,47 @@
       (.getContentAsString)))
 
 
-(defn- create-schema [^HttpClient client ^String url]
-  [(->> url
-        (re-find #"/([^/]+)\.json$")
-        second
-        keyword)
-   (-> url
-       log-download
-       (get-body client)
-       json-schema/prepare-schema)])
+(defn- split-name [path]
+  (second (re-find #"/([^/]+)\.json$" path)))
 
 
-(defn- create-schemas [config]
+(defn- load-files-github [list-url]
   (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
     (.start client)
-    (->> (-> config
-             :list-url
+    (->> (-> list-url
              log-download
              (get-body client)
              json/parse-string)
          (map #(get % "download_url"))
-         ;(take 1)
-         (map #(create-schema client %))
-         (into {}))))
+         (map #(identity {:name (-> % split-name)
+                          :body (-> %
+                                    log-download
+                                    (get-body client))})))))
 
 
-(defn- create-schema-dev [file]
-  (log/debug "creating dev schema" (-> file .getName (string/split #"\." 2) first keyword))
-  [(-> file .getName (string/split #"\." 2) first keyword)
-   (-> file slurp json-schema/prepare-schema)])
-
-(defn- create-schemas-dev [_]
-  (->> (-> (clojure.java.io/file "/home/oleg/projects/tabata/tbtapi-docs/edi/json-schema")
-           file-seq
-           next)
-       (map create-schema-dev)
-       (into {})))
+(defn- load-files-local [dir]
+  (->> (-> dir io/file file-seq next)
+       (map #(identity {:filename (-> % .getName)
+                        :name     (-> % .getPath split-name)
+                        :body     (-> % slurp)}))))
 
 
-(defn- create-test [filename]
-  (log/debug "loading test from" filename)
-  {:topic    (keyword (first (string/split filename, #"\." 2)))
-   :filename filename
-   :message  (-> (str "tests/" filename)
-                 io/resource
-                 slurp
-                 (json/parse-string true))})
+(defn- load-files [url]
+  (if (string/starts-with? url "/")
+    (load-files-local url)
+    (load-files-github url)))
 
-
-(defn- create-tests []
-  (->> (-> "tests/index.txt"
-           io/resource
-           slurp
-           string/split-lines)
-       (map string/trim)
-       (remove #(string/starts-with? % "#"))
-       (map create-test)))
-
-
-(defn create [config]
+(defn create [{:keys [schema-list test-list]}]
   (log/debug "Creating Upstream")
-  {:schemas (create-schemas config)
-   :tests   (create-tests)})
+  {:schemas (->> (load-files schema-list)
+                 (map (fn [{:keys [name body]}]
+                        [(keyword name) (json-schema/prepare-schema body)]))
+                 (into {}))
+   :tests   (->> (load-files test-list)
+                 (map (fn [{:keys [name body]}]
+                        {:name    name
+                         :topic   (keyword (first (string/split name, #"\." 2)))
+                         :message (json/parse-string body true)})))})
 
 
 (defn validate [this topic value]
@@ -92,18 +70,18 @@
       (catch Exception e
         {:message (.getMessage e)
          :data    (ex-data e)}))
-    (log/warn "Schema not found for:" topic)))
+    (throw (ex-info (str "Schema not found: " (name topic)) {:topic topic}))))
 
 
 (defn run-tests! [this executor]
-  (->> (for [{:keys [topic message filename]} (:tests this)]
+  (->> (for [{:keys [topic message name]} (:tests this)]
          (try
            (executor topic message)
-           (log/info (format "PASSED %s" filename))
+           (log/info (format "PASSED %s" name))
            true
            (catch Exception e
              (log/error (format "FAILED %s: %s %s"
-                                filename
+                                name
                                 (ex-message e)
                                 (or (ex-data e) "")))
              false)))

@@ -1,9 +1,0 @@
-document.json
-event_parcel.change_state.json
-event_parcel.order_cacel.json
-order_payment.json
-refill_payment.json
-wms_event.json
-wms_item_announcement.json
-wms_registry_announcement.json
-wms_stocktaking_message.json

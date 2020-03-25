@@ -31,33 +31,33 @@
     (http/router
       routes/routes
       {:exception pretty/exception
-       :data {:coercion     reitit.coercion.schema/coercion
-              :muuntaja     m/instance
-              :interceptors [(context-interceptor context)
-                             ;; query-params & form-params
-                             (parameters/parameters-interceptor)
-                             ;; content-negotiation
-                             (muuntaja/format-negotiate-interceptor)
-                             ;; encoding response body
-                             (muuntaja/format-response-interceptor)
-                             ;; exception handling
-                             #_(exception/exception-interceptor
-                               (merge
-                                 exception/default-handlers
-                                 {SQLException str-exception}))
-                             ;; decoding request body
-                             (muuntaja/format-request-interceptor)
-                             ;; coercing exceptions
-                             ;(coercion/coerce-exceptions-interceptor)
-                             ;; coercing response bodys
-                             (coercion/coerce-response-interceptor)
-                             ;; coercing request parameters
-                             (coercion/coerce-request-interceptor)]}})
+       :data      {:coercion     reitit.coercion.schema/coercion
+                   :muuntaja     m/instance
+                   :interceptors [(context-interceptor context)
+                                  ;; query-params & form-params
+                                  (parameters/parameters-interceptor)
+                                  ;; content-negotiation
+                                  (muuntaja/format-negotiate-interceptor)
+                                  ;; encoding response body
+                                  (muuntaja/format-response-interceptor)
+                                  ;; exception handling
+                                  (exception/exception-interceptor
+                                    (merge
+                                      exception/default-handlers
+                                      {SQLException str-exception}))
+                                  ;; decoding request body
+                                  (muuntaja/format-request-interceptor)
+                                  ;; coercing exceptions
+                                  ;(coercion/coerce-exceptions-interceptor)
+                                  ;; coercing response bodys
+                                  (coercion/coerce-response-interceptor)
+                                  ;; coercing request parameters
+                                  (coercion/coerce-request-interceptor)]}})
     ;; optional default ring handlers (if no routes have matched)
     (ring/routes (ring/create-default-handler))))
 
 
-(defn start [{:keys [host port] :as config} context]
+(defn start [{:keys [host port]} context]
   (let [server (-> {::server/type   :jetty
                     ::server/host   host
                     ::server/port   port
@@ -67,10 +67,10 @@
                    (server/default-interceptors)
                    ;; use the reitit router
                    (pedestal/replace-last-interceptor (create-router context))
-                   (server/dev-interceptors)
+                   #_(server/dev-interceptors)
                    (server/create-server))]
     (server/start server)
-    (log/info "Started HTTP server on" host ":" port)
+    (log/infof "Started HTTP server on %s:%s" host port)
     server))
 
 
