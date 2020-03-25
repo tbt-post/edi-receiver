@@ -39,10 +39,7 @@
   {:datasource (doto
                  (ComboPooledDataSource.)
                  (.setDriverClass driver-class)
-                 (.setJdbcUrl (format "jdbc:postgresql://%s:%s/%s?prepareThreshold=0"
-                                      host
-                                      port
-                                      database))
+                 (.setJdbcUrl (format "jdbc:postgresql://%s:%s/%s?prepareThreshold=0" host port database))
                  (.setUser user)
                  (.setPassword password)
                  ;; expire excess connections after 30 minutes of inactivity:

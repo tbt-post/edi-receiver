@@ -8,7 +8,8 @@
             [edi-receiver.config :as config]
             [edi-receiver.upstream :as upstream]
             [edi-receiver.db.pg :as pg]
-            [edi-receiver.api.core :as api]))
+            [edi-receiver.api.core :as api]
+            [edi-receiver.saver :as saver]))
 
 
 (def cli-options
@@ -23,16 +24,19 @@
 
 (defn- run-app! [options]
   (log/debug "Options:" options)
-  (let [config (config/create options)
-        _      (pprint config)
-        pg     (pg/connect (:pg config))
-        server (api/start (:api config)
-                          {:config   config
-                           :upstream (upstream/create (:upstream config))
-                           :pg       pg})]
-    (-> (Runtime/getRuntime)
-        (.addShutdownHook (Thread. #(do (api/stop server)
-                                        (pg/close pg)))))))
+  (let [config  (config/create options)
+        pg      (pg/connect (:pg config))
+        context {:config   config
+                 :upstream (upstream/create (:upstream config))
+                 :pg       pg}]
+    (if (saver/run-tests! context)
+      (let [server (api/start (:api config) context)]
+        (-> (Runtime/getRuntime)
+            (.addShutdownHook (Thread. #(do (api/stop server)
+                                            (pg/close pg))))))
+      (do (log/error "TESTS FAILED")
+          (pg/close pg)
+          (System/exit 1)))))
 
 
 (defn -main [& args]

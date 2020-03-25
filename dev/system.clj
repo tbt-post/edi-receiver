@@ -1,21 +1,20 @@
 (ns system
   (:require
     [com.stuartsierra.component :as component]
+    [edi-receiver.api.core :as api]
+    [edi-receiver.config :as config]
     [edi-receiver.db.pg :as pg]
     [edi-receiver.upstream :as upstream]
-    [edi-receiver.api.core :as api]
-    [edi-receiver.config :as config]))
+    [edi-receiver.saver :as saver]))
 
 
 (defrecord Config [options config]
   component/Lifecycle
 
   (start [this]
-    (println "\tStarting Config ...")
     (assoc this :config (config/create options)))
 
   (stop [this]
-    (println "\tStopping Config ...")
     (assoc this :config nil)
     this))
 
@@ -35,7 +34,9 @@
   component/Lifecycle
 
   (start [this]
-    (assoc this :upstream (upstream/create (-> config :config :upstream))))
+    (let [x (upstream/create (-> config :config :upstream))]
+      (clojure.pprint/pprint x)
+      (assoc this :upstream x)))
 
   (stop [this]
     (assoc this :upstream nil)))
@@ -45,10 +46,12 @@
   component/Lifecycle
 
   (start [this]
-    (assoc this :server (api/start (-> config :config :api)
-                                   {:config   (:config config)
-                                    :upstream (:upstream upstream)
-                                    :pg       (:pg pg)})))
+    (let [context {:config   (:config config)
+                   :upstream (:upstream upstream)
+                   :pg       (:pg pg)}]
+      (saver/run-tests! context)
+      (assoc this :server (api/start (-> config :config :api)
+                                     context))))
 
   (stop [this]
     (api/stop (-> this :server))
