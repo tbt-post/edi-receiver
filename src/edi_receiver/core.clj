@@ -9,6 +9,7 @@
             [edi-receiver.upstream :as upstream]
             [edi-receiver.db.pg :as pg]
             [edi-receiver.api.core :as api]
+            [edi-receiver.deploy :as deploy]
             [edi-receiver.saver :as saver]))
 
 
@@ -19,7 +20,8 @@
     :parse-fn #(str %)
     :validate [#(-> % string/trim io/file .exists) "Config file does not exist"]]
    ;; Flags
-   [nil "--dump-config" "dump system configuration"]])
+   [nil "--dump-config" "dump system configuration"]
+   [nil "--init-db" "initialize database"]])
 
 
 (defn- run-app! [options]
@@ -52,6 +54,9 @@
 
       (:dump-config options)
       (pprint (config/create options))
+
+      (:init-db options)
+      (deploy/deploy (config/create options))
 
       :else
       (run-app! options))))

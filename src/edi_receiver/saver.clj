@@ -16,13 +16,6 @@
     (.setType "json")
     (.setValue (json/generate-string v))))
 
-(defn- as-enum
-  "Convert a keyword value into an enum-compatible object."
-  [enum-type value]
-  (doto (PGobject.)
-    (.setType (name enum-type))
-    (.setValue value)))
-
 (defn- as-timestamp [v]
   (doto (PGobject.)
     (.setType "timestamp with time zone")
@@ -36,9 +29,7 @@
 (defn- document->row [topic message]
   [topic
    (-> message
-       (update :sender (partial as-enum :t_sender))
        (update :timestamp as-timestamp)
-       (update :doctype (partial as-enum :t_doctype))
        (update :id as-uuid)
        (update :body as-json))])
 
@@ -46,44 +37,31 @@
 (defn- event-parcel->row [topic message]
   (if (= "ChangeState" (:msgtype message))
     [:change_state (-> message
-                       (update :sender (partial as-enum :t_sender))
                        (update :timestamp as-timestamp)
-                       (update :msgtype (partial as-enum :t_msgtype))
                        (update :id as-uuid)
                        (update :pentity as-uuid)
-                       (update :dimensions as-json)
-                       (update :parcel_source (partial as-enum :t_parcel_source))
-                       (update :delivery_service (partial as-enum :t_delivery_service)))]
+                       (update :dimensions as-json))]
     [:order_return (-> message
-                       (update :sender (partial as-enum :t_sender))
                        (update :timestamp as-timestamp)
-                       (update :msgtype (partial as-enum :t_msgtype))
                        (update :id as-uuid)
-                       (update :reason (partial as-enum :t_return_reason))
-                       (update :items as-json)
-                       (update :money_dest (partial as-enum :t_money_dest)))]))
+                       (update :items as-json)                       )]))
 
 
 (defn- order_payment->row [topic message]
   [topic
    (-> message
-       (update :sender (partial as-enum :t_sender))
        (update :timestamp as-timestamp)
        (update :id as-uuid)
        (update :parcel_id as-uuid)
        (update :contragent_id as-uuid)
-       (update :posop (partial as-enum :t_posop))
        (update :amount as-decimal))])
 
 
 (defn- refill_payment->row [topic message]
   [topic
    (-> message
-       (update :sender (partial as-enum :t_sender))
        (update :timestamp as-timestamp)
        (update :id as-uuid)
-       (update :dest (partial as-enum :t_money_dest))
-       (update :posop (partial as-enum :t_posop))
        (update :amount as-decimal))])
 
 
@@ -92,11 +70,7 @@
    (-> message
        (update :serial as-uuid)
        (update :items as-json)
-       (update :condition (partial as-enum :t_wms_event_condition))
-       (update :ev_type (partial as-enum :t_wms_event_type))
        (update :coordinates as-json)
-       (update :flow (partial as-enum :t_flow))
-       (update :direction (partial as-enum :t_direction))
        (update :origin as-uuid)
        (update :owner as-uuid))])
 
@@ -113,11 +87,9 @@
 (defn- wms_registry_announcement->row [topic message]
   [topic
    (-> message
-       (update :source (partial as-enum :t_sender))
        (update :timestamp as-timestamp)
        (update :uid as-uuid)
-       (update :userial as-uuid)
-       (update :state (partial as-enum :t_wms_registry_state)))])
+       (update :userial as-uuid))])
 
 
 (defn- wms_stocktaking_message->row [topic message]
@@ -125,7 +97,6 @@
    (-> message
        (update :serial as-uuid)
        (update :reference as-uuid)
-       (update :message_type (partial as-enum :t_wms_stocktaking_message_type))
        (update :item as-json)
        (update :origin as-uuid)
        (update :owner as-uuid))])
@@ -141,7 +112,7 @@
                  :wms_stocktaking_message   wms_stocktaking_message->row})
 
 
-(defn process-message! [{:keys [pg upstream] :as context} topic message]
+(defn process-message! [{:keys [pg upstream]} topic message]
   (if-let [error (upstream/validate upstream topic message)]
     (throw (ex-info "Message not valid" error))
     (if-let [converter (topic converters)]

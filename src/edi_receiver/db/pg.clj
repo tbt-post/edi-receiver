@@ -24,7 +24,9 @@
                 :or   {driver-class                     "org.postgresql.Driver"
                        host                             "localhost"
                        port                             5432
+                       ;; expire excess connections after 30 minutes of inactivity:
                        max-idle-time-excess-connections (* 30 60)
+                       ;; expire connections after 3 hours of inactivity:
                        max-idle-time                    (* 3 60 60)
                        initial-pool-size                3
                        min-pool-size                    3
@@ -42,9 +44,7 @@
                  (.setJdbcUrl (format "jdbc:postgresql://%s:%s/%s?prepareThreshold=0" host port database))
                  (.setUser user)
                  (.setPassword password)
-                 ;; expire excess connections after 30 minutes of inactivity:
                  (.setMaxIdleTimeExcessConnections max-idle-time-excess-connections)
-                 ;; expire connections after 3 hours of inactivity:
                  (.setMaxIdleTime max-idle-time)
                  (.setInitialPoolSize initial-pool-size)
                  (.setMinPoolSize min-pool-size)
@@ -65,10 +65,6 @@
   (first (jdbc/execute! pool query)))
 
 
-(defn query [pool query]
-  (jdbc/query pool query))
-
-
 (defn insert-q [table fields]
   (str "INSERT INTO " (name table) " ("
        (string/join "," (map name fields))
@@ -76,7 +72,22 @@
        (string/join "," (repeat (count fields) "?"))
        ")"))
 
+
 (defn insert! [pool table values]
   (let [fields (keys values)]
     (execute! pool (cons (insert-q table fields)
                          (for [field fields] (field values))))))
+
+
+(defn run-script! [pool sql]
+  (jdbc/with-db-transaction
+    [tr pool]
+    (->> (-> sql
+             (string/replace #"(?s)/\*.*\*/|--[^\n]*" "")
+             (string/split #";"))
+         (map string/trim)
+         (remove #(= "" %))
+         (map #(do
+                 (log/debug "Executing" %)
+                 (execute! tr %)))
+         (doall))))

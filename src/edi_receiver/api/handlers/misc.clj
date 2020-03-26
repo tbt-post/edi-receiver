@@ -9,7 +9,6 @@
                        :reitit.core/router))})
 
 
-(defn version [{{:keys [config pg]} :context}]
+(defn version [{{:keys [config]} :context}]
   {:status 200
-   :body   {:version    (:version config)
-            :pg-version (:version (first (pg/query pg "SELECT version()")))}})
+   :body   {:version (:version config)}})
