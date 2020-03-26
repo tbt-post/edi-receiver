@@ -77,13 +77,13 @@
   (->> (for [{:keys [topic message name]} (:tests this)]
          (try
            (executor topic message)
-           (log/info (format "PASSED %s" name))
+           (log/infof "PASSED %s" name)
            true
            (catch Exception e
-             (log/error (format "FAILED %s: %s %s"
-                                name
-                                (ex-message e)
-                                (or (ex-data e) "")))
+             (log/errorf "FAILED %s: %s %s"
+                         name
+                         (ex-message e)
+                         (or (ex-data e) ""))
              false)))
        (doall)
        (every? identity)))

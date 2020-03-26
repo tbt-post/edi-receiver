@@ -41,7 +41,7 @@
 
 
 (defn create [{:keys [config]}]
-  (log/debug "Creating config" config)
+  (log/debug "Creating config" (or config ""))
   (let [config (group-config
                  (merge
                    (-> "edi-receiver.properties" io/resource load-props

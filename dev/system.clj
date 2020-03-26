@@ -34,9 +34,7 @@
   component/Lifecycle
 
   (start [this]
-    (let [x (upstream/create (-> config :config :upstream))]
-      (clojure.pprint/pprint x)
-      (assoc this :upstream x)))
+    (assoc this :upstream (upstream/create (-> config :config :upstream))))
 
   (stop [this]
     (assoc this :upstream nil)))
