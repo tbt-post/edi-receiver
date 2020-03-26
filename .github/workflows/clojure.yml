@@ -17,4 +17,5 @@ jobs:
       run: lein deps
     - name: Run tests
       run: lein test
-    - name: lein uberjar
+    - name: Buid the app
+      run: lein uberjar
