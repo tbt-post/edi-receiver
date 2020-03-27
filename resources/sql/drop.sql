@@ -1,9 +1,0 @@
-DROP TABLE IF EXISTS "document";
-DROP TABLE IF EXISTS order_return;
-DROP TABLE IF EXISTS change_state;
-DROP TABLE IF EXISTS order_payment;
-DROP TABLE IF EXISTS refill_payment;
-DROP TABLE IF EXISTS wms_event;
-DROP TABLE IF EXISTS wms_item_announcement;
-DROP TABLE IF EXISTS wms_registry_announcement;
-DROP TABLE IF EXISTS wms_stocktaking_message;

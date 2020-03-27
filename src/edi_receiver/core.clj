@@ -10,18 +10,29 @@
             [edi-receiver.db.pg :as pg]
             [edi-receiver.api.core :as api]
             [edi-receiver.deploy :as deploy]
-            [edi-receiver.saver :as saver]))
+            [edi-receiver.saver :as saver]
+            [edi-receiver.utils :as utils]))
 
 
 (def cli-options
   [;; Options
    ["-h" "--help" "show help"]
    ["-c" "--config CONFIG" "External config file"
-    :parse-fn #(str %)
-    :validate [#(-> % string/trim io/file .exists) "Config file does not exist"]]
+    :parse-fn #(string/trim %)
+    :validate [#(-> % io/file .exists) "Config file does not exist"]]
+   ["-t" "--topics TOPICS" "Comma separated topic list"
+    :parse-fn utils/split-comma-separated
+    :validate [(fn [topics]
+                 (every?
+                   #(if (io/resource (format "sql/tables/%s.sql" %))
+                      true
+                      (do (log/error "Unknown topic:" %)
+                          false))
+                   topics)) "Unknown topic"]]
    ;; Flags
-   [nil "--dump-config" "dump system configuration"]
-   [nil "--init-db" "initialize database"]])
+   [nil "--sync" "update schemas and tests"]
+   [nil "--autoinit-tables" "initialize database before start"]
+   [nil "--dump-config" "dump system configuration"]])
 
 
 (defn- run-app! [options]
@@ -31,6 +42,8 @@
         context {:config   config
                  :upstream (upstream/create (:upstream config))
                  :pg       pg}]
+    (if (:autoinit-tables config)
+      (deploy/deploy context))
     (if (saver/run-tests! context)
       (let [server (api/start (:api config) context)]
         (-> (Runtime/getRuntime)

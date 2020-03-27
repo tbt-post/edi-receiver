@@ -5,7 +5,8 @@
     [edi-receiver.config :as config]
     [edi-receiver.db.pg :as pg]
     [edi-receiver.upstream :as upstream]
-    [edi-receiver.saver :as saver]))
+    [edi-receiver.saver :as saver]
+    [edi-receiver.deploy :as deploy]))
 
 
 (defrecord Config [options config]
@@ -47,6 +48,7 @@
     (let [context {:config   (:config config)
                    :upstream (:upstream upstream)
                    :pg       (:pg pg)}]
+      (deploy/deploy context)
       (saver/run-tests! context)
       (assoc this :server (api/start (-> config :config :api)
                                      context))))

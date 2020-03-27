@@ -3,7 +3,8 @@
             [clojure.tools.logging :as log]
             [json-schema.core :as json-schema]
             [clojure.java.io :as io]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [edi-receiver.utils :as utils])
   (:import [org.eclipse.jetty.util.ssl SslContextFactory$Client]
            [org.eclipse.jetty.client HttpClient]))
 
@@ -19,6 +20,9 @@
       (.getContentAsString)))
 
 
+(defn- split-topic [path]
+  (second (re-find #"/([^/\.]+)[^/]+$" path)))
+
 (defn- split-name [path]
   (second (re-find #"/([^/]+)\.json$" path)))
 
@@ -31,17 +35,15 @@
              (get-body client)
              json/parse-string)
          (map #(get % "download_url"))
-         (map #(identity {:name (-> % split-name)
-                          :body (-> %
-                                    log-download
-                                    (get-body client))})))))
+         (map (fn [url] [url (-> url
+                                 log-download
+                                 (get-body client))])))))
 
 
 (defn- load-files-local [dir]
   (->> (-> dir io/file file-seq next)
-       (map #(identity {:filename (-> % .getName)
-                        :name     (-> % .getPath split-name)
-                        :body     (-> % slurp)}))))
+       (map (fn [file] [(.getPath file)
+                        (slurp file)]))))
 
 
 (defn- load-files [url]
@@ -49,17 +51,42 @@
     (load-files-local url)
     (load-files-github url)))
 
-(defn create [{:keys [schema-list test-list]}]
-  (log/debug "Creating Upstream")
+
+(defn- download [{:keys [schema-list test-list]}]
+  (log/debug "Downloading schemas")
   {:schemas (->> (load-files schema-list)
-                 (map (fn [{:keys [name body]}]
-                        [(keyword name) (json-schema/prepare-schema body)]))
+                 (map (fn [[url body]]
+                        [(keyword (split-topic url))
+                         body]))
                  (into {}))
    :tests   (->> (load-files test-list)
-                 (map (fn [{:keys [name body]}]
-                        {:name    name
-                         :topic   (keyword (first (string/split name, #"\." 2)))
+                 (map (fn [[url body]]
+                        {:name    (split-name url)
+                         :topic   (split-topic url)
                          :message (json/parse-string body true)})))})
+
+
+(defn- load-and-cache [{:keys [cache] :as upstream}]
+  (let [data (download upstream)]
+    (io/make-parents cache)
+    (-> cache io/file (spit (json/generate-string data)))
+    data))
+
+
+(defn create [{:keys [topics cache sync] :as upstream}]
+  (log/info "Creating Upstream")
+  (let [topics (set topics)]
+    (-> (if sync
+          (load-and-cache upstream)
+          (if-let [data (some-> (let [f (io/file cache)]
+                                  (when (.exists f)
+                                    (slurp f)))
+                                (json/parse-string true))]
+            data
+            (load-and-cache upstream)))
+        (update :schemas #(->> (select-keys % (map keyword topics))
+                               (utils/map-vals json-schema/prepare-schema)))
+        (update :tests #(filter (fn [test] (topics (:topic test))) %)))))
 
 
 (defn validate [this topic value]
@@ -74,9 +101,10 @@
 
 
 (defn run-tests! [this executor]
+  (log/info "Running tests")
   (->> (for [{:keys [topic message name]} (:tests this)]
          (try
-           (executor topic message)
+           (executor (keyword topic) message)
            (log/infof "PASSED %s" name)
            true
            (catch Exception e

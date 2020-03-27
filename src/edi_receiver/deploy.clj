@@ -4,9 +4,14 @@
             [clojure.tools.logging :as log]))
 
 
-(defn deploy [{pg-conf :pg}]
-  (log/info "Initializing database:" (:database pg-conf))
-  (pg/run-script!
-    (pg/connect pg-conf)
-    (-> "sql/init.sql" io/resource slurp))
-  (log/info "Ok"))
+(defn- run-script! [pg resource-path]
+  (pg/run-script! pg (-> resource-path io/resource slurp)))
+
+
+(defn deploy [{:keys [pg config]}]
+  (log/info "Initializing database:" (-> config :pg :database))
+  (run-script! pg "sql/init.sql")
+  (doseq [topic (-> config :upstream :topics)]
+    (log/info "Initializing topic:" (name topic))
+    (run-script! pg (format "sql/tables/%s.sql" (name topic))))
+  (log/info "Database initialization succeeded"))

@@ -36,15 +36,17 @@
 
 (defn- event-parcel->row [topic message]
   (if (= "ChangeState" (:msgtype message))
-    [:change_state (-> message
-                       (update :timestamp as-timestamp)
-                       (update :id as-uuid)
-                       (update :pentity as-uuid)
-                       (update :dimensions as-json))]
-    [:order_return (-> message
-                       (update :timestamp as-timestamp)
-                       (update :id as-uuid)
-                       (update :items as-json)                       )]))
+    [:event_parcel_change_state
+     (-> message
+         (update :timestamp as-timestamp)
+         (update :id as-uuid)
+         (update :pentity as-uuid)
+         (update :dimensions as-json))]
+    [:event_parcel_order_return
+     (-> message
+         (update :timestamp as-timestamp)
+         (update :id as-uuid)
+         (update :items as-json))]))
 
 
 (defn- order_payment->row [topic message]
