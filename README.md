@@ -27,6 +27,10 @@ See [edi-receiver.properties](resources/edi-receiver.properties) for defaults
 
 Check [src/edi_receiver/db/pg.clj](src/edi_receiver/db/pg.clj) for more postgresql options
 
+## Dev
+
+Execute (go) in repl to start devel profile with autoreload and local.properties config.
+
 ## License
 
 Copyright © 2020 Kasta Group LLC
