@@ -66,20 +66,24 @@
                          :message (json/parse-string body true)})))})
 
 
+(defn- cache-file [cache-dir]
+  (str cache-dir "/upstream.json"))
+
+
 (defn- load-and-cache [{:keys [cache-dir] :as upstream}]
   (let [data  (download upstream)
-        cache (str cache-dir "/upstream.json")]
+        cache (cache-file cache-dir)]
     (io/make-parents cache)
     (-> cache io/file (spit (json/generate-string data)))
     data))
 
 
-(defn create [{:keys [topics cache sync] :as upstream}]
+(defn create [{:keys [topics cache-dir sync] :as upstream}]
   (log/info "Creating Upstream")
   (let [topics (set topics)]
     (-> (if sync
           (load-and-cache upstream)
-          (if-let [data (some-> (let [f (io/file cache)]
+          (if-let [data (some-> (let [f (io/file (cache-file cache-dir))]
                                   (when (.exists f)
                                     (slurp f)))
                                 (json/parse-string true))]

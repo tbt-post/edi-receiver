@@ -12,13 +12,7 @@
             [reitit.ring :as ring]
             [reitit.dev.pretty :as pretty]
             [edi-receiver.api.auth :as auth]
-            [edi-receiver.api.routes :as routes])
-  (:import (java.sql SQLException)))
-
-
-(defn- str-exception [exception _]
-  {:status 500
-   :body   (str exception)})
+            [edi-receiver.api.routes :as routes]))
 
 
 (defn- context-interceptor [context]
@@ -42,10 +36,7 @@
                                   ;; encoding response body
                                   (muuntaja/format-response-interceptor)
                                   ;; exception handling
-                                  #_<(exception/exception-interceptor
-                                      (merge
-                                        exception/default-handlers
-                                        {SQLException str-exception}))
+                                  (exception/exception-interceptor)
                                   ;; decoding request body
                                   (muuntaja/format-request-interceptor)
                                   ;; coercing exceptions
