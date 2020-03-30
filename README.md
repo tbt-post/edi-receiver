@@ -1,14 +1,39 @@
 # edi-receiver
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure application designed to store EDI messages into postgresql.
 
-## Usage
+## Config
 
-FIXME
+Config is java .properties file:
+
+| parameter | type | description |
+|---|---|---|
+| upstream.topics | string  | comma separated list of topics to receive |
+| upstream.cache | string | path where upstream schemas cached |
+| upstream.sync | boolean | set true validate upstream cache on startup |
+| autoinit-tables | boolean | create tables on startup |
+| api.host | string | http server ip address |
+| api.port | integer | http server port, default is 8000 |
+| api.auth.username | string | basic auth username, if auth required |
+| api.auth.password | string | basic auth password, if auth required |
+| pg.host | string | postgresql host, default is "localhost" |
+| pg.port | integer | postgresql port, default is 5432 |
+| pg.database | string | postgresql database, default is "edi" |
+| pg.user | string | postgresql user |
+| pg.password | string | postgresql password |
+| pg.host | string | postgresql host |
+
+See [edi-receiver.properties](resources/edi-receiver.properties) for defaults
+
+Check [src/edi_receiver/db/pg.clj](src/edi_receiver/db/pg.clj) for more postgresql options
+
+## Dev
+
+Execute (go) in repl to start devel profile with autoreload and local.properties config.
 
 ## License
 
-Copyright © 2020 FIXME
+Copyright © 2020 Kasta Group LLC
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
