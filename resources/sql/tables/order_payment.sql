@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS order_payment (
   sender text NOT NULL,
-  "timestamp" timestamp with time zone NOT NULL,
+  ts timestamp with time zone NOT NULL,
   id uuid NOT NULL,
   parcel_id uuid NOT NULL,
   contragent_id uuid NOT NULL,

@@ -36,7 +36,7 @@
                                   ;; encoding response body
                                   (muuntaja/format-response-interceptor)
                                   ;; exception handling
-                                  (exception/exception-interceptor)
+                                  #_(exception/exception-interceptor)
                                   ;; decoding request body
                                   (muuntaja/format-request-interceptor)
                                   ;; coercing exceptions

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS refill_payment (
   sender text NOT NULL,
-  "timestamp" timestamp with time zone NOT NULL,
+  ts timestamp with time zone NOT NULL,
   id uuid NOT NULL,
   payer_phone text NOT NULL,
   user_id text,

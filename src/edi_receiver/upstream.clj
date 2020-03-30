@@ -6,7 +6,8 @@
             [clojure.string :as string]
             [edi-receiver.utils :as utils])
   (:import [org.eclipse.jetty.util.ssl SslContextFactory$Client]
-           [org.eclipse.jetty.client HttpClient]))
+           [org.eclipse.jetty.client HttpClient]
+           (java.io File)))
 
 
 (defn- log-download [url]
@@ -71,21 +72,28 @@
 
 
 (defn- load-and-cache [{:keys [cache-dir] :as upstream}]
-  (let [data  (download upstream)
-        cache (cache-file cache-dir)]
-    (io/make-parents cache)
-    (-> cache io/file (spit (json/generate-string data)))
+  (let [data (download upstream)]
+    (when cache-dir
+      (let [cache (cache-file cache-dir)]
+        (io/make-parents cache)
+        (-> cache io/file (spit (json/generate-string data)))))
     data))
 
 
+(defn- slurp-file [^File file]
+  (when (.exists file)
+    (slurp file)))
+
+
 (defn create [{:keys [topics cache-dir sync] :as upstream}]
-  (log/info "Creating Upstream")
+  (log/info "Creating Upstream" cache-dir)
   (let [topics (set topics)]
     (-> (if sync
           (load-and-cache upstream)
-          (if-let [data (some-> (let [f (io/file (cache-file cache-dir))]
-                                  (when (.exists f)
-                                    (slurp f)))
+          (if-let [data (some-> cache-dir
+                                cache-file
+                                io/file
+                                slurp-file
                                 (json/parse-string true))]
             data
             (load-and-cache upstream)))

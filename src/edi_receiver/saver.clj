@@ -26,15 +26,15 @@
     (bigdec (if (string? v) v (str v)))))
 
 
-(defn- document->row [topic message]
-  [topic
+(defn- document->row [_ message]
+  [:documents
    (-> message
        (update :timestamp as-timestamp)
        (update :id as-uuid)
        (update :body as-json))])
 
 
-(defn- event-parcel->row [topic message]
+(defn- event-parcel->row [_ message]
   (if (= "ChangeState" (:msgtype message))
     [:event_parcel_change_state
      (-> message
@@ -114,10 +114,18 @@
                  :wms_stocktaking_message   wms_stocktaking_message->row})
 
 
+(defn- common-converter [[table values]]
+  [table (if (contains? values :timestamp)
+           (-> values
+               (assoc :ts (:timestamp values))
+               (dissoc :timestamp))
+           values)])
+
+
 (defn process-message! [{:keys [pg upstream]} topic message]
   (if-let [error (upstream/validate upstream topic message)]
     (throw (ex-info "Message not valid" error))
-    (if-let [converter (topic converters)]
+    (if-let [converter (comp common-converter (topic converters))]
       (let [[table values]
             (converter topic message)]
         (pg/insert! pg table values))

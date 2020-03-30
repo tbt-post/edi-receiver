@@ -1,9 +1,10 @@
 (ns edi-receiver.api.auth
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [clojure.tools.logging :as log])
   (:import (java.util Base64)))
 
 
-(def re-basic-header (re-pattern "^Basic (.+)$"))
+(def re-basic-header (re-pattern "(?i)^(basic) (.+)$"))
 
 
 (defn- base64-decode [^String s]
@@ -11,13 +12,13 @@
 
 
 (defn- parse-header [{:keys [headers]}]
-  (when-let [decoded (some->> (get headers "authorization")
-                              (re-matches re-basic-header)
-                              second
-                              base64-decode)]
-    (when-let [[username password] (string/split decoded #":" 2)]
-      {:username username
-       :password password})))
+  (when-let [value (get headers "authorization")]
+    (when-let [[_ basic data] (re-matches re-basic-header value)]
+      (when (not= "Basic" basic)
+        (log/warn "Case insensitive authorization header value:" basic))
+      (when-let [[username password] (string/split (base64-decode data) #":" 2)]
+        {:username username
+         :password password}))))
 
 
 (defn- terminate [ctx response]

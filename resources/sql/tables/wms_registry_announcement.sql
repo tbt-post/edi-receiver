@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS wms_registry_announcement (
   source text NOT NULL,
-  "timestamp" timestamp with time zone NOT NULL,
+  ts timestamp with time zone NOT NULL,
   generated integer NOT NULL,
   serial integer NOT NULL,
   uid uuid NOT NULL,

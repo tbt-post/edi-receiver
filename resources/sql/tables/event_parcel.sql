@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS event_parcel_order_return (
   sender text NOT NULL,
-  "timestamp" timestamp with time zone NOT NULL,
+  ts timestamp with time zone NOT NULL,
   msgtype text NOT NULL,
   id uuid NOT NULL,
   order_id text NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS event_parcel_order_return (
 
 CREATE TABLE IF NOT EXISTS event_parcel_change_state (
   sender text NOT NULL,
-  "timestamp" timestamp with time zone NOT NULL,
+  ts timestamp with time zone NOT NULL,
   msgtype text NOT NULL,
   id uuid NOT NULL,
   state text NOT NULL,
