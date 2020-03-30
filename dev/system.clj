@@ -48,7 +48,7 @@
     (let [context {:config   (:config config)
                    :upstream (:upstream upstream)
                    :pg       (:pg pg)}]
-      (deploy/deploy context)
+      (deploy/deploy! context)
       (saver/run-tests! context)
       (assoc this :server (api/start (-> config :config :api)
                                      context))))

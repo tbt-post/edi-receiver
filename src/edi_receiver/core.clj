@@ -43,7 +43,7 @@
                  :upstream (upstream/create (:upstream config))
                  :pg       pg}]
     (if (:autoinit-tables config)
-      (deploy/deploy context))
+      (deploy/deploy! context))
     (if (saver/run-tests! context)
       (let [server (api/start (:api config) context)]
         (-> (Runtime/getRuntime)
@@ -69,7 +69,7 @@
       (pprint (config/create options))
 
       (:init-db options)
-      (deploy/deploy (config/create options))
+      (deploy/deploy! (config/create options))
 
       :else
       (run-app! options))))

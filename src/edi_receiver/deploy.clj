@@ -8,7 +8,7 @@
   (pg/run-script! pg (-> resource-path io/resource slurp)))
 
 
-(defn deploy [{:keys [pg config]}]
+(defn deploy! [{:keys [pg config]}]
   (log/info "Initializing database:" (-> config :pg :database))
   (run-script! pg "sql/init.sql")
   (doseq [topic (-> config :upstream :topics)]

@@ -66,8 +66,9 @@
                          :message (json/parse-string body true)})))})
 
 
-(defn- load-and-cache [{:keys [cache] :as upstream}]
-  (let [data (download upstream)]
+(defn- load-and-cache [{:keys [cache-dir] :as upstream}]
+  (let [data  (download upstream)
+        cache (str cache-dir "/upstream.json")]
     (io/make-parents cache)
     (-> cache io/file (spit (json/generate-string data)))
     data))

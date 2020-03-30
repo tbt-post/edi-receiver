@@ -11,6 +11,7 @@
             [reitit.pedestal :as pedestal]
             [reitit.ring :as ring]
             [reitit.dev.pretty :as pretty]
+            [edi-receiver.api.auth :as auth]
             [edi-receiver.api.routes :as routes])
   (:import (java.sql SQLException)))
 
@@ -21,12 +22,12 @@
 
 
 (defn- context-interceptor [context]
-  {:name  ::parameters
+  {:name  ::context
    :enter (fn [ctx]
             (update ctx :request #(assoc % :context context)))})
 
 
-(defn- create-router [context]
+(defn- create-router [context auth]
   (pedestal/routing-interceptor
     (http/router
       routes/routes
@@ -41,10 +42,10 @@
                                   ;; encoding response body
                                   (muuntaja/format-response-interceptor)
                                   ;; exception handling
-                                  (exception/exception-interceptor
-                                    (merge
-                                      exception/default-handlers
-                                      {SQLException str-exception}))
+                                  #_<(exception/exception-interceptor
+                                      (merge
+                                        exception/default-handlers
+                                        {SQLException str-exception}))
                                   ;; decoding request body
                                   (muuntaja/format-request-interceptor)
                                   ;; coercing exceptions
@@ -52,12 +53,13 @@
                                   ;; coercing response bodys
                                   (coercion/coerce-response-interceptor)
                                   ;; coercing request parameters
-                                  (coercion/coerce-request-interceptor)]}})
+                                  (coercion/coerce-request-interceptor)
+                                  (when auth (auth/basic-auth-interceptor auth "EDI receiver"))]}})
     ;; optional default ring handlers (if no routes have matched)
     (ring/routes (ring/create-default-handler))))
 
 
-(defn start [{:keys [host port]} context]
+(defn start [{:keys [host port auth]} context]
   (let [server (-> {::server/type   :jetty
                     ::server/host   host
                     ::server/port   port
@@ -66,7 +68,7 @@
                     ::server/routes []}
                    (server/default-interceptors)
                    ;; use the reitit router
-                   (pedestal/replace-last-interceptor (create-router context))
+                   (pedestal/replace-last-interceptor (create-router context auth))
                    #_(server/dev-interceptors)
                    (server/create-server))]
     (server/start server)
