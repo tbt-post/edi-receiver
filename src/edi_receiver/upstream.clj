@@ -71,7 +71,7 @@
   (str cache-dir "/upstream.json"))
 
 
-(defn- load-and-cache [{:keys [cache-dir] :as upstream}]
+(defn- download-and-cache [{:keys [cache-dir] :as upstream}]
   (let [data (download upstream)]
     (when cache-dir
       (let [cache (cache-file cache-dir)]
@@ -86,17 +86,17 @@
 
 
 (defn create [{:keys [topics cache-dir sync] :as upstream}]
-  (log/info "Creating Upstream" cache-dir)
+  (log/info "Creating Upstream")
   (let [topics (set topics)]
     (-> (if sync
-          (load-and-cache upstream)
+          (download-and-cache upstream)
           (if-let [data (some-> cache-dir
                                 cache-file
                                 io/file
                                 slurp-file
                                 (json/parse-string true))]
             data
-            (load-and-cache upstream)))
+            (download-and-cache upstream)))
         (update :schemas #(->> (select-keys % (map keyword topics))
                                (utils/map-vals json-schema/prepare-schema)))
         (update :tests #(filter (fn [test] (topics (:topic test))) %)))))
