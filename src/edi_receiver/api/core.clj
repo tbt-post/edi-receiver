@@ -5,14 +5,14 @@
             [reitit.coercion.schema]
             [reitit.http :as http]
             [reitit.http.coercion :as coercion]
-            [reitit.http.interceptors.exception :as exception]
             [reitit.http.interceptors.muuntaja :as muuntaja]
             [reitit.http.interceptors.parameters :as parameters]
             [reitit.pedestal :as pedestal]
             [reitit.ring :as ring]
             [reitit.dev.pretty :as pretty]
             [edi-receiver.api.auth :as auth]
-            [edi-receiver.api.routes :as routes]))
+            [edi-receiver.api.routes :as routes]
+            [edi-receiver.utils :as utils]))
 
 
 (defn- context-interceptor [context]
@@ -63,7 +63,14 @@
                    #_(server/dev-interceptors)
                    (server/create-server))]
     (server/start server)
-    (log/infof "Started HTTP server on %s:%s" host port)
+    (log/infof "Started HTTP server on %s:%s"
+               (or (when (= "0.0.0.0" host)
+                     (try
+                       (utils/get-host-ip)
+                       (catch Exception _ nil)))
+                   host)
+               port)
+
     server))
 
 
