@@ -1,5 +1,4 @@
-(ns edi-receiver.api.handlers.misc
-  (:require [edi-receiver.db.pg :as pg]))
+(ns edi-receiver.api.handlers.misc)
 
 
 (defn dump-req [request]

@@ -5,7 +5,6 @@
             [reitit.coercion.schema]
             [reitit.http :as http]
             [reitit.http.coercion :as coercion]
-            [reitit.http.interceptors.exception :as exception]
             [reitit.http.interceptors.muuntaja :as muuntaja]
             [reitit.http.interceptors.parameters :as parameters]
             [reitit.pedestal :as pedestal]
@@ -13,8 +12,7 @@
             [reitit.dev.pretty :as pretty]
             [edi-receiver.api.auth :as auth]
             [edi-receiver.api.routes :as routes]
-            [edi-receiver.utils :as utils])
-  (:import (java.net InetAddress DatagramSocket)))
+            [edi-receiver.utils :as utils]))
 
 
 (defn- context-interceptor [context]
