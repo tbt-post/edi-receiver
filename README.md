@@ -52,7 +52,7 @@ Config is java .properties file:
 |---|---|---|
 | upstream.topics | string  | comma separated list of topics to receive |
 | upstream.cache | string | path where upstream schemas cached |
-| upstream.sync | boolean | set true validate upstream cache on startup |
+| upstream.sync | boolean | set true to validate upstream cache on startup |
 | autoinit-tables | boolean | create tables on startup |
 | api.host | string | http server ip address |
 | api.port | integer | http server port, default is 8000 |
@@ -78,7 +78,7 @@ java -jar `ls target/*-standalone.jar` -c local.properties
 ```
 Default properties will be updated wuth local.properties
 
-Some config options can be customized with command line, see help:
+Some config options can be customized from command line, see help:
 ```
 java -jar `ls target/*-standalone.jar` --help
 ```
