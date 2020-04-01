@@ -1,9 +1,51 @@
 # edi-receiver
 
-A Clojure application designed to store EDI messages into postgresql.
+A clojure application designed to store EDI messages into local postgresql database.
+
+## Running with docker
+
+[Install docker](https://docs.docker.com/install/) first, then run 
+```
+sudo docker build -t edi-receiver -f docker/Dockerfile .
+docker run -it edi-receiver
+```
+
+## Installing clojure
+```
+sudo apt-get update 
+sudo apt-get install wget default-jdk
+sudo wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -P /bin
+sudo chmod a+x /bin/lein
+lein upgrade
+```
+
+## Installing postgresql
+```
+sudo apt-get update 
+sudo apt-get install -y wget gnupg
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add - 
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+sudo apt-get update
+sudo apt-get install postgresql
+```
+
+## Creating empty database
+```
+su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\""
+su - postgres -c "psql --command \"CREATE DATABASE edi;\""
+```
+
+## Running application 
+Create tables, download schemas and run
+```
+java -jar `ls target/*-standalone.jar` --autoinit-tables --sync
+```
+Regular run, with schema caching  
+```
+java -jar `ls target/*-standalone.jar`
+```
 
 ## Config
-
 Config is java .properties file:
 
 | parameter | type | description |
@@ -23,11 +65,25 @@ Config is java .properties file:
 | pg.password | string | postgresql password |
 | pg.host | string | postgresql host |
 
-See [edi-receiver.properties](resources/edi-receiver.properties) for defaults
+See [edi-receiver.properties](resources/edi-receiver.properties) for defaults.
+Check [src/edi_receiver/db/pg.clj](src/edi_receiver/db/pg.clj) for more postgresql options.
 
-Check [src/edi_receiver/db/pg.clj](src/edi_receiver/db/pg.clj) for more postgresql options
+## Customizing config
+```
+cp resources/edi-receiver.properties local.properties
+```
+Then edit local.properties file and run
+```
+java -jar `ls target/*-standalone.jar` -c local.properties
+```
+Default properties will be updated wuth local.properties
 
-## Dev
+Some config options can be customized with command line, see help:
+```
+java -jar `ls target/*-standalone.jar` --help
+```
+
+## Development
 
 Execute (go) in repl to start devel profile with autoreload and local.properties config.
 
