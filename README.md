@@ -7,7 +7,7 @@ A clojure application designed to store EDI messages into local postgresql datab
 [Install docker](https://docs.docker.com/install/) first, then run 
 ```
 sudo docker build -t edi-receiver -f docker/Dockerfile .
-docker run -it edi-receiver
+sudo docker run -it edi-receiver
 ```
 
 ## Installing clojure
