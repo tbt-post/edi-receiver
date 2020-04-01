@@ -5,6 +5,9 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql
 
+RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/12/main/postgresql.conf
+RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/12/main/pg_hba.conf
+
 RUN pg_ctlcluster 12 main start &&\
     su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\"" &&\
     su - postgres -c "psql --command \"CREATE DATABASE edi;\"" &&\
