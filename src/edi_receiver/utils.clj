@@ -1,6 +1,7 @@
 (ns edi-receiver.utils
   (:require [clojure.string :as string])
-  (:import (java.io StringWriter)))
+  (:import (java.io StringWriter)
+           (java.net DatagramSocket InetAddress)))
 
 
 (defn map-vals [f m]
@@ -17,7 +18,13 @@
 
 
 (defn pretty [& args]
-      (let [out (StringWriter.)]
-        (doseq [arg args]
-          (clojure.pprint/pprint arg out))
-        (.toString out)))
+  (let [out (StringWriter.)]
+    (doseq [arg args]
+      (clojure.pprint/pprint arg out))
+    (.toString out)))
+
+
+(defn get-host-ip []
+  (-> (doto (DatagramSocket.)
+        (.connect (InetAddress/getByName "8.8.8.8") 10002))
+      (.getLocalAddress) (.getHostAddress)))
