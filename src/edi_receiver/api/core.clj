@@ -1,20 +1,17 @@
 (ns edi-receiver.api.core
-  (:require
-    [clojure.edn :as edn]
-    [clojure.string :as string]
-    [clojure.tools.logging :as log]
-    [io.pedestal.http :as server]
-    [muuntaja.core :as m]
-    [reitit.coercion.schema]
-    [reitit.dev.pretty :as pretty]
-    [reitit.http :as http]
-    [reitit.http.coercion :as coercion]
-    [reitit.http.interceptors.muuntaja :as muuntaja]
-    [reitit.http.interceptors.parameters :as parameters]
-    [reitit.pedestal :as pedestal]
-    [reitit.ring :as ring]
-    [edi-receiver.api.auth :as auth]
-    [edi-receiver.api.routes :as routes])
+  (:require [clojure.tools.logging :as log]
+            [io.pedestal.http :as server]
+            [muuntaja.core :as m]
+            [reitit.coercion.schema]
+            [reitit.dev.pretty :as pretty]
+            [reitit.http :as http]
+            [reitit.http.coercion :as coercion]
+            [reitit.http.interceptors.muuntaja :as muuntaja]
+            [reitit.http.interceptors.parameters :as parameters]
+            [reitit.pedestal :as pedestal]
+            [reitit.ring :as ring]
+            [edi-receiver.api.auth :as auth]
+            [edi-receiver.api.routes :as routes])
   (:import (java.net DatagramSocket InetAddress)))
 
 
