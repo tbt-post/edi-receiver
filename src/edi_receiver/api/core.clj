@@ -3,16 +3,16 @@
             [io.pedestal.http :as server]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
+            [reitit.dev.pretty :as pretty]
             [reitit.http :as http]
             [reitit.http.coercion :as coercion]
             [reitit.http.interceptors.muuntaja :as muuntaja]
             [reitit.http.interceptors.parameters :as parameters]
             [reitit.pedestal :as pedestal]
             [reitit.ring :as ring]
-            [reitit.dev.pretty :as pretty]
             [edi-receiver.api.auth :as auth]
-            [edi-receiver.api.routes :as routes]
-            [edi-receiver.utils :as utils]))
+            [edi-receiver.api.routes :as routes])
+  (:import (java.net DatagramSocket InetAddress)))
 
 
 (defn- context-interceptor [context]
@@ -50,7 +50,17 @@
     (ring/routes (ring/create-default-handler))))
 
 
-(defn start [{:keys [host port auth]} context]
+(defn get-host-ip [{:keys [host port]}]
+  (try
+    (-> (doto (DatagramSocket.)
+          (.connect (InetAddress/getByName host) port))
+        (.getLocalAddress)
+        (.getHostAddress))
+    (catch Exception e
+      (log/warnf "Failed to get host ip: %s: %s" (.getName (class e)) e))))
+
+
+(defn start [{:keys [host port auth ping]} context]
   (let [server (-> {::server/type   :jetty
                     ::server/host   host
                     ::server/port   port
@@ -65,12 +75,9 @@
     (server/start server)
     (log/infof "Started HTTP server on %s:%s"
                (or (when (= "0.0.0.0" host)
-                     (try
-                       (utils/get-host-ip)
-                       (catch Exception _ nil)))
+                     (get-host-ip ping))
                    host)
                port)
-
     server))
 
 
