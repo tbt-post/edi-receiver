@@ -16,5 +16,3 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: docker build -t edi-receiver -f docker/Dockerfile . --tag tbt-edi-receiver:$(date +%s)
-    - name: Dry run the Docker image
-      run: docker run --rm edi-receiver
