@@ -17,7 +17,7 @@
 
 
 (defn pretty [& args]
-      (let [out (StringWriter.)]
-        (doseq [arg args]
-          (clojure.pprint/pprint arg out))
-        (.toString out)))
+  (let [out (StringWriter.)]
+    (doseq [arg args]
+      (clojure.pprint/pprint arg out))
+    (.toString out)))
