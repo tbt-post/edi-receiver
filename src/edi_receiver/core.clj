@@ -14,7 +14,7 @@
             [edi-receiver.utils :as utils]))
 
 
-(def cli-options
+(def ^:private cli-options
   [;; Options
    ["-h" "--help" "show help"]
    ["-c" "--config CONFIG" "External config file"

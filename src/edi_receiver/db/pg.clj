@@ -65,7 +65,7 @@
   (first (jdbc/execute! pool query)))
 
 
-(defn insert-q [table fields]
+(defn- insert-q [table fields]
   (str "INSERT INTO " (name table) " ("
        (string/join "," (map name fields))
        ") VALUES ("

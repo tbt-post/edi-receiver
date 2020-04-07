@@ -50,7 +50,7 @@
     (ring/routes (ring/create-default-handler))))
 
 
-(defn get-host-ip [{:keys [host port]}]
+(defn- get-host-ip [{:keys [host port]}]
   (try
     (-> (doto (DatagramSocket.)
           (.connect (InetAddress/getByName host) port))

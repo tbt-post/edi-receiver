@@ -4,7 +4,7 @@
   (:import (java.util Base64)))
 
 
-(def re-basic-header (re-pattern "(?i)^(basic) (.+)$"))
+(def ^:private re-basic-header (re-pattern "(?i)^(basic) (.+)$"))
 
 
 (defn- base64-decode [^String s]
