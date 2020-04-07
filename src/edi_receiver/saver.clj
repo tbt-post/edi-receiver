@@ -18,7 +18,7 @@
 
 (defn- as-timestamp [v]
   (doto (PGobject.)
-    (.setType "timestamp with time zone")
+    (.setType "timestamptz")
     (.setValue v)))
 
 (defn- as-decimal [v]
@@ -34,7 +34,7 @@
        (update :body as-json))])
 
 
-(defn- event-parcel->row [_ message]
+(defn- event_parcel->row [_ message]
   (if (= "ChangeState" (:msgtype message))
     [:event_parcel_change_state
      (-> message
@@ -47,6 +47,13 @@
          (update :timestamp as-timestamp)
          (update :id as-uuid)
          (update :items as-json))]))
+
+
+(defn- fms_contragent_announcement->row [topic message]
+  [topic
+   (-> message
+       (update :timestamp as-timestamp)
+       (update :contragent_id as-uuid))])
 
 
 (defn- order_payment->row [topic message]
@@ -76,6 +83,7 @@
        (update :origin as-uuid)
        (update :owner as-uuid))])
 
+
 (defn- wms_item_announcement->row [topic message]
   [topic
    (-> message
@@ -104,14 +112,16 @@
        (update :owner as-uuid))])
 
 
-(def converters {:document                  document->row
-                 :event_parcel              event-parcel->row
-                 :order_payment             order_payment->row
-                 :refill_payment            refill_payment->row
-                 :wms_event                 wms_event->row
-                 :wms_item_announcement     wms_item_announcement->row
-                 :wms_registry_announcement wms_registry_announcement->row
-                 :wms_stocktaking_message   wms_stocktaking_message->row})
+(def ^:private converters
+  {:document                    document->row
+   :event_parcel                event_parcel->row
+   :fms_contragent_announcement fms_contragent_announcement->row
+   :order_payment               order_payment->row
+   :refill_payment              refill_payment->row
+   :wms_event                   wms_event->row
+   :wms_item_announcement       wms_item_announcement->row
+   :wms_registry_announcement   wms_registry_announcement->row
+   :wms_stocktaking_message     wms_stocktaking_message->row})
 
 
 (defn- common-converter [[table values]]
@@ -132,7 +142,7 @@
       (throw (ex-info (str "Topic not found: " (name topic)) {:topic topic})))))
 
 
-(defn test-message! [{:keys [pg] :as context} topic message]
+(defn- test-message! [{:keys [pg] :as context} topic message]
   (jdbc/with-db-transaction [tx pg]
                             (swap! (:rollback tx) (constantly true))
                             (process-message! (assoc context :pg tx) topic message)))
