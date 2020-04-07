@@ -5,7 +5,6 @@
             [edi-receiver.api.handlers.topic :as topic]))
 
 
-
 (def routes
   [["/api" {:coercion schema/coercion}
     ["" {:get       misc/version

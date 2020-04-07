@@ -12,7 +12,7 @@
 
                  ;; postgres
                  [org.clojure/java.jdbc "0.7.11"]
-                 [org.postgresql/postgresql "42.2.11"]
+                 [org.postgresql/postgresql "42.2.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
 
                  ;; HTTP
