@@ -56,6 +56,16 @@
        (update :contragent_id as-uuid))])
 
 
+(defn- fms_emoney_event->row [topic message]
+  [topic
+   (-> message
+       (update :timestamp as-timestamp)
+       (update :serial as-uuid)
+       (update :transaction_id as-uuid)
+       (update :emoney_amount as-decimal)
+       (update :contragent_id as-uuid))])
+
+
 (defn- order_payment->row [topic message]
   [topic
    (-> message
@@ -116,6 +126,7 @@
   {:document                    document->row
    :event_parcel                event_parcel->row
    :fms_contragent_announcement fms_contragent_announcement->row
+   :fms_emoney_event            fms_emoney_event->row
    :order_payment               order_payment->row
    :refill_payment              refill_payment->row
    :wms_event                   wms_event->row
