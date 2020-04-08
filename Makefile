@@ -4,7 +4,7 @@ compile:
 run:
 	java -jar `ls target/*-standalone.jar`
 
-run_sync:
+run-sync:
 	java -jar `ls target/*-standalone.jar` --sync --autoinit-tables
 
 
