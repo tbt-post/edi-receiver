@@ -1,6 +1,6 @@
-(defproject edi-receiver "0.1.0-SNAPSHOT"
+(defproject edi-receiver "0.1.0"
   :description "EDI receiver"
-  :url "http://example.com/FIXME"
+  :url "https://tbt-post.net/"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.1"]
@@ -42,6 +42,7 @@
                                       [hawk "0.2.11"]]
                        :source-paths ["dev"]}
              :uberjar {:aot  :all
+                       :omit-source true
                        :main edi-receiver.core}}
 
   :plugins [[lein-ancient "0.6.15"]])

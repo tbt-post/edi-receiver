@@ -1,0 +1,166 @@
+= edi-receiver
+
+image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20CI/badge.svg?branch=trunk[Docker Image CI]
+image:https://github.com/tbt-post/edi-receiver/workflows/Clojure%20CI/badge.svg?branch=trunk[Clojure CI]
+
+A clojure application designed to store EDI messages into local postgresql database.
+
+Latest release assets available https://github.com/tbt-post/edi-receiver/releases/latest[here].
+
+== Makefile build
+
+In order to build and run with Makefile you should first https://docs.docker.com/install/[install docker],
+have https://leiningen.org/#install[Leiningen] installed and resolve build dependencies.
+
+=== Install dependencies
+
+----
+sudo apt-get install make default-jdk-headless
+----
+
+=== Run standalone
+
+Standalone run means you have external PostgreSQL server and successfully prepared your configuration
+
+----
+## 1st time to compile
+make compile
+## 1st time to synchronize schemas and initialize tables
+make run-sync
+## normally just
+make run
+----
+
+=== Run as a dock'ed bundle
+
+----
+sudo make docker-run
+----
+
+== Manual build
+
+=== Running with docker
+
+https://docs.docker.com/install/[Install docker] first, then run
+
+----
+sudo docker build -t edi-receiver -f docker/Dockerfile .
+sudo docker run -it edi-receiver
+----
+
+=== Installing clojure
+
+----
+sudo apt-get update
+sudo apt-get install wget default-jdk
+sudo wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -P /bin
+sudo chmod a+x /bin/lein
+lein upgrade
+----
+
+=== Build the application
+
+----
+lein uberjar
+----
+
+=== Installing postgresql
+
+----
+sudo apt-get update
+sudo apt-get install -y wget gnupg
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+sudo apt-get update
+sudo apt-get install postgresql
+----
+
+=== Creating empty database
+
+----
+su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\""
+su - postgres -c "psql --command \"CREATE DATABASE edi;\""
+----
+
+=== Running the application
+
+Create tables, download schemas and run
+
+----
+java -jar `ls target/*-standalone.jar` --autoinit-tables --sync
+----
+
+Regular run, with schema caching
+
+----
+java -jar `ls target/*-standalone.jar`
+----
+
+== Config
+
+Config is java .properties file:
+
+|===
+|parameter |type |description
+
+|upstream.topics |string |comma separated list of topics to receive
+|upstream.cache |string |path where upstream schemas cached
+|upstream.sync |boolean |set true to validate upstream cache on startup
+|autoinit-tables |boolean |create tables on startup
+|api.host |string |http server ip address
+|api.port |integer |http server port, default is 8000
+|api.auth.username |string |basic auth username, if auth required
+|api.auth.password |string |basic auth password, if auth required
+|db |string |which storage to use, "pg" or "mysql". Options from `jdbc.*` will be merged with corresponding options |
+|pg.host |string |postgresql host, default is "localhost" (from jdbc.host) |
+|pg.port |integer |postgresql port, default is 5432 |
+|pg.database |string |postgresql database, default is "edi" (from jdbc.database) |
+|pg.user |string |postgresql user |
+|pg.password |string |postgresql password |
+|mysql.host |string |mysql host, default is "localhost" (from jdbc.host) |
+|mysql.port |integer |mysql port, default is 3306 |
+|mysql.database |string |mysql database, default is "edi" (from jdbc.database) |
+|mysql.user |string |mysql user |
+|mysql.password |string |mysql password |
+|===
+
+See link:resources/edi-receiver.properties[edi-receiver.properties] for defaults and more options.
+
+== Customizing config
+
+----
+cp resources/edi-receiver.properties local.properties
+----
+
+Then edit local.properties file and run
+
+----
+java -jar `ls target/*-standalone.jar` -c local.properties
+----
+
+Default properties will be updated wuth local.properties
+
+Some config options can be customized from command line, see help:
+
+----
+java -jar `ls target/*-standalone.jar` --help
+----
+
+== Development
+
+Execute (go) in repl to start devel profile with autoreload and local.properties config.
+
+== License
+
+Copyright © 2020 Kasta Group LLC
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License 2.0 which is available at
+http://www.eclipse.org/legal/epl-2.0.
+
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the Eclipse
+Public License, v. 2.0 are satisfied: GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or (at your
+option) any later version, with the GNU Classpath Exception which is available
+at https://www.gnu.org/software/classpath/license.html.
