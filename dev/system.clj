@@ -3,7 +3,7 @@
     [com.stuartsierra.component :as component]
     [edi-receiver.api.core :as api]
     [edi-receiver.config :as config]
-    [edi-receiver.db.pg :as pg]
+    [edi-receiver.db.jdbc :as db]
     [edi-receiver.upstream :as upstream]
     [edi-receiver.saver :as saver]
     [edi-receiver.deploy :as deploy]))
@@ -20,15 +20,15 @@
     this))
 
 
-(defrecord Pg [config pg]
+(defrecord Db [config db]
   component/Lifecycle
 
   (start [this]
-    (assoc this :pg (pg/connect (-> config :config :pg))))
+    (assoc this :db (db/connect (-> config :config))))
 
   (stop [this]
-    (pg/close (-> this :pg))
-    (assoc this :pg nil)))
+    (db/close (-> this :db))
+    (assoc this :db nil)))
 
 
 (defrecord Upstream [config upstream]
@@ -41,13 +41,13 @@
     (assoc this :upstream nil)))
 
 
-(defrecord Server [config upstream pg server]
+(defrecord Server [config upstream db server]
   component/Lifecycle
 
   (start [this]
     (let [context {:config   (:config config)
                    :upstream (:upstream upstream)
-                   :pg       (:pg pg)}]
+                   :db       (:db db)}]
       (deploy/deploy! context)
       (saver/run-tests! context)
       (assoc this :server (api/start (-> config :config :api)
@@ -61,9 +61,9 @@
 (defn edi-receiver-system [options]
   (component/system-map
     :config (map->Config {:options options})
-    :pg (-> (map->Pg {})
+    :db (-> (map->Db {})
             (component/using [:config]))
     :upstream (-> (map->Upstream {})
                   (component/using [:config]))
     :server (-> (map->Server {})
-                (component/using [:config :pg :upstream]))))
+                (component/using [:config :db :upstream]))))

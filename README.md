@@ -29,7 +29,7 @@ sudo apt-get update
 sudo apt-get install postgresql
 ```
 
-## Creating empty database
+## Creating empty postgresql database
 ```
 su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\""
 su - postgres -c "psql --command \"CREATE DATABASE edi;\""
@@ -58,15 +58,19 @@ Config is java .properties file:
 | api.port | integer | http server port, default is 8000 |
 | api.auth.username | string | basic auth username, if auth required |
 | api.auth.password | string | basic auth password, if auth required |
-| pg.host | string | postgresql host, default is "localhost" |
+| db | string | which storage to use, "pg" or "mysql". Options from `jdbc.*` will be merged with corresponding options |
+| pg.host | string | postgresql host, default is "localhost" (from jdbc.host) |
 | pg.port | integer | postgresql port, default is 5432 |
-| pg.database | string | postgresql database, default is "edi" |
+| pg.database | string | postgresql database, default is "edi" (from jdbc.database) |
 | pg.user | string | postgresql user |
 | pg.password | string | postgresql password |
-| pg.host | string | postgresql host |
+| mysql.host | string | mysql host, default is "localhost" (from jdbc.host) |
+| mysql.port | integer | mysql port, default is 3306 |
+| mysql.database | string | mysql database, default is "edi" (from jdbc.database) |
+| mysql.user | string | mysql user |
+| mysql.password | string | mysql password |
 
-See [edi-receiver.properties](resources/edi-receiver.properties) for defaults.
-Check [src/edi_receiver/db/pg.clj](src/edi_receiver/db/pg.clj) for more postgresql options.
+See [edi-receiver.properties](resources/edi-receiver.properties) for defaults and more options.
 
 ## Customizing config
 ```

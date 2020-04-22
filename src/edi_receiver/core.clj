@@ -7,7 +7,7 @@
             [clojure.tools.logging :as log]
             [edi-receiver.config :as config]
             [edi-receiver.upstream :as upstream]
-            [edi-receiver.db.pg :as pg]
+            [edi-receiver.db.jdbc :as db]
             [edi-receiver.api.core :as api]
             [edi-receiver.deploy :as deploy]
             [edi-receiver.saver :as saver]
@@ -38,19 +38,19 @@
 (defn- run-app! [options]
   (log/debug "Options:" options)
   (let [config  (config/create options)
-        pg      (pg/connect (:pg config))
+        db      (db/connect config)
         context {:config   config
                  :upstream (upstream/create (:upstream config))
-                 :pg       pg}]
+                 :db       db}]
     (if (:autoinit-tables config)
       (deploy/deploy! context))
     (if (saver/run-tests! context)
       (let [server (api/start (:api config) context)]
         (-> (Runtime/getRuntime)
             (.addShutdownHook (Thread. #(do (api/stop server)
-                                            (pg/close pg))))))
+                                            (db/close db))))))
       (do (log/error "TESTS FAILED")
-          (pg/close pg)
+          (db/close db)
           (System/exit 1)))))
 
 

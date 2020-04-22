@@ -10,10 +10,12 @@
                  [cheshire "5.10.0"]
                  [luposlip/json-schema "0.1.8"]
 
-                 ;; postgres
+                 ;; jdbc
+                 [org.clojure/java.data "1.0.64"]
                  [org.clojure/java.jdbc "0.7.11"]
-                 [org.postgresql/postgresql "42.2.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
+                 [org.postgresql/postgresql "42.2.12"]
+                 [mysql/mysql-connector-java "8.0.19"]
 
                  ;; HTTP
                  [io.pedestal/pedestal.service "0.5.7"]
