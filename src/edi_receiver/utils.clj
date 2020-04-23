@@ -56,3 +56,10 @@
        (.parse DateTimeFormatter/ISO_INSTANT)
        Instant/from
        Date/from))
+
+
+(defn merge-common [d keyword]
+  (let [c (get d keyword)]
+    (->> (dissoc d keyword)
+         (map (fn [[k d]] [k (merge c d)]))
+         (into {}))))

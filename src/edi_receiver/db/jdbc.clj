@@ -21,7 +21,7 @@
 
 
 (defn close [pool]
-  (log/info "Destroing PostgreSQL pool")
+  (log/infof "Destroing %s pool" (-> pool :driver name))
   (.close (:datasource pool)))
 
 

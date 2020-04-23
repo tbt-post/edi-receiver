@@ -140,33 +140,32 @@
 
 
 (def types
-  {:postgresql {:boolean   {:sql "boolean"}
-                :integer   {:sql "integer"}
-                :json      {:sql "json"
-                            :as  #(doto (PGobject.)
-                                    (.setType "json")
-                                    (.setValue (some-> % json/generate-string)))}
-                :money     {:sql "numeric(10,2)"
-                            :as  #(some-> % str bigdec)}
-                :text      {:sql "text"}
-                :timestamp {:sql "timestamp with time zone"
-                            :as  #(doto (PGobject.)
-                                    (.setType "timestamptz")
-                                    (.setValue %))}
-                :uuid      {:sql "uuid"
-                            :as  #(some-> % UUID/fromString)}}
-   :mysql      {:boolean   {:sql "boolean"}
-                :integer   {:sql "integer"}
-                :json      {:sql "json"
-                            :as  #(some-> % json/generate-string)}
-                :money     {:sql "decimal(10,2)"
-                            :as  #(some-> % str bigdec)}
-                :text      {:sql "text"}
-                :timestamp {:sql "datetime"
-                            :as  #(when %
-                                    (utils/iso-datetime->java-util-date %))}
-                :uuid      {:sql "binary(16)"
-                            :as  #(some-> % UUID/fromString utils/uuid->byte-array)}}})
+  (-> {:common     {:boolean {:sql "boolean"}
+                    :integer {:sql "integer"}
+                    :text    {:sql "text"}
+                    :money   {:sql "decimal(10,2)"
+                              :as  #(some-> % str bigdec)}}
+
+       :postgresql {:json      {:sql "json"
+                                :as  #(doto (PGobject.)
+                                        (.setType "json")
+                                        (.setValue (some-> % json/generate-string)))}
+                    :timestamp {:sql "timestamp with time zone"
+                                :as  #(doto (PGobject.)
+                                        (.setType "timestamptz")
+                                        (.setValue %))}
+                    :uuid      {:sql "uuid"
+                                :as  #(some-> % UUID/fromString)}}
+
+       :mysql      {:json      {:sql "json"
+                                :as  #(some-> % json/generate-string)}
+                    :timestamp {:sql "datetime"
+                                :as  #(when %
+                                        (utils/iso-datetime->java-util-date %))}
+                    :uuid      {:sql "binary(16)"
+                                :as  #(some-> % UUID/fromString utils/uuid->byte-array)}}}
+
+      (utils/merge-common :common)))
 
 
 (defn- field-q [driver [field {:keys [type required alias]}]]
@@ -182,8 +181,7 @@
 
 
 (defn- create-table-q [driver table]
-  (format "DROP TABLE IF EXISTS %s; CREATE TABLE IF NOT EXISTS %s (\n%s);"
-          (name table)
+  (format "CREATE TABLE IF NOT EXISTS %s (\n%s);"
           (name table)
           (fields-q driver table)))
 
@@ -223,4 +221,3 @@
                                        (get models table)))]))
        (remove nil?)
        first))
-
