@@ -18,7 +18,7 @@
   [;; Options
    ["-h" "--help" "show help"]
    ["-c" "--config CONFIG" "External config file"
-    :parse-fn #(string/trim %)
+    :parse-fn string/trim
     :validate [#(-> % io/file .exists) "Config file does not exist"]]
    ["-t" "--topics TOPICS" "Comma separated topic list"
     :parse-fn utils/split-comma-separated
@@ -29,6 +29,9 @@
                       (do (log/error "Unknown topic:" %)
                           false))
                    topics)) "Unknown topic"]]
+   ["-d" "--db DB" "Database, pg|mysql, default is pg"
+    :parse-fn string/trim
+    :validate [#(#{"pg" "mysql"} %) "Invalid db"]]
    ;; Flags
    [nil "--sync" "update schemas and tests"]
    [nil "--autoinit-tables" "initialize database before start"]
