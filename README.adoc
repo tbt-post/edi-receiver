@@ -1,6 +1,6 @@
 = edi-receiver
 
-image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20CI/badge.svg?branch=trunk[Docker Image CI]
+image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20PG%20CI/badge.svg?branch=trunk[Docker Image PG CI]
 image:https://github.com/tbt-post/edi-receiver/workflows/Clojure%20CI/badge.svg?branch=trunk[Clojure CI]
 
 A clojure application designed to store EDI messages into local postgresql database.
