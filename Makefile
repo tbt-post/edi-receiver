@@ -9,10 +9,10 @@ run-sync:
 
 
 docker-build:
-	docker build -t edi-receiver -f docker/Dockerfile .
+	docker build -t edi-receiver-pg -f docker/Dockerfile.pg .
 
 docker-run: docker-build
-	docker run -it edi-receiver
+	docker run -it edi-receiver-pg
 
 clean:
 	lein clean

@@ -43,7 +43,7 @@
             (-> config io/file load-props))))
       (update-in [:upstream :topics] #(utils/split-comma-separated %))
       (update :upstream #(merge % (select-keys options [:sync :topics])))
-      (merge (select-keys options [:autoinit-tables]))
+      (merge (select-keys options [:autoinit-tables :db]))
       (assoc :version (or (some-> "edi_receiver.VERSION"
                                   io/resource
                                   slurp
