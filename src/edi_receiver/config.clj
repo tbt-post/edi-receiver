@@ -44,7 +44,7 @@
       (update-in [:upstream :topics] #(utils/split-comma-separated %))
       (update :upstream #(merge % (select-keys options [:sync :topics])))
       (merge (select-keys options [:autoinit-tables :db]))
-      (assoc :version (or (some-> "edi_receiver.VERSION"
+      (assoc :version (or (some-> "edi-receiver.VERSION"
                                   io/resource
                                   slurp
                                   string/trim)
