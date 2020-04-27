@@ -9,6 +9,8 @@ A clojure application designed to receive and store EDI messages from the TbT Pl
 
 Latest release assets available https://github.com/tbt-post/edi-receiver/releases/latest[here].
 
+NOTE:: Default configuration implies PG
+
 == Makefile build
 
 In order to build and run with Makefile you should first https://docs.docker.com/install/[install docker],
@@ -35,8 +37,14 @@ make run
 
 === Run as a dock'ed bundle
 
+.PG
 ----
 sudo make docker-run
+----
+
+.MySQL
+----
+sudo make docker-run-mysql
 ----
 
 == Manual build
@@ -45,8 +53,18 @@ sudo make docker-run
 
 https://docs.docker.com/install/[Install docker] first, then run
 
+.PG
 ----
-sudo docker build -t edi-receiver -f docker/Dockerfile .
+sudo docker build -t edi-receiver -f docker/Dockerfile.pg .
+----
+
+.MySQL
+----
+sudo docker build -t edi-receiver -f docker/Dockerfile.mysql .
+----
+
+.Run
+----
 sudo docker run -it edi-receiver
 ----
 
@@ -77,7 +95,7 @@ sudo apt-get update
 sudo apt-get install postgresql
 ----
 
-=== Creating empty database
+=== Creating empty PG database
 
 ----
 su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\""
@@ -86,13 +104,13 @@ su - postgres -c "psql --command \"CREATE DATABASE edi;\""
 
 === Running the application
 
-Create tables, download schemas and run
+To create tables, download schemas and than run execute
 
 ----
 java -jar `ls target/*-standalone.jar` --autoinit-tables --sync
 ----
 
-Regular run, with schema caching
+For regular run (with the schema cached)
 
 ----
 java -jar `ls target/*-standalone.jar`
