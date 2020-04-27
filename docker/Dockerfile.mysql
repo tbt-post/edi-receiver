@@ -11,11 +11,13 @@ RUN apt-get update && \
 	chown -R mysql:mysql /var/run/mysqld && \
 	rm -rf /var/lib/mysql && \
 	mkdir -p /var/lib/mysql && \
-	chown -R mysql:mysql /var/lib/mysql
+	chown -R mysql:mysql /var/lib/mysql && \
+	sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
 
 RUN mysqld --initialize-insecure && \
     mysqld & \
     sleep 10 && \
+    mysql -u root -e "CREATE USER 'root'@'%' IDENTIFIED BY 'mysql'; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';FLUSH PRIVILEGES;" && \
     mysqladmin -u root password mysql create edi shutdown
 
 WORKDIR /opt/edi-receiver
