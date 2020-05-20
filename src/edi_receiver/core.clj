@@ -5,12 +5,13 @@
             [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]
-            [edi-receiver.config :as config]
-            [edi-receiver.upstream :as upstream]
-            [edi-receiver.db.jdbc :as db]
             [edi-receiver.api.core :as api]
+            [edi-receiver.backend.core :as backend]
+            [edi-receiver.config :as config]
+            [edi-receiver.db.jdbc :as db]
             [edi-receiver.deploy :as deploy]
             [edi-receiver.saver :as saver]
+            [edi-receiver.upstream :as upstream]
             [edi-receiver.utils :as utils]))
 
 
@@ -42,18 +43,21 @@
   (log/debug "Options:" options)
   (let [config  (config/create options)
         db      (db/connect config)
+        backend (backend/create config)
         context {:config   config
                  :upstream (upstream/create (:upstream config))
-                 :db       db}]
+                 :db       db
+                 :backend  backend}]
     (if (:autoinit-tables config)
       (deploy/deploy! context))
-    (if (saver/run-tests! context)
+    (if (saver/run-tests context)
       (let [server (api/start (:api config) context)]
         (-> (Runtime/getRuntime)
             (.addShutdownHook (Thread. #(do (api/stop server)
                                             (db/close db))))))
       (do (log/error "TESTS FAILED")
           (db/close db)
+          (backend/close backend)
           (System/exit 1)))))
 
 

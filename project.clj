@@ -24,6 +24,9 @@
                  [metosin/reitit-pedestal "0.4.2"]
                  [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal uses
 
+                 ;; Kafka
+                 [org.apache.kafka/kafka_2.13 "2.4.0"]
+
                  ;; Logger
                  ; TODO: move logger to dev
                  [ch.qos.logback/logback-classic "1.2.3"
