@@ -1,22 +1,35 @@
 (ns edi-receiver.saver
   (:require [clojure.java.jdbc :as jdbc]
+            [clojure.tools.logging :as log]
+            [edi-receiver.backend.core :as backend]
             [edi-receiver.db.jdbc :as db]
             [edi-receiver.db.models :as models]
             [edi-receiver.upstream :as upstream]))
 
 
-(defn process-message! [{:keys [db upstream]} topic message]
-  (if-let [error (upstream/validate upstream topic message)]
-    (throw (ex-info "Message not valid" error))
-    (let [[table values] (models/converter (:driver db) topic message)]
-      (db/insert! db table values))))
+(defn- save! [db topic message]
+  (let [[table values] (models/converter (:driver db) topic message)]
+    (db/insert! db table values)))
 
 
-(defn- test-message! [{:keys [db] :as context} topic message]
-  (jdbc/with-db-transaction [tx db]
-                            (swap! (:rollback tx) (constantly true))
-                            (process-message! (assoc context :db tx) topic message)))
+(defn process-message! [{:keys [db backend upstream]} topic message]
+  (log/debug "validating message from" topic)
+  (upstream/validate upstream topic message)
+  (jdbc/with-db-transaction
+    [tx db]
+    (log/debug "saving message from" topic)
+    (let [result (save! tx topic message)]
+      (backend/send-message backend topic message)
+      result)))
 
 
-(defn run-tests! [{:keys [upstream] :as context}]
-  (upstream/run-tests! upstream (partial test-message! context)))
+(defn- test-message [{:keys [db upstream] :as context} topic message]
+  (upstream/validate upstream topic message)
+  (jdbc/with-db-transaction
+    [tx db]
+    (swap! (:rollback tx) (constantly true))
+    (save! tx topic message)))
+
+
+(defn run-tests [{:keys [upstream] :as context}]
+  (upstream/run-tests upstream (partial test-message context)))

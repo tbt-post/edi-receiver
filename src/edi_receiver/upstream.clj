@@ -5,20 +5,12 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [edi-receiver.utils :as utils])
-  (:import [org.eclipse.jetty.util.ssl SslContextFactory$Client]
-           [org.eclipse.jetty.client HttpClient]
-           (java.io File)))
+  (:import (java.io File)))
 
 
 (defn- log-download [url]
   (log/info "Downloading" url)
   url)
-
-
-(defn- get-body [^String url ^HttpClient client]
-  (-> client
-      (.GET url)
-      (.getContentAsString)))
 
 
 (defn- split-topic [path]
@@ -27,18 +19,19 @@
 (defn- split-name [path]
   (second (re-find #"/([^/]+)\.json$" path)))
 
+(defn- http-get [url client]
+  (:body (utils/http-request client {:uri url :throw-for-status true})))
 
 (defn- load-files-github [list-url]
-  (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
-    (.start client)
+  (let [client (utils/http-client)]
     (->> (-> list-url
              log-download
-             (get-body client)
+             (http-get client)
              json/parse-string)
          (map #(get % "download_url"))
          (map (fn [url] [url (-> url
                                  log-download
-                                 (get-body client))])))))
+                                 (http-get client))])))))
 
 
 (defn- load-files-local [dir]
@@ -108,12 +101,14 @@
       (json-schema/validate schema value)
       nil
       (catch Exception e
-        {:message (.getMessage e)
-         :data    (ex-data e)}))
-    (throw (ex-info (str "Schema not found: " (name topic)) {:topic topic}))))
+        (throw (ex-info "Message not valid" {:message      (.getMessage e)
+                                             :data         (ex-data e)
+                                             :bad-request? true}))))
+    (throw (ex-info (str "Schema not found: " (name topic)) {:topic        topic
+                                                             :bad-request? true}))))
 
 
-(defn run-tests! [this executor]
+(defn run-tests [this executor]
   (log/info "Running tests")
   (->> (for [{:keys [topic message name]} (:tests this)]
          (try
