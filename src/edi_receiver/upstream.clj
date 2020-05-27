@@ -4,7 +4,9 @@
             [json-schema.core :as json-schema]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [edi-receiver.utils :as utils])
+            [ring.util.codec :as ring-coded]
+            [edi-receiver.utils :as utils]
+            [edi-receiver.db.models :as models])
   (:import (java.io File)))
 
 
@@ -22,7 +24,8 @@
 (defn- http-get [url client]
   (:body (utils/http-request client {:uri url :throw-for-status true})))
 
-(defn- load-files-github [list-url]
+
+(defn- load-files-github [list-url ref]
   (let [client (utils/http-client)]
     (->> (-> list-url
              log-download
@@ -30,9 +33,9 @@
              json/parse-string)
          (map #(get % "download_url"))
          (map (fn [url] [url (-> url
+                                 (string/replace #"/master/" (str "/" (ring-coded/url-encode ref) "/"))
                                  log-download
                                  (http-get client))])))))
-
 
 (defn- load-files-local [dir]
   (->> (-> dir io/file file-seq next)
@@ -40,34 +43,35 @@
                         (slurp file)]))))
 
 
-(defn- load-files [url]
+(defn- load-files [url ref]
   (if (string/starts-with? url "/")
     (load-files-local url)
-    (load-files-github url)))
+    (load-files-github url ref)))
 
 
-(defn- download [{:keys [schema-list test-list]}]
+
+(defn- download [{:keys [schema-list test-list]} ref]
   (log/debug "Downloading schemas")
-  {:schemas (->> (load-files schema-list)
+  {:schemas (->> (load-files schema-list ref)
                  (map (fn [[url body]]
                         [(keyword (split-topic url))
                          body]))
                  (into {}))
-   :tests   (->> (load-files test-list)
+   :tests   (->> (load-files test-list ref)
                  (map (fn [[url body]]
                         {:name    (split-name url)
                          :topic   (split-topic url)
                          :message (json/parse-string body true)})))})
 
 
-(defn- cache-file [cache-dir]
-  (str cache-dir "/upstream.json"))
+(defn- cache-filename [cache-dir ref]
+  (format "%s/upstream-%s.json" cache-dir ref))
 
 
-(defn- download-and-cache [{:keys [cache-dir] :as upstream}]
-  (let [data (download upstream)]
+(defn- download-and-cache [{:keys [cache-dir] :as upstream} ref]
+  (let [data (download upstream ref)]
     (when cache-dir
-      (let [cache (cache-file cache-dir)]
+      (let [cache (cache-filename cache-dir ref)]
         (io/make-parents cache)
         (-> cache io/file (spit (json/generate-string data)))))
     data))
@@ -80,16 +84,17 @@
 
 (defn create [{:keys [topics cache-dir sync] :as upstream}]
   (log/info "Creating Upstream")
-  (let [topics (set topics)]
+  (let [topics (set topics)
+        ref    models/tbtapi-docs-ref]
     (-> (if sync
-          (download-and-cache upstream)
+          (download-and-cache upstream ref)
           (if-let [data (some-> cache-dir
-                                cache-file
+                                (cache-filename ref)
                                 io/file
                                 slurp-file
                                 (json/parse-string true))]
             data
-            (download-and-cache upstream)))
+            (download-and-cache upstream ref)))
         (update :schemas #(->> (select-keys % (map keyword topics))
                                (utils/map-vals json-schema/prepare-schema)))
         (update :tests #(filter (fn [test] (topics (:topic test))) %)))))

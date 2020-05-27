@@ -1,10 +1,4 @@
-(ns edi-receiver.db.models
-  (:require [cheshire.core :as json]
-            [clojure.string :as string]
-            [edi-receiver.utils :as utils])
-  (:import (java.util UUID)
-           (org.postgresql.util PGobject)))
-
+(ns edi-receiver.db.models)
 
 (def models
   {:documents                   (array-map :sender {:type :text :required true}
@@ -75,7 +69,9 @@
                                            :merchant_id {:type :text :required true}
                                            :amount {:type :money :required true}
                                            :payer_phone {:type :text}
-                                           :comment {:type :text})
+                                           :comment {:type :text}
+                                           :operation {:type :text}
+                                           :correction_id {:type :uuid})
 
    :refill_payment              (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
@@ -130,6 +126,33 @@
                                            :owner {:type :uuid})})
 
 
+(def version 1)
+(def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
+                                    [:add-column :correction_id {:type :uuid}]]}})
+
+
+; migrations example
+#_(def version 2)
+#_(def migrations {1 {:documents [[:add-column :altertest {:type     :uuid
+                                                           :required true
+                                                           :default  {:postgresql "'00000000-0000-0000-0000-000000000000'"
+                                                                      :mysql      "0x0"}}]
+                                  [:alter-column :altertest {:rename   :alter_test
+                                                             :type     :text
+                                                             :required false}]
+                                  [:alter-column :alter_test {:type     :text
+                                                              :required true
+                                                              :default  {:postgresql "'00000000-0000-0000-0000-000000000000'"
+                                                                         :mysql      "0x0"}}]]}
+                   2 {:documents [[:drop-column :alter_test nil]]}})
+
+
+(def tbtapi-docs-refs {0 "edi#v0.1.0"
+                       1 "edi#v0.1.1"})
+
+(def tbtapi-docs-ref (tbtapi-docs-refs version))
+
+
 (def topics
   {:event_parcel [{:table :event_parcel_order_return
                    :when? #(not= "ChangeState" (:msgtype %))}
@@ -139,85 +162,7 @@
                    :when? (constantly true)}]})
 
 
-(def types
-  (-> {:common     {:boolean {:sql "boolean"}
-                    :integer {:sql "integer"}
-                    :text    {:sql "text"}
-                    :money   {:sql "decimal(10,2)"
-                              :as  #(some-> % str bigdec)}}
-
-       :postgresql {:json      {:sql "json"
-                                :as  #(doto (PGobject.)
-                                        (.setType "json")
-                                        (.setValue (some-> % json/generate-string)))}
-                    :timestamp {:sql "timestamp with time zone"
-                                :as  #(doto (PGobject.)
-                                        (.setType "timestamptz")
-                                        (.setValue %))}
-                    :uuid      {:sql "uuid"
-                                :as  #(some-> % UUID/fromString)}}
-
-       :mysql      {:json      {:sql "json"
-                                :as  #(some-> % json/generate-string)}
-                    :timestamp {:sql "datetime"
-                                :as  #(when %
-                                        (utils/iso-datetime->java-util-date %))}
-                    :uuid      {:sql "binary(16)"
-                                :as  #(some-> % UUID/fromString utils/uuid->byte-array)}}}
-
-      (utils/merge-common :common)))
-
-
-(defn- field-q [driver [field {:keys [type required alias]}]]
-  (str "    " (name (or alias field))
-       " " (-> types driver type :sql)
-       (if required " NOT NULL" "")))
-
-
-(defn- fields-q [driver table]
-  (->> (table models)
-       (map (partial field-q driver))
-       (string/join ",\n")))
-
-
-(defn- create-table-q [driver table]
-  (format "CREATE TABLE IF NOT EXISTS %s (\n%s);"
-          (name table)
-          (fields-q driver table)))
-
-
-(defn- tables-meta [topic]
+(defn tables-meta [topic]
   (or (get topics topic)
       [{:table topic
         :when? (constantly true)}]))
-
-
-(defn create-tables-q [driver topic]
-  (->> (tables-meta topic)
-       (map :table)
-       (map (partial create-table-q driver))
-       (string/join "\n")))
-
-
-(defn- coerce-item [types model [key value]]
-  (let [{:keys [type alias]} (get model key)
-        as (-> (get types type)
-               :as
-               (or identity))]
-    [(or alias key) (as value)]))
-
-
-(defn- coerce-message [types model message]
-  (->> message
-       (map (partial coerce-item types model))
-       (into {})))
-
-
-(defn converter [driver topic message]
-  (->> (for [{:keys [table when?]} (tables-meta topic)]
-         (when (when? message)
-           [table (->> message
-                       (coerce-message (get types driver)
-                                       (get models table)))]))
-       (remove nil?)
-       first))
