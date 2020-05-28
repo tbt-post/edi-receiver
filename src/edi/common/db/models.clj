@@ -1,4 +1,4 @@
-(ns edi-receiver.db.models)
+(ns edi.common.db.models)
 
 (def models
   {:documents                   (array-map :sender {:type :text :required true}

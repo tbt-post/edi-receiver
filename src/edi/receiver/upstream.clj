@@ -1,12 +1,13 @@
-(ns edi-receiver.upstream
+(ns edi.receiver.upstream
   (:require [cheshire.core :as json]
             [clojure.tools.logging :as log]
             [json-schema.core :as json-schema]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [ring.util.codec :as ring-coded]
-            [edi-receiver.utils :as utils]
-            [edi-receiver.db.models :as models])
+            [edi.receiver.utils.jetty-client :as http]
+            [edi.common.db.models :as models]
+            [edi.common.utils :as utils])
   (:import (java.io File)))
 
 
@@ -22,11 +23,11 @@
   (second (re-find #"/([^/]+)\.json$" path)))
 
 (defn- http-get [url client]
-  (:body (utils/http-request client {:uri url :throw-for-status true})))
+  (:body (http/request client {:uri url :throw-for-status true})))
 
 
 (defn- load-files-github [list-url ref]
-  (let [client (utils/http-client)]
+  (let [client (http/client)]
     (->> (-> list-url
              log-download
              (http-get client)
@@ -83,9 +84,9 @@
 
 
 (defn create [{:keys [topics cache-dir sync] :as upstream}]
-  (log/info "Creating Upstream")
   (let [topics (set topics)
         ref    models/tbtapi-docs-ref]
+    (log/info "Creating upstream from ref" ref)
     (-> (if sync
           (download-and-cache upstream ref)
           (if-let [data (some-> cache-dir

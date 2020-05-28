@@ -1,9 +1,9 @@
-(ns edi-receiver.db.jdbc
+(ns edi.common.db.jdbc
   (:require [clojure.java.data :as java-data]
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi-receiver.utils :as utils])
+            [edi.common.utils :as utils])
   (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
 
 

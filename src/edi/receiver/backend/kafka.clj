@@ -1,8 +1,8 @@
-(ns edi-receiver.backend.kafka
+(ns edi.receiver.backend.kafka
   (:require [cheshire.core :as json]
             [clojure.tools.logging :as log]
             [clj-kafka-x.producer :as kp]
-            [edi-receiver.backend.protocol :as protocol]))
+            [edi.receiver.backend.protocol :as protocol]))
 
 
 (deftype KafkaBackend [producer]

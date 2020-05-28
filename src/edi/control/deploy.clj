@@ -1,13 +1,13 @@
-(ns edi-receiver.deploy
+(ns edi.control.deploy
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [edi-receiver.db.jdbc :as db]
-            [edi-receiver.db.models :as models]
+            [edi.common.db.jdbc :as db]
+            [edi.common.db.models :as models]
             [clojure.string :as string]
-            [edi-receiver.utils :as utils]))
+            [edi.common.utils :as utils]))
 
 
-(def type-sql
+(def ^:private type-sql
   (-> {:common     {:boolean "boolean"
                     :integer "integer"
                     :text    "text"
@@ -21,7 +21,7 @@
       (utils/merge-common :common)))
 
 
-(def column-sql
+(def ^:private column-sql
   (-> {:common     {:add    "ALTER TABLE %s ADD COLUMN %s;"
                     :drop   "ALTER TABLE %s DROP COLUMN %s;"
                     :rename "ALTER TABLE %s RENAME COLUMN %s TO %s;"}
@@ -118,7 +118,7 @@
          (reduce concat))))
 
 
-(defn deploy-q [db topics]
+(defn- deploy-q [db topics]
   (let [table-versions  (db/table-versions db)
         deploy-topic-qs (fn [topic]
                           (->> (models/tables-meta topic)
@@ -132,12 +132,18 @@
          (string/join "\n"))))
 
 
+(defn- init-q [driver]
+  (some->> (format "sql/init/%s.sql" (name driver)) io/resource slurp))
+
+
+(defn print-deploy-sql [{:keys [db config]}]
+  (some->> (init-q (:driver db)) println)
+  (println (deploy-q db (-> config :upstream :topics))))
+
+
 (defn deploy! [{:keys [db config]}]
   (log/info "Initializing database")
-  (some->> (format "sql/init/%s.sql" (-> db :driver name))
-           io/resource
-           slurp
+  (some->> (init-q (:driver db))
            (db/run-script! db))
   (db/run-script! db (deploy-q db (-> config :upstream :topics)) true)
   (log/info "Database initialization succeeded"))
-

@@ -1,9 +1,9 @@
-(ns edi-receiver.backend.http
+(ns edi.receiver.backend.http
   (:require [cheshire.core :as json]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi-receiver.backend.protocol :as protocol]
-            [edi-receiver.utils :as utils])
+            [edi.receiver.backend.protocol :as protocol]
+            [edi.receiver.utils.jetty-client :as http])
   (:import (clojure.lang ExceptionInfo)))
 
 
@@ -20,7 +20,7 @@
                              :throw-for-status true))]
       (log/debug "proxying message to " (:uri request))
       (try
-        (utils/http-request client request)
+        (http/request client request)
         (catch ExceptionInfo e
           (throw (ex-info "Can't send message to http backend"
                           (-> (select-keys request [:method :uri])
@@ -31,4 +31,4 @@
 
 (defn create [config]
   (log/info "Initializing http client to" (:uri config))
-  (HttpBackend. (utils/http-client) config))
+  (HttpBackend. (http/client) config))

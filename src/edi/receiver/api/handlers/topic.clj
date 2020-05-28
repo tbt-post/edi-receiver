@@ -1,7 +1,7 @@
-(ns edi-receiver.api.handlers.topic
+(ns edi.receiver.api.handlers.topic
   (:require [clojure.tools.logging :as log]
-            [edi-receiver.saver :as saver]
-            [edi-receiver.utils :as utils])
+            [edi.receiver.saver :as saver]
+            [edi.common.utils :as utils])
   (:import (clojure.lang ExceptionInfo)))
 
 

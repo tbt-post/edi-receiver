@@ -1,11 +1,11 @@
-(ns edi-receiver.saver
+(ns edi.receiver.saver
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.tools.logging :as log]
-            [edi-receiver.backend.core :as backend]
-            [edi-receiver.db.jdbc :as db]
-            [edi-receiver.db.models :as models]
-            [edi-receiver.upstream :as upstream]
-            [edi-receiver.utils :as utils]
+            [edi.receiver.backend.core :as backend]
+            [edi.common.db.jdbc :as db]
+            [edi.common.db.models :as models]
+            [edi.receiver.upstream :as upstream]
+            [edi.common.utils :as utils]
             [cheshire.core :as json])
   (:import (java.util UUID)
            (org.postgresql.util PGobject)))

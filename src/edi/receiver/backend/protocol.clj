@@ -1,4 +1,4 @@
-(ns edi-receiver.backend.protocol)
+(ns edi.receiver.backend.protocol)
 
 
 (defprotocol Backend

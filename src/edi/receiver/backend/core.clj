@@ -1,9 +1,9 @@
-(ns edi-receiver.backend.core
+(ns edi.receiver.backend.core
   (:require [clojure.tools.logging :as log]
-            [edi-receiver.backend.kafka :as kafka]
-            [edi-receiver.backend.http :as http]
-            [edi-receiver.backend.protocol :as protocol]
-            [edi-receiver.utils :as utils]))
+            [edi.receiver.backend.kafka :as kafka]
+            [edi.receiver.backend.http :as http]
+            [edi.receiver.backend.protocol :as protocol]
+            [edi.common.utils :as utils]))
 
 
 (defn- create-backend [{:keys [name type] :as config}]

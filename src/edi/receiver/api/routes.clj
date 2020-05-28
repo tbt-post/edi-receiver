@@ -1,8 +1,8 @@
-(ns edi-receiver.api.routes
+(ns edi.receiver.api.routes
   (:require [reitit.coercion.schema :as schema]
             [schema.core :as s]
-            [edi-receiver.api.handlers.misc :as misc]
-            [edi-receiver.api.handlers.topic :as topic]))
+            [edi.receiver.api.handlers.misc :as misc]
+            [edi.receiver.api.handlers.topic :as topic]))
 
 
 (def routes

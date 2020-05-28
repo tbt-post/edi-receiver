@@ -1,16 +1,18 @@
-(ns edi-receiver.config
+(ns edi.common.config
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi-receiver.utils :as utils]))
+            [edi.common.utils :as utils])
+  (:import (java.io Reader)
+           (java.util Properties)))
 
 
 (declare group-config)
 
 
 (defn- load-props [file]
-  (with-open [^java.io.Reader reader (io/reader file)]
-    (let [props (java.util.Properties.)]
+  (with-open [^Reader reader (io/reader file)]
+    (let [props (Properties.)]
       (.load props reader)
       (into {} (for [[k v] props]
                  [k (read-string v)])))))
@@ -43,10 +45,9 @@
             (-> config io/file load-props))))
       (update-in [:upstream :topics] #(utils/split-comma-separated %))
       (update :upstream #(merge % (select-keys options [:sync :topics])))
-      (merge (select-keys options [:autoinit-tables :db]))
+      (merge (select-keys options [:db]))
       (assoc :version (or (some-> "edi-receiver.VERSION"
                                   io/resource
                                   slurp
                                   string/trim)
                           "devel-current"))))
-
