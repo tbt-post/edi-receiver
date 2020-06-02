@@ -30,5 +30,5 @@
 
 (defn -main [& args]
   (app/start! args
-              [[nil "--sync" "update schemas and tests"]]
+              [[nil "--sync" "download schemas and tests even if cached"]]
               run-app!))

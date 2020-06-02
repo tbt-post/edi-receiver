@@ -104,16 +104,22 @@ su - postgres -c "psql --command \"CREATE DATABASE edi;\""
 
 === Running the application
 
-To create tables, download schemas and than run execute
+To view migration SQL:
 
 ----
-java -jar `ls target/*-standalone.jar` --autoinit-tables --sync
+java -jar target/edi-control-standalone.jar --print-deploy-sql
 ----
 
-For regular run (with the schema cached)
+To initialize or migrate database:
 
 ----
-java -jar `ls target/*-standalone.jar`
+java -jar target/edi-control-standalone.jar --deploy
+----
+
+To start receiver:
+
+----
+java -jar `ls target/edi-receiver-standalone.jar`
 ----
 
 == Config
@@ -126,7 +132,6 @@ Config is java .properties file:
 |upstream.topics |string |comma separated list of topics to receive
 |upstream.cache |string |path where upstream schemas cached
 |upstream.sync |boolean |set true to validate upstream cache on startup
-|autoinit-tables |boolean |create tables on startup
 |api.host |string |http server ip address
 |api.port |integer |http server port, default is 8000
 |api.auth.username |string |basic auth username, if auth required
@@ -158,7 +163,7 @@ Then edit local.properties file and run
 java -jar `ls target/*-standalone.jar` -c local.properties
 ----
 
-Default properties will be updated wuth local.properties
+Default properties will be updated with local.properties
 
 Some config options can be customized from command line, see help:
 
@@ -168,7 +173,7 @@ java -jar `ls target/*-standalone.jar` --help
 
 == Development
 
-Execute (go) in repl to start devel profile with autoreload and local.properties config.
+Execute (go) in repl to start development profile with autoreload and local.properties config.
 
 == License
 
