@@ -1,11 +1,6 @@
-(ns edi-receiver.utils
-  (:require [clojure.string :as string])
+(ns edi.receiver.utils.jetty-client
   (:import (clojure.lang Keyword)
-           (java.io StringWriter)
-           (java.nio ByteBuffer)
-           (java.time Instant)
-           (java.time.format DateTimeFormatter)
-           (java.util UUID Date Base64)
+           (java.util Base64)
            (java.util.concurrent TimeUnit)
            (org.eclipse.jetty.client HttpClient)
            (org.eclipse.jetty.client.api Request ContentResponse)
@@ -13,81 +8,11 @@
            (org.eclipse.jetty.util.ssl SslContextFactory$Client)))
 
 
-(defn map-vals [f m]
-  (into {} (for [[k v] m] [k (f v)])))
-
-
-(defn map-keys [f m]
-  (into {} (for [[k v] m] [(f k) v])))
-
-
-(defn split-comma-separated [s]
-  (->> (string/split s #",")
-       (map string/trim)))
-
-
-(defn pretty [& args]
-  (string/trimr
-    (let [out (StringWriter.)]
-      (doseq [arg args]
-        (clojure.pprint/pprint arg out))
-      (.toString out))))
-
-
-(defn- kebab-to-camelcase [k]
-  (let [parts (-> k
-                  name
-                  (string/split #"\-"))]
-    (-> (first parts)
-        (cons (->> parts
-                   next
-                   (map string/capitalize)))
-        string/join
-        keyword)))
-
-
-(defn kebab-conf-to-camelcase [conf]
-  (map-keys kebab-to-camelcase conf))
-
-
-(defn uuid->byte-array [^UUID v]
-  (let [buffer (ByteBuffer/wrap (byte-array 16))]
-    (doto buffer
-      (.putLong (.getMostSignificantBits v))
-      (.putLong (.getLeastSignificantBits v)))
-    (.array buffer)))
-
-
-(defn iso-datetime->java-util-date [^String v]
-  (->> v
-       (.parse DateTimeFormatter/ISO_INSTANT)
-       Instant/from
-       Date/from))
-
-
-(defn merge-common [d keyword]
-  (let [c (get d keyword)]
-    (->> (dissoc d keyword)
-         (map (fn [[k d]] [k (merge c d)]))
-         (into {}))))
-
-
 (defn base64-encode [s]
   (.encodeToString (Base64/getEncoder) (.getBytes s)))
 
 
-(defn ordered-vals [d]
-  (->> d
-       keys
-       sort
-       (map #(get d %))))
-
-
-;--------------------
-; JETTY HTTP CLIENT
-;--------------------
-
-(defn ^HttpClient http-client []
+(defn ^HttpClient client []
   (let [^HttpClient client (HttpClient. (SslContextFactory$Client.))]
     (.start client)
     client))
@@ -111,7 +36,7 @@
     identity))
 
 
-(defn http-request [^HttpClient client {:keys [^String uri
+(defn request [^HttpClient client {:keys [^String uri
                                                ^Keyword method
                                                query-params
                                                headers

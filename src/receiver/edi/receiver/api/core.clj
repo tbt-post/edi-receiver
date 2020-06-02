@@ -1,4 +1,4 @@
-(ns edi-receiver.api.core
+(ns edi.receiver.api.core
   (:require [clojure.tools.logging :as log]
             [io.pedestal.http :as server]
             [muuntaja.core :as m]
@@ -10,8 +10,8 @@
             [reitit.http.interceptors.parameters :as parameters]
             [reitit.pedestal :as pedestal]
             [reitit.ring :as ring]
-            [edi-receiver.api.auth :as auth]
-            [edi-receiver.api.routes :as routes])
+            [edi.receiver.api.auth :as auth]
+            [edi.receiver.api.routes :as routes])
   (:import (java.net DatagramSocket InetAddress)))
 
 

@@ -1,13 +1,12 @@
 (ns system
-  (:require
-    [com.stuartsierra.component :as component]
-    [edi-receiver.api.core :as api]
-    [edi-receiver.config :as config]
-    [edi-receiver.db.jdbc :as db]
-    [edi-receiver.upstream :as upstream]
-    [edi-receiver.saver :as saver]
-    [edi-receiver.deploy :as deploy]
-    [edi-receiver.backend.core :as backend]))
+  (:require [com.stuartsierra.component :as component]
+            [edi.common.config :as config]
+            [edi.common.db.jdbc :as db]
+            [edi.control.deploy :as deploy]
+            [edi.receiver.api.core :as api]
+            [edi.receiver.backend.core :as backend]
+            [edi.receiver.saver :as saver]
+            [edi.receiver.upstream :as upstream]))
 
 
 (defrecord Config [options config]
@@ -71,7 +70,7 @@
     (assoc this :server nil)))
 
 
-(defn edi-receiver-system [options]
+(defn edi-system [options]
   (component/system-map
     :config (map->Config {:options options})
     :db (-> (map->Db {})

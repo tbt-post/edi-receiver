@@ -1,9 +1,9 @@
-(ns edi-receiver.db.jdbc
+(ns edi.common.db.jdbc
   (:require [clojure.java.data :as java-data]
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi-receiver.utils :as utils])
+            [edi.common.utils :as utils])
   (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
 
 
@@ -43,16 +43,24 @@
                          (for [field fields] (field values))))))
 
 
-(defn run-script! [pool sql]
-  (jdbc/with-db-transaction
-    [tr pool]
-    (->> (-> sql
-             (string/replace #"(?s)/\*.*\*/|--[^\n]*" "")
-             (string/split #";"))
-         (map string/trim)
-         (remove #(= "" %))
-         (map #(do
-                 (log/debug "Executing" %)
-                 (execute! tr %)))
-         (doall))))
+(defn run-script!
+  ([pool sql] (run-script! pool sql nil))
+  ([pool sql verbose]
+   (jdbc/with-db-transaction
+     [tr pool]
+     (->> (-> sql
+              (string/replace #"(?s)/\*.*\*/|--[^\n]*" "")
+              (string/split #";"))
+          (map string/trim)
+          (remove #(= "" %))
+          (map #(do
+                  (when verbose
+                    (log/info "Run SQL:" %))
+                  (execute! tr %)))
+          (doall)))))
 
+
+(defn table-versions [pool]
+  (->> (jdbc/query pool "SELECT table_name, MAX(model_version) AS model_version FROM migrations GROUP BY table_name")
+       (map (juxt (comp keyword :table_name) :model_version))
+       (into {})))

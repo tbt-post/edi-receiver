@@ -6,7 +6,7 @@
     [system :as system]))
 
 
-(set-init (fn [_] (system/edi-receiver-system {:config "local.properties"})))
+(set-init (fn [_] (system/edi-system {:config "local.properties"})))
 
 
 ;; Do not try to load source code from 'resources' directory

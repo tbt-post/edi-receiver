@@ -1,4 +1,4 @@
-(ns edi-receiver.api.handlers.misc)
+(ns edi.receiver.api.handlers.misc)
 
 
 (defn dump-req [request]
