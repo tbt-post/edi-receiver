@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/tools.cli "1.0.194"]
                  [cheshire "5.10.0"]
-                 [org.clojure/java.data "1.0.64"]
+                 [org.clojure/java.data "1.0.78"]
 
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.11"]
@@ -53,7 +53,7 @@
                          :aot          :all
                          :omit-source  true
                          :main         edi.receiver.core}]
-             :r-deps   {:dependencies [[luposlip/json-schema "0.2.3"]
+             :r-deps   {:dependencies [[luposlip/json-schema "0.2.4"]
 
                                        ;; HTTP
                                        [io.pedestal/pedestal.service "0.5.8"]

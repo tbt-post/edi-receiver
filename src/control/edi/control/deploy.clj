@@ -106,14 +106,13 @@
   [(format "CREATE TABLE %s (\n%s);"
            (name table)
            (fields-q driver table))
-   (insert-migration-q table 0)])
+   (insert-migration-q table models/version)])
 
 
 (defn- deploy-table-qs [driver table table-version]
-  (concat
-    (when (nil? table-version)
-      (create-table-qs driver table))
-    (->> (range (or table-version 0) models/version)
+  (if (nil? table-version)
+    (create-table-qs driver table)
+    (->> (range table-version models/version)
          (map #(migrate-table-qs driver table (inc %)))
          (reduce concat))))
 
@@ -137,7 +136,8 @@
 
 
 (defn print-deploy-sql [{:keys [db config]}]
-  (some->> (init-q (:driver db)) println)
+  (some->> (init-q (:driver db))
+            (db/run-script! db))
   (println (deploy-q db (-> config :upstream :topics))))
 
 

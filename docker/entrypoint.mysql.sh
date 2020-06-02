@@ -1,9 +1,8 @@
 #!/bin/bash
 mysqld &
-echo "Check DB!"
 while ! mysqladmin ping -h localhost -u root -pmysql; do
-    echo "Wait ..."
+    echo "waiting mysqld to come up..."
     sleep 1
 done
-echo "DB ready!"
-java -jar `ls target/*-standalone.jar` --db mysql --autoinit-tables --sync
+java -jar target/edi-control-standalone.jar --db mysql --deploy && \
+java -jar target/edi-receiver-standalone.jar --db mysql
