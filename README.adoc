@@ -119,7 +119,7 @@ java -jar target/edi-control-standalone.jar --deploy
 To start receiver:
 
 ----
-java -jar `ls target/edi-receiver-standalone.jar`
+java -jar target/edi-receiver-standalone.jar
 ----
 
 == Config
@@ -160,7 +160,7 @@ cp resources/edi-receiver.properties local.properties
 Then edit local.properties file and run
 
 ----
-java -jar `ls target/*-standalone.jar` -c local.properties
+java -jar target/edi-receiver-standalone.jar -c local.properties
 ----
 
 Default properties will be updated with local.properties
@@ -168,7 +168,7 @@ Default properties will be updated with local.properties
 Some config options can be customized from command line, see help:
 
 ----
-java -jar `ls target/*-standalone.jar` --help
+java -jar target/edi-receiver-standalone.jar --help
 ----
 
 == Development
