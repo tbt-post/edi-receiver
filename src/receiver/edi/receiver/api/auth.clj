@@ -1,4 +1,4 @@
-(ns edi-receiver.api.auth
+(ns edi.receiver.api.auth
   (:require [clojure.string :as string]
             [clojure.tools.logging :as log])
   (:import (java.util Base64)))

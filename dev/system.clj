@@ -1,12 +1,12 @@
 (ns system
-  (:require
-    [com.stuartsierra.component :as component]
-    [edi-receiver.api.core :as api]
-    [edi-receiver.config :as config]
-    [edi-receiver.db.jdbc :as db]
-    [edi-receiver.upstream :as upstream]
-    [edi-receiver.saver :as saver]
-    [edi-receiver.deploy :as deploy]))
+  (:require [com.stuartsierra.component :as component]
+            [edi.common.config :as config]
+            [edi.common.db.jdbc :as db]
+            [edi.control.deploy :as deploy]
+            [edi.receiver.api.core :as api]
+            [edi.receiver.backend.core :as backend]
+            [edi.receiver.saver :as saver]
+            [edi.receiver.upstream :as upstream]))
 
 
 (defrecord Config [options config]
@@ -31,6 +31,17 @@
     (assoc this :db nil)))
 
 
+(defrecord Backend [config backend]
+  component/Lifecycle
+
+  (start [this]
+    (assoc this :backend (backend/create (-> config :config))))
+
+  (stop [this]
+    (backend/close (-> this :backend))
+    (assoc this :backend nil)))
+
+
 (defrecord Upstream [config upstream]
   component/Lifecycle
 
@@ -41,15 +52,16 @@
     (assoc this :upstream nil)))
 
 
-(defrecord Server [config upstream db server]
+(defrecord Server [config upstream db backend server]
   component/Lifecycle
 
   (start [this]
     (let [context {:config   (:config config)
                    :upstream (:upstream upstream)
-                   :db       (:db db)}]
+                   :db       (:db db)
+                   :backend  (:backend backend)}]
       (deploy/deploy! context)
-      (saver/run-tests! context)
+      (saver/run-tests context)
       (assoc this :server (api/start (-> config :config :api)
                                      context))))
 
@@ -58,12 +70,14 @@
     (assoc this :server nil)))
 
 
-(defn edi-receiver-system [options]
+(defn edi-system [options]
   (component/system-map
     :config (map->Config {:options options})
     :db (-> (map->Db {})
             (component/using [:config]))
+    :backend (-> (map->Backend {})
+                 (component/using [:config]))
     :upstream (-> (map->Upstream {})
                   (component/using [:config]))
     :server (-> (map->Server {})
-                (component/using [:config :db :upstream]))))
+                (component/using [:config :db :backend :upstream]))))

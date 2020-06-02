@@ -1,9 +1,7 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE TABLE IF NOT EXISTS migrations (
     table_name varchar(64) NOT NULL,
     model_version integer NOT NULL,
-    applied_at timestamp with time zone DEFAULT now(),
+    applied_at datetime DEFAULT now(),
     CONSTRAINT migration_pkey PRIMARY KEY (table_name, model_version)
 );
 
@@ -11,5 +9,5 @@ CREATE TABLE IF NOT EXISTS migrations (
 INSERT INTO migrations (table_name, model_version)
 SELECT table_name, 0
 FROM information_schema.tables
-WHERE table_schema = 'public' AND table_name != 'migrations'
+WHERE table_schema = database() AND table_name != 'migrations'
     AND table_name NOT IN (SELECT table_name FROM migrations WHERE model_version=0);

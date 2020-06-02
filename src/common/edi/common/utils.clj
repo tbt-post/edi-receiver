@@ -1,4 +1,4 @@
-(ns edi-receiver.utils
+(ns edi.common.utils
   (:require [clojure.string :as string])
   (:import (java.io StringWriter)
            (java.nio ByteBuffer)
@@ -21,10 +21,11 @@
 
 
 (defn pretty [& args]
-  (let [out (StringWriter.)]
-    (doseq [arg args]
-      (clojure.pprint/pprint arg out))
-    (.toString out)))
+  (string/trimr
+    (let [out (StringWriter.)]
+      (doseq [arg args]
+        (clojure.pprint/pprint arg out))
+      (.toString out))))
 
 
 (defn- kebab-to-camelcase [k]
@@ -63,3 +64,12 @@
     (->> (dissoc d keyword)
          (map (fn [[k d]] [k (merge c d)]))
          (into {}))))
+
+
+(defn ordered-vals [d]
+  (->> d
+       keys
+       sort
+       (map #(get d %))))
+
+

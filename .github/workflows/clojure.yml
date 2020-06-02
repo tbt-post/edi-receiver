@@ -17,5 +17,8 @@ jobs:
       run: lein deps
     - name: Run tests
       run: lein test
-    - name: Buid the app
-      run: lein uberjar
+    - name: Build the controls app
+      run: lein with-profile control uberjar
+    - name: Build the main app
+      run: lein with-profile receiver uberjar
+      
