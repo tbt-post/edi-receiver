@@ -4,7 +4,8 @@
             [edi.common.db.jdbc :as db]
             [edi.common.db.models :as models]
             [clojure.string :as string]
-            [edi.common.utils :as utils]))
+            [edi.common.utils :as utils]
+            [edi.common.config :as config]))
 
 
 (def ^:private type-sql
@@ -137,7 +138,7 @@
 
 (defn print-deploy-sql [{:keys [db config]}]
   (some->> (init-q (:driver db))
-            (db/run-script! db))
+           (db/run-script! db))
   (println (deploy-q db (-> config :upstream :topics))))
 
 
@@ -145,5 +146,5 @@
   (log/info "Initializing database")
   (some->> (init-q (:driver db))
            (db/run-script! db))
-  (db/run-script! db (deploy-q db (-> config :upstream :topics)) true)
+  (db/run-script! db (deploy-q db (config/get-topics config)) true)
   (log/info "Database initialization succeeded"))

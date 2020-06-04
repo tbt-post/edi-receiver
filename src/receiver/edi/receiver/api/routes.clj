@@ -2,7 +2,8 @@
   (:require [reitit.coercion.schema :as schema]
             [schema.core :as s]
             [edi.receiver.api.handlers.misc :as misc]
-            [edi.receiver.api.handlers.topic :as topic]))
+            [edi.receiver.api.handlers.topic :as topic]
+            [edi.receiver.api.handlers.stats :as stats]))
 
 
 (def routes
@@ -14,4 +15,6 @@
                :summary "Dumps request"}]
     ["/topic/:topic" {:post       topic/post
                       :summary    "Validates and saves message"
-                      :parameters {:path {:topic s/Keyword}}}]]])
+                      :parameters {:path {:topic s/Keyword}}}]
+    ["/stats" {:get     stats/stats
+               :summary "Returns statistics"}]]])

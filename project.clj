@@ -25,6 +25,8 @@
 
   ; to remove default "src" from classpath
   :source-paths []
+  :java-source-paths ["java"]
+  :javac-options ["-source" "1.8" "-target" "1.8"]
 
   :profiles {:dev      [:r-deps
                         {:source-paths ["dev" "src/common" "src/control" "src/receiver"]

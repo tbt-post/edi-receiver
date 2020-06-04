@@ -51,3 +51,7 @@
                                   slurp
                                   string/trim)
                           "devel-current"))))
+
+
+(defn get-topics [config]
+  (-> config :upstream :topics))
