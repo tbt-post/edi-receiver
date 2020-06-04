@@ -22,6 +22,7 @@ RUN pg_ctlcluster 12 main start &&\
 WORKDIR /opt/edi-receiver
 COPY resources resources
 COPY src src
+COPY java java
 COPY test test
 COPY project.clj project.clj
 

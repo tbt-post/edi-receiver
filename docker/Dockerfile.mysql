@@ -23,6 +23,7 @@ RUN mysqld --initialize-insecure && \
 WORKDIR /opt/edi-receiver
 COPY resources resources
 COPY src src
+COPY java java
 COPY test test
 COPY project.clj project.clj
 
