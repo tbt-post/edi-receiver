@@ -81,7 +81,8 @@ lein upgrade
 === Build the application
 
 ----
-lein do with-profile control uberjar, with-profile receiver uberjar
+lein deps
+lein build-all
 ----
 
 === Installing postgresql
