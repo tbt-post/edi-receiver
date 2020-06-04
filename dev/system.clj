@@ -6,7 +6,8 @@
             [edi.receiver.api.core :as api]
             [edi.receiver.backend.core :as backend]
             [edi.receiver.saver :as saver]
-            [edi.receiver.upstream :as upstream]))
+            [edi.receiver.upstream :as upstream]
+            [edi.receiver.stats :as stats]))
 
 
 (defrecord Config [options config]
@@ -52,14 +53,26 @@
     (assoc this :upstream nil)))
 
 
-(defrecord Server [config upstream db backend server]
+(defrecord Stats [config db stats]
+  component/Lifecycle
+
+  (start [this]
+    (assoc this :stats (stats/create {:config (:config config)
+                                      :db     (:db db)})))
+
+  (stop [this]
+    (assoc this :stats nil)))
+
+
+(defrecord Server [config upstream db backend stats server]
   component/Lifecycle
 
   (start [this]
     (let [context {:config   (:config config)
                    :upstream (:upstream upstream)
                    :db       (:db db)
-                   :backend  (:backend backend)}]
+                   :backend  (:backend backend)
+                   :stats    (:stats stats)}]
       (deploy/deploy! context)
       (saver/run-tests context)
       (assoc this :server (api/start (-> config :config :api)
@@ -79,5 +92,7 @@
                  (component/using [:config]))
     :upstream (-> (map->Upstream {})
                   (component/using [:config]))
+    :stats (-> (map->Stats {})
+               (component/using [:config :db]))
     :server (-> (map->Server {})
-                (component/using [:config :db :backend :upstream]))))
+                (component/using [:config :db :backend :upstream :stats]))))

@@ -6,9 +6,11 @@
             [edi.common.db.models :as models]
             [edi.receiver.upstream :as upstream]
             [edi.common.utils :as utils]
-            [cheshire.core :as json])
+            [cheshire.core :as json]
+            [edi.receiver.stats :as stats])
   (:import (java.util UUID)
-           (org.postgresql.util PGobject)))
+           (org.postgresql.util PGobject)
+           (java.time Instant)))
 
 
 (def type-coerce
@@ -50,18 +52,22 @@
        first))
 
 
-(defn- save! [db topic message]
+(defn- save! [db topic message stats]
   (let [[table values] (converter (:driver db) topic message)]
-    (db/insert! db table values)))
+    (let [started-at (Instant/now)]
+      (let [rowcount (db/insert! db table values)]
+        (when stats
+          (stats/after-sql stats started-at))
+        rowcount))))
 
 
-(defn process-message! [{:keys [db backend upstream]} topic message]
+(defn process-message! [{:keys [db backend upstream stats]} topic message]
   (log/debug "validating message from" topic)
   (upstream/validate upstream topic message)
   (jdbc/with-db-transaction
     [tx db]
     (log/debug "saving message from" topic)
-    (let [result (save! tx topic message)]
+    (let [result (save! tx topic message stats)]
       (backend/send-message backend topic message)
       result)))
 
@@ -71,7 +77,7 @@
   (jdbc/with-db-transaction
     [tx db]
     (swap! (:rollback tx) (constantly true))
-    (save! tx topic message)))
+    (save! tx topic message nil)))
 
 
 (defn run-tests [{:keys [upstream] :as context}]

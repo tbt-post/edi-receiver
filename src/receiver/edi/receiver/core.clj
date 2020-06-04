@@ -1,12 +1,13 @@
 (ns edi.receiver.core
   (:gen-class)
   (:require [clojure.tools.logging :as log]
+            [edi.common.app :as app]
+            [edi.common.db.jdbc :as db]
             [edi.receiver.api.core :as api]
             [edi.receiver.backend.core :as backend]
-            [edi.common.db.jdbc :as db]
             [edi.receiver.saver :as saver]
-            [edi.receiver.upstream :as upstream]
-            [edi.common.app :as app]))
+            [edi.receiver.stats :as stats]
+            [edi.receiver.upstream :as upstream]))
 
 
 (defn- run-app! [options config]
@@ -16,7 +17,9 @@
         context {:config   config
                  :upstream (upstream/create (:upstream config))
                  :db       db
-                 :backend  backend}]
+                 :backend  backend
+                 :stats    (stats/create {:config config
+                                          :db db})}]
     (if (saver/run-tests context)
       (let [server (api/start (:api config) context)]
         (-> (Runtime/getRuntime)

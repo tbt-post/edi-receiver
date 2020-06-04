@@ -25,13 +25,15 @@
 
   ; to remove default "src" from classpath
   :source-paths []
+  :java-source-paths ["java"]
+  :javac-options ["-source" "1.8" "-target" "1.8"]
 
   :profiles {:dev      [:r-deps
-                        {:source-paths ["dev" "src/common" "src/control" "src/receiver"]
-                         :target-path  "target/%s/"
-                         :dependencies [[com.stuartsierra/component.repl "0.2.0"]
-                                        [org.clojure/tools.namespace "1.0.0"]
-                                        [hawk "0.2.11"]]}]
+                        {:source-paths      ["dev" "src/common" "src/control" "src/receiver"]
+                         :target-path       "target/%s/"
+                         :dependencies      [[com.stuartsierra/component.repl "0.2.0"]
+                                             [org.clojure/tools.namespace "1.0.0"]
+                                             [hawk "0.2.11"]]}]
              :common   {:source-paths ["src/common"]
                         :target-path  "target/%s/"
                         :jar-name     "edi-common.jar"
@@ -46,13 +48,13 @@
                         :omit-source  true
                         :main         edi.control.core}
              :receiver [:r-deps
-                        {:source-paths ["src/common" "src/receiver"]
-                         :target-path  "target/%s/"
-                         :jar-name     "edi-receiver.jar"
-                         :uberjar-name "edi-receiver-standalone.jar"
-                         :aot          :all
-                         :omit-source  true
-                         :main         edi.receiver.core}]
+                        {:source-paths      ["src/common" "src/receiver"]
+                         :target-path       "target/%s/"
+                         :jar-name          "edi-receiver.jar"
+                         :uberjar-name      "edi-receiver-standalone.jar"
+                         :aot               :all
+                         :omit-source       true
+                         :main              edi.receiver.core}]
              :r-deps   {:dependencies [[luposlip/json-schema "0.2.4"]
 
                                        ;; HTTP
