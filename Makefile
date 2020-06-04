@@ -1,12 +1,11 @@
 compile:
-	lein uberjar
+	lein do with-profile control uberjar, with-profile receiver uberjar
 
 run:
-	java -jar `ls target/*-standalone.jar`
+	java -jar target/edi-receiver-standalone.jar
 
 run-sync:
-	java -jar `ls target/*-standalone.jar` --sync --autoinit-tables
-
+	java -jar target/edi-control-standalone.jar --deploy && java -jar target/edi-receiver-standalone.jar --sync
 
 docker-build:
 	docker build -t edi-receiver-pg -f docker/Dockerfile.pg .
@@ -21,7 +20,4 @@ docker-run-mysql: docker-build-mysql
 	docker run -it edi-receiver-mysql
 
 clean:
-	lein clean
-
-dist-clean: clean
 	$(RM) -r target
