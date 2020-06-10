@@ -30,15 +30,16 @@
 
 
 (defn- coerce-item [type-coerce model [key value]]
-  (let [{:keys [type alias]} (get model key)
-        as (-> (get type-coerce type)
-               (or identity))]
-    [(or alias key) (as value)]))
+  (when-let [{:keys [type alias]} (get model key)]
+    (let [as (-> (get type-coerce type)
+                 (or identity))]
+      [(or alias key) (as value)])))
 
 
 (defn- coerce-message [type-coerce model message]
   (->> message
        (map (partial coerce-item type-coerce model))
+       (remove nil?)
        (into {})))
 
 
