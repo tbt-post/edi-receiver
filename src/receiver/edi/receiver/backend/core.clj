@@ -3,6 +3,7 @@
             [edi.receiver.backend.kafka :as kafka]
             [edi.receiver.backend.http :as http]
             [edi.receiver.backend.protocol :as protocol]
+            [edi.receiver.utils.edn-cond :as edn-cond]
             [edi.common.utils :as utils]))
 
 
@@ -23,12 +24,22 @@
        (into {})))
 
 
+(defn- wrap-condition [send condition]
+  (let [condition (edn-cond/compile condition)]
+    (fn [backend topic message]
+      (if (edn-cond/evaluate condition message)
+        (send backend topic message)
+        (do (log/debugf "Proxying to %s, topic %s skipped via condition" (.getName (class backend)) topic)
+            :skipped-via-condition)))))
+
+
 (defn- wrap-unreliable [send]
   (fn [backend topic message]
     (try
       (send backend topic message)
       (catch Exception e
-        (log/warnf "cant send to unreliable %s: %s: %s\ndata:\n%s\nmessage:\n%s"
+        (log/warnf "cant send to unreliable %s, topic %s: %s: %s\ndata:\n%s\nmessage:\n%s"
+                   (.getName (class backend))
                    topic
                    (-> e class .getName)
                    (ex-message e)
@@ -37,8 +48,9 @@
 
 
 (defn- create-proxies [config backends]
-  (let [create-proxy (fn [{:keys [backend reliable source target]}]
+  (let [create-proxy (fn [{:keys [backend reliable source target condition]}]
                        (let [send (cond-> protocol/send-message
+                                          condition (wrap-condition condition)
                                           (not reliable) wrap-unreliable)]
                          {:source source
                           :send   (partial send (get backends (keyword backend)) target)}))]
