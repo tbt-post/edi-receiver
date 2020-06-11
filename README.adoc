@@ -176,7 +176,7 @@ java -jar target/edi-receiver-standalone.jar --help
 
 Sample configuration for proxying
 
----
+----
 backend.0.name="dear-kafka"
 backend.0.type="kafka"
 backend.0.bootstrap-servers="127.0.0.1:9092"
@@ -204,7 +204,7 @@ proxy.1.target="proxy_document"
 proxy.1.condition="(= sender \\"tbt\\")"
 proxy.1.enabled=true
 proxy.1.reliable=false          ; means to ignore api fails
----
+----
 
 == Development
 
