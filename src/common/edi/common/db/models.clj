@@ -29,6 +29,7 @@
                                            :weight {:type :integer}
                                            :dimensions {:type :json}
                                            :parcel_source {:type :text}
+                                           :external_ref {:type :text}
                                            :delivery_service {:type :text}
                                            :is_quasi {:type :boolean})
 
@@ -126,9 +127,11 @@
                                            :owner {:type :uuid})})
 
 
-(def version 1)
+(def version 3)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
-                                    [:add-column :correction_id {:type :uuid}]]}})
+                                    [:add-column :correction_id {:type :uuid}]]}
+                 2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
+                 3 {}})
 
 
 ; migrations example
@@ -148,7 +151,9 @@
 
 
 (def tbtapi-docs-refs {0 "edi#v0.1.0"
-                       1 "edi#v0.1.1"})
+                       1 "edi#v0.1.1"
+                       2 "edi#v0.1.2"
+                       3 "edi#v0.1.3"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
