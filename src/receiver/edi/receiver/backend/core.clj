@@ -25,7 +25,7 @@
 
 
 (defn- wrap-condition [send condition]
-  (let [condition (edn-cond/compile condition)]
+  (let [condition (edn-cond/prepare condition)]
     (fn [backend topic message]
       (if (edn-cond/evaluate condition message)
         (send backend topic message)

@@ -12,11 +12,11 @@
     (resolve symbol)))
 
 
-(defn- compile-edn [edn]
+(defn- prepare-edn [edn]
   (cond (list? edn)
         ; make vector [f & args]
         (vec (cons (resolve-fn (first edn))
-                   (mapv compile-edn (next edn))))
+                   (mapv prepare-edn (next edn))))
 
         (symbol? edn)
         ; make fn (get-in message path)
@@ -29,10 +29,10 @@
         (constantly edn)))
 
 
-(defn compile [text]
+(defn prepare [text]
   (-> text
       edn/read-string
-      compile-edn))
+      prepare-edn))
 
 
 (defn evaluate [edn message]
@@ -45,6 +45,6 @@
 
 
 #_(clojure.pprint/pprint
-    (evaluate (compile "(and (= sender \"tbt\") (= payload.quantity 10))")
+    (evaluate (prepare "(and (= sender \"tbt\") (= payload.quantity 10))")
               {:sender  "tbt"
                :payload {:quantity 10}}))
