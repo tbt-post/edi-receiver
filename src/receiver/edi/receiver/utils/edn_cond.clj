@@ -3,13 +3,22 @@
             [clojure.string :as string]))
 
 
+(def ^:private fns {"and"  (fn [& args] (every? identity args))
+                    "or"   (fn [& args] (or (some identity args) false))
+                    "not"  not
+                    ">"    >
+                    ">="   >=
+                    "<"    <
+                    "<="   <=
+                    "="    =
+                    "not=" not=})
+
+
 (defn- resolve-fn [symbol]
-  (case (name symbol)
-    ; replace macros to work as functions
-    "and" (fn [& args] (every? identity args))
-    "or" (fn [& args] (or (some identity args) false))
-    ; TODO: maybe restrict resolve?
-    (resolve symbol)))
+  (or (get fns (name symbol))
+      (throw (ex-info (format "unknown function: %s\nknown functions are: %s"
+                              (name symbol)
+                              (->> fns keys sort (string/join " "))) {}))))
 
 
 (defn- prepare-edn [edn]
