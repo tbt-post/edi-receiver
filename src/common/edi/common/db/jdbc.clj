@@ -64,3 +64,7 @@
   (->> (jdbc/query pool "SELECT table_name, MAX(model_version) AS model_version FROM migrations GROUP BY table_name")
        (map (juxt (comp keyword :table_name) :model_version))
        (into {})))
+
+
+(defn db-version [pool]
+  (->> (jdbc/query pool "SELECT version()") first :version))

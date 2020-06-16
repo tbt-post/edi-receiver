@@ -1,6 +1,6 @@
 FROM ubuntu:eoan
 
-RUN apt-get update && apt-get install -y wget default-jre-headless
+RUN apt-get update && apt-get install -y wget default-jdk-headless
 RUN wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -P /bin
 RUN chmod a+x /bin/lein
 RUN lein upgrade
@@ -22,10 +22,12 @@ RUN pg_ctlcluster 12 main start &&\
 WORKDIR /opt/edi-receiver
 COPY resources resources
 COPY src src
+COPY java java
 COPY test test
 COPY project.clj project.clj
 
-RUN lein upgrade && lein do with-profile control uberjar, with-profile receiver uberjar
+RUN javac -version
+RUN lein upgrade && lein deps && lein build-all
 
 EXPOSE 5432 8000
 

@@ -1,5 +1,5 @@
 compile:
-	lein do with-profile control uberjar, with-profile receiver uberjar
+	lein build-all
 
 run:
 	java -jar target/edi-receiver-standalone.jar

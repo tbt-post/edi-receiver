@@ -23,12 +23,16 @@
                  [org.slf4j/log4j-over-slf4j "1.7.30"]
                  [org.clojure/tools.logging "1.1.0"]]
 
-  ; to remove default "src" from classpath
   :source-paths []
+  :aliases {"repl"      ["do" "with-profile" "precomp" "javac," "repl"]
+            "test"      ["do" "with-profile" "precomp" "javac," "test"]
+            "build-all" ["do"
+                         "with-profile" "control" "uberjar,"
+                         "with-profile" "receiver" "uberjar"]}
 
-  :profiles {:dev      [:r-deps
+  :profiles {:precomp  {:java-source-paths ["java"]}
+             :dev      [:r-deps
                         {:source-paths ["dev" "src/common" "src/control" "src/receiver"]
-                         :target-path  "target/%s/"
                          :dependencies [[com.stuartsierra/component.repl "0.2.0"]
                                         [org.clojure/tools.namespace "1.0.0"]
                                         [hawk "0.2.11"]]}]
@@ -45,7 +49,7 @@
                         :aot          :all
                         :omit-source  true
                         :main         edi.control.core}
-             :receiver [:r-deps
+             :receiver [:precomp :r-deps
                         {:source-paths ["src/common" "src/receiver"]
                          :target-path  "target/%s/"
                          :jar-name     "edi-receiver.jar"

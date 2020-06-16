@@ -1,16 +1,26 @@
 (ns edi.receiver.api.handlers.topic
   (:require [clojure.tools.logging :as log]
             [edi.receiver.saver :as saver]
-            [edi.common.utils :as utils])
-  (:import (clojure.lang ExceptionInfo)))
+            [edi.common.utils :as utils]
+            [edi.receiver.stats :as stats])
+  (:import (clojure.lang ExceptionInfo)
+           (java.time Instant)))
 
 
 (defn post [{context                 :context
              {{:keys [topic]} :path} :parameters
-             message                 :body-params}]
+             message                 :body-params
+             headers                 :headers}]
   (try
     {:status 200
-     :body   {:rowcount (saver/process-message! context topic message)}}
+     :body   {:rowcount
+              (let [stats      (:stats context)
+                    started-at (Instant/now)]
+                (stats/before-activity stats started-at)
+                (stats/before-request stats topic started-at)
+                (let [rowcount (saver/process-message! context topic message)]
+                  (stats/after-request stats started-at (or (some-> headers (get "content-length") Integer/parseInt) 0))
+                  rowcount))}}
     (catch Exception e
       (let [error (if (instance? ExceptionInfo e)
                     {:message (ex-message e)

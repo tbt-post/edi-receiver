@@ -81,7 +81,8 @@ lein upgrade
 === Build the application
 
 ----
-lein do with-profile control uberjar, with-profile receiver uberjar
+lein deps
+lein build-all
 ----
 
 === Installing postgresql
@@ -169,6 +170,40 @@ Some config options can be customized from command line, see help:
 
 ----
 java -jar target/edi-receiver-standalone.jar --help
+----
+
+== Proxying
+
+Sample configuration for proxying
+
+----
+backend.0.name="dear-kafka"
+backend.0.type="kafka"
+backend.0.bootstrap-servers="127.0.0.1:9092"
+backend.0.enabled=true
+
+backend.1.name="weak-connection-api"
+backend.1.type="http"
+backend.1.method="post"
+backend.1.uri="http://my.host/api/topic/{topic}" ; {topic} will be substituted with proxy.N.target
+backend.1.auth.enabled=true
+backend.1.auth.type="basic"
+backend.1.auth.username="test"
+backend.1.auth.password="pass"
+backend.1.enabled=true
+
+proxy.0.backend="dear-kafka"
+proxy.0.source="document"
+proxy.0.target="proxy_document" ; kafka topic name
+proxy.0.enabled=true
+proxy.0.reliable=true           ; means not to accept message if kafka producer fails
+
+proxy.1.backend="weak-connection-api"
+proxy.1.source="document"
+proxy.1.target="proxy_document"
+proxy.1.condition="(= sender \\"tbt\\")"
+proxy.1.enabled=true
+proxy.1.reliable=false          ; means to ignore api fails
 ----
 
 == Development

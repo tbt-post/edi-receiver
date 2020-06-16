@@ -6,9 +6,11 @@
             [edi.common.db.models :as models]
             [edi.receiver.upstream :as upstream]
             [edi.common.utils :as utils]
-            [cheshire.core :as json])
+            [cheshire.core :as json]
+            [edi.receiver.stats :as stats])
   (:import (java.util UUID)
-           (org.postgresql.util PGobject)))
+           (org.postgresql.util PGobject)
+           (java.time Instant)))
 
 
 (def type-coerce
@@ -28,15 +30,16 @@
 
 
 (defn- coerce-item [type-coerce model [key value]]
-  (let [{:keys [type alias]} (get model key)
-        as (-> (get type-coerce type)
-               (or identity))]
-    [(or alias key) (as value)]))
+  (when-let [{:keys [type alias]} (get model key)]
+    (let [as (-> (get type-coerce type)
+                 (or identity))]
+      [(or alias key) (as value)])))
 
 
 (defn- coerce-message [type-coerce model message]
   (->> message
        (map (partial coerce-item type-coerce model))
+       (remove nil?)
        (into {})))
 
 
@@ -50,18 +53,22 @@
        first))
 
 
-(defn- save! [db topic message]
+(defn- save! [db topic message stats]
   (let [[table values] (converter (:driver db) topic message)]
-    (db/insert! db table values)))
+    (let [started-at (Instant/now)]
+      (let [rowcount (db/insert! db table values)]
+        (when stats
+          (stats/after-sql stats started-at))
+        rowcount))))
 
 
-(defn process-message! [{:keys [db backend upstream]} topic message]
+(defn process-message! [{:keys [db backend upstream stats]} topic message]
   (log/debug "validating message from" topic)
   (upstream/validate upstream topic message)
   (jdbc/with-db-transaction
     [tx db]
     (log/debug "saving message from" topic)
-    (let [result (save! tx topic message)]
+    (let [result (save! tx topic message stats)]
       (backend/send-message backend topic message)
       result)))
 
@@ -71,7 +78,7 @@
   (jdbc/with-db-transaction
     [tx db]
     (swap! (:rollback tx) (constantly true))
-    (save! tx topic message)))
+    (save! tx topic message nil)))
 
 
 (defn run-tests [{:keys [upstream] :as context}]
