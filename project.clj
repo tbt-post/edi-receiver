@@ -67,6 +67,9 @@
                                        [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal uses
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.4.0"]]}}
+                                       [net.tbt-post/clj-kafka-x "0.4.0"]
+
+                                       ;; SMTP
+                                       [com.sun.mail/javax.mail "1.6.2"]]}}
 
   :plugins [[lein-ancient "0.6.15"]])

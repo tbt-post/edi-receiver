@@ -3,6 +3,7 @@
             [edi.receiver.backend.kafka :as kafka]
             [edi.receiver.backend.http :as http]
             [edi.receiver.backend.protocol :as protocol]
+            [edi.receiver.backend.javamail :as javamail]
             [edi.receiver.utils.edn-cond :as edn-cond]
             [edi.common.utils :as utils]))
 
@@ -13,6 +14,7 @@
      (case type
        "http" (http/create config)
        "kafka" (kafka/create config)
+       "smtp" (javamail/create config)
        (throw (ex-info (format "Unknown backend: %s" type) config)))]))
 
 
