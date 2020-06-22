@@ -202,8 +202,49 @@ proxy.1.backend="weak-connection-api"
 proxy.1.source="document"
 proxy.1.target="proxy_document"
 proxy.1.condition="(= sender \\"tbt\\")"
+proxy.1.transform="[:sender :id :body]"
 proxy.1.enabled=true
 proxy.1.reliable=false          ; means to ignore api fails
+----
+
+== Transform
+
+Transformation rules:
+
+----
+[:input-key                                               ; pass trough key
+ [:input-key :output-key]                                 ; pass trough, rename key
+
+ [nil :output-key nil "output value"]                     ; inject constant pair
+
+ [:input-key :output-key "input-value" "output-value"]]   ; inject if input value matches
+----
+
+E. g., following rules
+
+----
+[:a                     ; pass-through :a
+ [:b :bb]               ; rename :b to :bb
+ [:c :cc 123 456]       ; set :cc to 456 if :c was 123, no hit
+ [:c :cc 3 333]         ; set :cc to 333 if :c was 3
+ [nil :new nil 77]]     ; set :new to 777
+----
+
+applied to
+
+----
+{:a 1
+ :b 2
+ :c 3}
+----
+
+will produce
+
+----
+{:a 1
+ :bb 2
+ :cc 333
+ :new 77}
 ----
 
 == Development

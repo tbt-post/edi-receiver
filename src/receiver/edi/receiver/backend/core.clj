@@ -1,10 +1,12 @@
 (ns edi.receiver.backend.core
   (:require [clojure.tools.logging :as log]
             [edi.receiver.backend.kafka :as kafka]
+            [edi.receiver.backend.dump :as dump]
             [edi.receiver.backend.http :as http]
             [edi.receiver.backend.protocol :as protocol]
             [edi.receiver.backend.javamail :as javamail]
             [edi.receiver.utils.edn-cond :as edn-cond]
+            [edi.receiver.utils.transform :as transform]
             [edi.common.utils :as utils]))
 
 
@@ -15,6 +17,7 @@
        "http" (http/create config)
        "kafka" (kafka/create config)
        "smtp" (javamail/create config)
+       "dump" (dump/create config)
        (throw (ex-info (format "Unknown backend: %s" type) config)))]))
 
 
@@ -35,6 +38,11 @@
             :skipped-via-condition)))))
 
 
+(defn- wrap-transform [send transform]
+  (fn [backend topic message]
+    (send backend topic (transform/transform transform message))))
+
+
 (defn- wrap-unreliable [send]
   (fn [backend topic message]
     (try
@@ -50,9 +58,10 @@
 
 
 (defn- create-proxies [config backends]
-  (let [create-proxy (fn [{:keys [backend reliable source target condition]}]
+  (let [create-proxy (fn [{:keys [backend reliable source target condition transform]}]
                        (let [send (cond-> protocol/send-message
                                           condition (wrap-condition condition)
+                                          transform (wrap-transform transform)
                                           (not reliable) wrap-unreliable)]
                          {:source source
                           :send   (partial send (get backends (keyword backend)) target)}))]
