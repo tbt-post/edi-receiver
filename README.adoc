@@ -220,7 +220,7 @@ Transformation rules:
  [:input-key :output-key "input-value" "output-value"]]   ; inject if input value matches
 ----
 
-E. g., following rules
+For example, following rules
 
 ----
 [:a                     ; pass-through :a
