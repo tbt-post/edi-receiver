@@ -1,11 +1,12 @@
 (ns edi.receiver.backend.core
   (:require [clojure.tools.logging :as log]
+            [clojure.tools.reader.edn :as edn]
             [edi.receiver.backend.kafka :as kafka]
             [edi.receiver.backend.dump :as dump]
             [edi.receiver.backend.http :as http]
             [edi.receiver.backend.protocol :as protocol]
             [edi.receiver.backend.javamail :as javamail]
-            [edi.receiver.utils.edn-cond :as edn-cond]
+            [edi.receiver.utils.expression :as expression]
             [edi.receiver.utils.transform :as transform]
             [edi.common.utils :as utils]))
 
@@ -30,17 +31,18 @@
 
 
 (defn- wrap-condition [send condition]
-  (let [condition (edn-cond/prepare condition)]
+  (let [condition (-> condition edn/read-string expression/prepare)]
     (fn [backend topic message]
-      (if (edn-cond/evaluate condition message)
+      (if (expression/evaluate condition message)
         (send backend topic message)
         (do (log/debugf "Proxying to %s, topic %s skipped via condition" (.getName (class backend)) topic)
             :skipped-via-condition)))))
 
 
 (defn- wrap-transform [send transform]
-  (fn [backend topic message]
-    (send backend topic (transform/transform transform message))))
+  (let [rules (-> transform edn/read-string transform/prepare)]
+    (fn [backend topic message]
+      (send backend topic (transform/transform rules message)))))
 
 
 (defn- wrap-unreliable [send]

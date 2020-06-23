@@ -202,7 +202,7 @@ proxy.1.backend="weak-connection-api"
 proxy.1.source="document"
 proxy.1.target="proxy_document"
 proxy.1.condition="(= sender \\"tbt\\")"
-proxy.1.transform="[:sender :id :body]"
+proxy.1.transform="[[body (str body) (some? body)]]"
 proxy.1.enabled=true
 proxy.1.reliable=false          ; means to ignore api fails
 ----
@@ -212,40 +212,64 @@ proxy.1.reliable=false          ; means to ignore api fails
 Transformation rules:
 
 ----
-[:input-key                                               ; pass trough key
- [:input-key :output-key]                                 ; pass trough, rename key
-
- [nil :output-key nil "output value"]                     ; inject constant pair
-
- [:input-key :output-key "input-value" "output-value"]]   ; inject if input value matches
+[:restrictive                           ; optional modifier, makes rules restrictive
+ [target.path <expression> <condition>]
+ [another.path <expression2>]           ; condition can be optional
+ ...]
 ----
 
-For example, following rules
+Restrictive means to start result from empty map. For example, following rules
 
 ----
-[:a                     ; pass-through :a
- [:b :bb]               ; rename :b to :bb
- [:c :cc 123 456]       ; set :cc to 456 if :c was 123, no hit
- [:c :cc 3 333]         ; set :cc to 333 if :c was 3
- [nil :new nil 77]]     ; set :new to 777
+[:restrictive
+ [a (str (+ aa 10)) (odd aa)]   ; aa is odd, so evaluates
+ [a (str aa) (even aa)]         ; no hit as aa is not even
+ [b bb]                         ; simple assignment
+ [c cc (some? cc)]              ; assign c from cc if cc is not nil
+ [new 777]]                     ; constant new value
 ----
 
 applied to
 
 ----
-{:a 1
- :b 2
- :c 3}
+{:aa 1
+ :bb 2
+ :cc nil}
 ----
 
 will produce
 
 ----
-{:a 1
- :bb 2
- :cc 333
- :new 77}
+{:a   "11"
+ :b   2
+ :new 777}
 ----
+
+Non-restrictive rules can be used to update or drop some values, for example, rules
+
+----
+[[aa (str (+ aa 10)) (odd aa)]  ; aa is odd so update it
+ [aa (str aa) (even aa)]        ; no hit as aa is not even
+ [cc :dissoc]                   ; remove cc anyway
+ [new 777]]                     ; constant new value
+----
+
+applied to
+
+----
+{:aa 1
+ :bb 2
+ :cc nil}
+----
+
+will produce
+
+----
+{:aa  "11"
+ :bb  2                         ; there was no rule on bb
+ :new 777}
+----
+
 
 == Development
 

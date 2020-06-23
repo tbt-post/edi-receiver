@@ -57,7 +57,8 @@
                          :aot          :all
                          :omit-source  true
                          :main         edi.receiver.core}]
-             :r-deps   {:dependencies [[luposlip/json-schema "0.2.4"]
+             :r-deps   {:dependencies [[medley "1.3.0"]
+                                       [luposlip/json-schema "0.2.4"]
 
                                        ;; HTTP
                                        [io.pedestal/pedestal.service "0.5.8"]

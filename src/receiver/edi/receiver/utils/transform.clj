@@ -1,58 +1,68 @@
 (ns edi.receiver.utils.transform
-  (:require [clojure.edn :as edn]))
+  (:require [edi.receiver.utils.expression :as expression]
+            [medley.core :as medley]))
 
 
-#_[
-   :input-key                                               ; path-trough key
-   [:input-key :output-key]                                 ; path-trough, rename key
+#_[:restrictive
+   [aa (str (+ aa 10)) (> aa 10)]
+   [bb bb]
+   [cc cc (some? cc)]]
 
-   [nil :output-key nil "output value"]                     ; inject constant pair
+; wide by default
+#_[[aa (str (+ aa 10)) (> aa 10)]
+   [aa :dissoc (<= aa 10)]
+   [cc :dissoc (nil? cc)]]
 
-   [:input-key :output-key "input-value" "output-value"]]   ; inject if input value matches
-
-
-(defn- g [d key]
-  (get d key))
-
-
-(defn- transform-item [d rule]
-  (let [rule    (if (keyword? rule) [rule rule] rule)
-        [in-key out-key in-value out-value] rule
-        out-key (or out-key in-key)]
-
-    (cond
-      (and in-key out-key)
-      ; translate
-      (when (or (nil? in-value)
-                (= in-value (g d in-key)))
-        [out-key (if (nil? out-value)
-                   (g d in-key)
-                   out-value)])
-
-      out-key
-      [out-key out-value]
-
-      :else
-      (do
-        (print "unknown case" rule)
-        nil))))
+#_[[payload.quantity
+    (str (+ payload.quantity 10))
+    (and (= sender "tbt") (= payload.quantity 10))]]
 
 
-(defn transform [rules d]
-  (let [rules (if (string? rules)
-                (edn/read-string rules)
-                rules)]
-    (->> rules
-         (map (partial transform-item d))
-         (into {}))))
+(defn- prepare-rule [edn]
+  (let [[path expression condition] edn]
+    [(expression/prepare-path path)
+     (cond-> expression
+             (not (keyword? expression)) expression/prepare)
+     (when (some? condition)
+       (expression/prepare condition))]))
+
+
+(defn prepare [rules]
+  (let [modifier (first rules)]
+    {:restrictive? (and (keyword? modifier) (= :restrictive modifier))
+     :rules        (map prepare-rule (cond-> rules (keyword? modifier) next))}))
+
+
+(defn transform [{:keys [restrictive? rules]} source]
+  (let [target (atom (if restrictive? {} source))]
+    (doseq [[path expression condition] rules]
+      (when (or (nil? condition)
+                (expression/evaluate condition source))
+        (if (= :dissoc expression)
+          (swap! target #(medley/dissoc-in % path))
+          (let [value (expression/evaluate expression source)]
+            (swap! target #(assoc-in % path value))))))
+    @target))
 
 
 #_(prn "-----------------------------------")
-#_(clojure.pprint/pprint (transform [:a
-                                     [:b :bb]
-                                     [:c :cc 123 456]
-                                     [:c :cc 3 333]
-                                     [nil :new nil 77]]
-                                    {:a 1
-                                     :b 2
-                                     :c 3}))
+#_(-> (str
+        "[:restrictive"
+        " [a (str (+ aa 10)) (> aa 10)]"
+        " [b bb]"
+        " [c cc (some? cc)]]")
+      edn/read-string
+      prepare
+      (transform {:aa 11 :bb 2 :cc 3})
+      clojure.pprint/pprint)
+#_(-> (str
+        "[[a (str (+ aa 10)) (> aa 10)]"
+        " [b bb]"
+        " [c cc (some? cc)]"
+        " [aa :dissoc]"
+        " [bb :dissoc]"
+        " [cc :dissoc]]")
+      edn/read-string
+      prepare
+      (transform {:aa 11 :bb 2 :cc 3})
+      clojure.pprint/pprint)
