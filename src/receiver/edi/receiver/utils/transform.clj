@@ -51,7 +51,7 @@
         " [a (str (+ aa 10)) (> aa 10)]"
         " [b bb]"
         " [c cc (some? cc)]]")
-      edn/read-string
+      clojure.edn/read-string
       prepare
       (transform {:aa 11 :bb 2 :cc 3})
       clojure.pprint/pprint)

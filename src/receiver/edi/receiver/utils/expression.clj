@@ -1,17 +1,11 @@
 (ns edi.receiver.utils.expression
-  (:require [clojure.string :as string]))
-
-
-(def ^:private fns {"and" (fn [& args] (every? identity args))
-                    "or"  (fn [& args] (or (some identity args) false))})
+  (:require [clojure.string :as string]
+            [edi.receiver.utils.sandbox]))
 
 
 (defn- resolve-fn [symbol]
-  (or (get fns (name symbol))
-      (resolve symbol)
-      (throw (ex-info (format "unknown function: %s\nknown functions are: %s"
-                              (name symbol)
-                              (->> fns keys sort (string/join " "))) {}))))
+  (or (ns-resolve 'edi.receiver.utils.sandbox symbol)
+      (throw (ex-info (format "unknown function: %s" (name symbol)) {}))))
 
 
 (defn prepare-path [edn]
@@ -44,6 +38,6 @@
 
 
 #_(clojure.pprint/pprint
-    (evaluate (prepare (edn/read-string "(and (= sender \"tbt\") (= payload.quantity 10))"))
+    (evaluate (prepare (clojure.edn/read-string "(and (= sender \"tbt\") (= payload.quantity 10))"))
               {:sender  "tbt"
                :payload {:quantity 10}}))
