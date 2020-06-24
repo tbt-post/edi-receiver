@@ -8,7 +8,3 @@
 
 (defn or [& args]
   (or (some identity args) false))
-
-
-(def string-reverse clojure.string/reverse)
-(def string-replace clojure.string/replace)
