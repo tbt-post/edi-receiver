@@ -14,6 +14,9 @@
                  [org.postgresql/postgresql "42.2.12"]
                  [mysql/mysql-connector-java "8.0.20"]
 
+                 ;; HTTP client
+                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal uses
+
                  ;; Logger
                  ; TODO: move logger to dev
                  [ch.qos.logback/logback-classic "1.2.3"
@@ -36,19 +39,21 @@
                          :dependencies [[com.stuartsierra/component.repl "0.2.0"]
                                         [org.clojure/tools.namespace "1.0.0"]
                                         [hawk "0.2.11"]]}]
-             :common   {:source-paths ["src/common"]
-                        :target-path  "target/%s/"
-                        :jar-name     "edi-common.jar"
-                        :uberjar-name "edi-common-standalone.jar"
-                        :aot          :all
-                        :omit-source  true}
-             :control  {:source-paths ["src/common" "src/control"]
-                        :target-path  "target/%s/"
-                        :jar-name     "edi-control.jar"
-                        :uberjar-name "edi-control-standalone.jar"
-                        :aot          :all
-                        :omit-source  true
-                        :main         edi.control.core}
+             :common   [:precomp
+                        {:source-paths ["src/common"]
+                         :target-path  "target/%s/"
+                         :jar-name     "edi-common.jar"
+                         :uberjar-name "edi-common-standalone.jar"
+                         :aot          :all
+                         :omit-source  true}]
+             :control  [:precomp
+                        {:source-paths ["src/common" "src/control"]
+                         :target-path  "target/%s/"
+                         :jar-name     "edi-control.jar"
+                         :uberjar-name "edi-control-standalone.jar"
+                         :aot          :all
+                         :omit-source  true
+                         :main         edi.control.core}]
              :receiver [:precomp :r-deps
                         {:source-paths ["src/common" "src/receiver"]
                          :target-path  "target/%s/"
@@ -57,16 +62,19 @@
                          :aot          :all
                          :omit-source  true
                          :main         edi.receiver.core}]
-             :r-deps   {:dependencies [[luposlip/json-schema "0.2.4"]
+             :r-deps   {:dependencies [[medley "1.3.0"]
+                                       [luposlip/json-schema "0.2.4"]
 
-                                       ;; HTTP
+                                       ;; HTTP server
                                        [io.pedestal/pedestal.service "0.5.8"]
                                        [io.pedestal/pedestal.jetty "0.5.8"]
                                        [metosin/reitit "0.5.2"]
                                        [metosin/reitit-pedestal "0.5.2"]
-                                       [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal uses
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.4.0"]]}}
+                                       [net.tbt-post/clj-kafka-x "0.4.0"]
+
+                                       ;; SMTP
+                                       [com.sun.mail/javax.mail "1.6.2"]]}}
 
   :plugins [[lein-ancient "0.6.15"]])

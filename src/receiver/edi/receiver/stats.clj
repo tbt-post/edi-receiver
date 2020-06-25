@@ -1,11 +1,10 @@
 (ns edi.receiver.stats
-  (:require [edi.common.db.jdbc :as db]
+  (:require [clojure.tools.logging :as log]
             [edi.common.config :as config]
-            [clojure.string :as string]
-            [clojure.tools.logging :as log])
-  (:import (java.time Instant Duration Clock)
-           (java.time.temporal ChronoUnit)
-           (edi.common.util NanoClock)))
+            [edi.common.db.jdbc :as db]
+            [edi.common.util.stats :as stats])
+  (:import (java.time Instant Duration)
+           (java.time.temporal ChronoUnit)))
 
 
 #_{:created-at                        <datetime>
@@ -33,9 +32,7 @@
    :current-day-total-content-length  <long>}
 
 (def ^:private stats (atom {}))
-(def ^:private ^Clock clock (if (string/starts-with? (System/getProperty "java.version") "1.8")
-                              (NanoClock.)
-                              (Clock/systemUTC)))
+
 
 (defn- safe-div [a b]
   (when (-> b (or 0) (not= 0))
@@ -44,10 +41,6 @@
 
 (defn- safe-inc [x]
   (inc (or x 0)))
-
-
-(defn now []
-  (.instant clock))
 
 
 (defn- current-unit-stats
@@ -83,7 +76,7 @@
                 current-hour
                 current-hour-request-count
                 current-hour-total-content-length] :as stats} @stats]
-    (let [now                 (now)
+    (let [now                 (stats/now)
           uptime              (Duration/between created-at now)
           uptime-s            (-> uptime .toMillis (/ 1000))
 
@@ -141,20 +134,16 @@
            #_(into (array-map))))))
 
 
-(defn- micro-seconds [^Duration duration]
-  (-> duration .toNanos (/ 1000)))
-
-
 (defn create [{:keys [config db]}]
-  (log/info "Initializing stats, clock is" (.getName (class clock)))
-  (swap! stats #(assoc % :created-at (now)
+  (log/info "Initializing stats")
+  (swap! stats #(assoc % :created-at (stats/now)
                          :topics (config/get-topics config)
                          :db-version (db/db-version db)))
   stats)
 
 
 (defn- update-current-day-stats [stats content-length]
-  (let [current-day (-> (now)
+  (let [current-day (-> (stats/now)
                         (.truncatedTo ChronoUnit/DAYS))]
     (if (= current-day (:current-day stats))
       (-> stats
@@ -167,7 +156,7 @@
 
 
 (defn- update-current-hour-stats [stats content-length]
-  (let [current-hour (-> (now)
+  (let [current-hour (-> (stats/now)
                          (.truncatedTo ChronoUnit/HOURS))]
     (if (= current-hour (:current-hour stats))
       (-> stats
@@ -189,12 +178,12 @@
 
 
 (defn after-request [stats started-at content-length]
-  (let [now (now)
+  (let [now (stats/now)
         dt  (Duration/between started-at now)]
     (swap! stats (fn [stats]
                    (-> stats
                        (assoc :last-request-at now)
-                       (update :total-request-time #(-> % (or 0) (+ (micro-seconds dt))))
+                       (update :total-request-time #(-> % (or 0) (+ (stats/micro-seconds dt))))
                        (update :request-count safe-inc)
                        (update :total-content-length #(-> % (or 0) (+ content-length)))
                        (update-current-day-stats content-length)
@@ -202,10 +191,10 @@
 
 
 (defn after-sql [stats started-at]
-  (let [now (now)
+  (let [now (stats/now)
         dt  (Duration/between started-at now)]
     (swap! stats (fn [stats]
                    (-> stats
                        (assoc :last-sql-at now)
-                       (update :total-sql-time #(-> % (or 0) (+ (micro-seconds dt))))
+                       (update :total-sql-time #(-> % (or 0) (+ (stats/micro-seconds dt))))
                        (update :sql-count safe-inc))))))

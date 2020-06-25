@@ -1,10 +1,14 @@
 (ns edi.receiver.backend.core
   (:require [clojure.tools.logging :as log]
+            [clojure.tools.reader.edn :as edn]
             [edi.receiver.backend.kafka :as kafka]
+            [edi.receiver.backend.dump :as dump]
             [edi.receiver.backend.http :as http]
             [edi.receiver.backend.protocol :as protocol]
-            [edi.receiver.utils.edn-cond :as edn-cond]
-            [edi.common.utils :as utils]))
+            [edi.receiver.backend.javamail :as javamail]
+            [edi.receiver.utils.expression :as expression]
+            [edi.receiver.utils.transform :as transform]
+            [edi.common.util.core :as util]))
 
 
 (defn- create-backend [{:keys [name type] :as config}]
@@ -13,24 +17,32 @@
      (case type
        "http" (http/create config)
        "kafka" (kafka/create config)
+       "smtp" (javamail/create config)
+       "dump" (dump/create config)
        (throw (ex-info (format "Unknown backend: %s" type) config)))]))
 
 
 (defn- create-backends [config]
   (->> config
-       utils/ordered-vals
+       util/ordered-vals
        (filter :enabled)
        (map create-backend)
        (into {})))
 
 
 (defn- wrap-condition [send condition]
-  (let [condition (edn-cond/prepare condition)]
+  (let [condition (-> condition edn/read-string expression/prepare)]
     (fn [backend topic message]
-      (if (edn-cond/evaluate condition message)
+      (if (expression/evaluate condition message)
         (send backend topic message)
         (do (log/debugf "Proxying to %s, topic %s skipped via condition" (.getName (class backend)) topic)
             :skipped-via-condition)))))
+
+
+(defn- wrap-transform [send transform]
+  (let [rules (-> transform edn/read-string transform/prepare)]
+    (fn [backend topic message]
+      (send backend topic (transform/transform rules message)))))
 
 
 (defn- wrap-unreliable [send]
@@ -43,19 +55,20 @@
                    topic
                    (-> e class .getName)
                    (ex-message e)
-                   (utils/pretty (ex-data e))
-                   (utils/pretty message))))))
+                   (util/pretty (ex-data e))
+                   (util/pretty message))))))
 
 
 (defn- create-proxies [config backends]
-  (let [create-proxy (fn [{:keys [backend reliable source target condition]}]
+  (let [create-proxy (fn [{:keys [backend reliable source target condition transform]}]
                        (let [send (cond-> protocol/send-message
                                           condition (wrap-condition condition)
+                                          transform (wrap-transform transform)
                                           (not reliable) wrap-unreliable)]
                          {:source source
                           :send   (partial send (get backends (keyword backend)) target)}))]
     (->> config
-         utils/ordered-vals
+         util/ordered-vals
          (filter :enabled)
          (filter #(get backends (keyword (:backend %))))
          (map create-proxy)
@@ -80,4 +93,4 @@
 (defn send-message [{:keys [proxies]} topic message]
   (doseq [proxy (get proxies topic)]
     (let [result (proxy message)]
-      (log/debug "proxying result" (utils/pretty result)))))
+      (log/debug "proxying result" (util/pretty result)))))
