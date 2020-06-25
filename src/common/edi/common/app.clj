@@ -5,15 +5,15 @@
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]
             [edi.common.config :as config]
-            [edi.common.utils :as utils]))
+            [edi.common.util.core :as utils]))
 
 
 (def ^:private default-option-specs
   [["-h" "--help" "show help"]
-   ["-c" "--config CONFIG" "External config file"
+   ["-c" "--config CONFIG" "external config file"
     :parse-fn string/trim
     :validate [#(-> % io/file .exists) "Config file does not exist"]]
-   ["-t" "--topics TOPICS" "Comma separated topic list"
+   ["-t" "--topics TOPICS" "comma separated topic list"
     :parse-fn utils/split-comma-separated
     :validate [(fn [topics]
                  (every?
@@ -22,7 +22,7 @@
                       (do (log/error "Unknown topic:" %)
                           false))
                    topics)) "Unknown topic"]]
-   ["-d" "--db DB" "Database, pg|mysql, default is pg"
+   ["-d" "--db DB" "database, pg|mysql, default is pg"
     :parse-fn string/trim
     :validate [#(#{"pg" "mysql"} %) "Invalid db"]]
    [nil "--dump-config" "dump system configuration"]])

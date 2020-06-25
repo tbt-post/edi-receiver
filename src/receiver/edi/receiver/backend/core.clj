@@ -8,7 +8,7 @@
             [edi.receiver.backend.javamail :as javamail]
             [edi.receiver.utils.expression :as expression]
             [edi.receiver.utils.transform :as transform]
-            [edi.common.utils :as utils]))
+            [edi.common.util.core :as util]))
 
 
 (defn- create-backend [{:keys [name type] :as config}]
@@ -24,7 +24,7 @@
 
 (defn- create-backends [config]
   (->> config
-       utils/ordered-vals
+       util/ordered-vals
        (filter :enabled)
        (map create-backend)
        (into {})))
@@ -55,8 +55,8 @@
                    topic
                    (-> e class .getName)
                    (ex-message e)
-                   (utils/pretty (ex-data e))
-                   (utils/pretty message))))))
+                   (util/pretty (ex-data e))
+                   (util/pretty message))))))
 
 
 (defn- create-proxies [config backends]
@@ -68,7 +68,7 @@
                          {:source source
                           :send   (partial send (get backends (keyword backend)) target)}))]
     (->> config
-         utils/ordered-vals
+         util/ordered-vals
          (filter :enabled)
          (filter #(get backends (keyword (:backend %))))
          (map create-proxy)
@@ -93,4 +93,4 @@
 (defn send-message [{:keys [proxies]} topic message]
   (doseq [proxy (get proxies topic)]
     (let [result (proxy message)]
-      (log/debug "proxying result" (utils/pretty result)))))
+      (log/debug "proxying result" (util/pretty result)))))

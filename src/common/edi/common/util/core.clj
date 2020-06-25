@@ -1,4 +1,4 @@
-(ns edi.common.utils
+(ns edi.common.util.core
   (:require [clojure.string :as string])
   (:import (java.io StringWriter)
            (java.nio ByteBuffer)

@@ -4,7 +4,7 @@
             [edi.common.db.jdbc :as db]
             [edi.common.db.models :as models]
             [clojure.string :as string]
-            [edi.common.utils :as utils]
+            [edi.common.util.core :as utils]
             [edi.common.config :as config]))
 
 

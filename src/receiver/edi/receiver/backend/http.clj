@@ -3,7 +3,7 @@
             [clojure.string :as string]
             [clojure.tools.logging :as log]
             [edi.receiver.backend.protocol :as protocol]
-            [edi.receiver.utils.jetty-client :as http])
+            [edi.common.util.jetty-client :as http])
   (:import (clojure.lang ExceptionInfo)))
 
 
@@ -14,8 +14,8 @@
   (send-message [_ topic message]
     (let [request (-> request
                       (update :uri #(string/replace % #"\{topic\}" topic))
-                      (assoc :headers {"Content-Type" "application/json"
-                                       "Accept"       "application/json"}
+                      (assoc :headers {:Content-Type "application/json"
+                                       :Accept       "application/json"}
                              :body (json/encode message)
                              :throw-for-status true))]
       (log/debug "proxying message to " (:uri request))

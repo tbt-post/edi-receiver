@@ -5,7 +5,7 @@
             [edi.common.db.jdbc :as db]
             [edi.common.db.models :as models]
             [edi.receiver.upstream :as upstream]
-            [edi.common.utils :as utils]
+            [edi.common.util.core :as util]
             [cheshire.core :as json]
             [edi.receiver.stats :as stats])
   (:import (java.util UUID)
@@ -25,8 +25,8 @@
    :mysql      {:money     #(some-> % str bigdec)
                 :json      #(some-> % json/generate-string)
                 :timestamp #(when %
-                              (utils/iso-datetime->java-util-date %))
-                :uuid      #(some-> % UUID/fromString utils/uuid->byte-array)}})
+                              (util/iso-datetime->java-util-date %))
+                :uuid      #(some-> % UUID/fromString util/uuid->byte-array)}})
 
 
 (defn- coerce-item [type-coerce model [key value]]
