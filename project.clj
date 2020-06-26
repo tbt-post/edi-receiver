@@ -11,7 +11,7 @@
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.11"]
                  [com.mchange/c3p0 "0.9.5.5"]
-                 [org.postgresql/postgresql "42.2.12"]
+                 [org.postgresql/postgresql "42.2.14"]
                  [mysql/mysql-connector-java "8.0.20"]
 
                  ;; HTTP client
@@ -63,7 +63,7 @@
                          :omit-source  true
                          :main         edi.receiver.core}]
              :r-deps   {:dependencies [[medley "1.3.0"]
-                                       [luposlip/json-schema "0.2.4"]
+                                       [luposlip/json-schema "0.2.7"]
 
                                        ;; HTTP server
                                        [io.pedestal/pedestal.service "0.5.8"]
@@ -72,7 +72,7 @@
                                        [metosin/reitit-pedestal "0.5.2"]
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.4.0"]
+                                       [net.tbt-post/clj-kafka-x "0.4.1"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
