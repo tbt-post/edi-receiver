@@ -19,5 +19,11 @@ docker-build-mysql:
 docker-run-mysql: docker-build-mysql
 	docker run -it edi-receiver-mysql
 
+docker-build-load-pg:
+	docker build -t edi-receiver-load-pg -f docker/Dockerfile.load.pg .
+
+docker-run-load-pg: docker-build-load-pg
+	docker run -it edi-receiver-load-pg
+
 clean:
 	$(RM) -r target

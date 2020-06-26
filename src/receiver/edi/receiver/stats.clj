@@ -2,7 +2,7 @@
   (:require [clojure.tools.logging :as log]
             [edi.common.config :as config]
             [edi.common.db.jdbc :as db]
-            [edi.common.util.stats :as stats])
+            [edi.common.util.timer :as timer])
   (:import (java.time Instant Duration)
            (java.time.temporal ChronoUnit)))
 
@@ -76,7 +76,7 @@
                 current-hour
                 current-hour-request-count
                 current-hour-total-content-length] :as stats} @stats]
-    (let [now                 (stats/now)
+    (let [now                 (timer/now)
           uptime              (Duration/between created-at now)
           uptime-s            (-> uptime .toMillis (/ 1000))
 
@@ -136,14 +136,14 @@
 
 (defn create [{:keys [config db]}]
   (log/info "Initializing stats")
-  (swap! stats #(assoc % :created-at (stats/now)
+  (swap! stats #(assoc % :created-at (timer/now)
                          :topics (config/get-topics config)
                          :db-version (db/db-version db)))
   stats)
 
 
 (defn- update-current-day-stats [stats content-length]
-  (let [current-day (-> (stats/now)
+  (let [current-day (-> (timer/now)
                         (.truncatedTo ChronoUnit/DAYS))]
     (if (= current-day (:current-day stats))
       (-> stats
@@ -156,7 +156,7 @@
 
 
 (defn- update-current-hour-stats [stats content-length]
-  (let [current-hour (-> (stats/now)
+  (let [current-hour (-> (timer/now)
                          (.truncatedTo ChronoUnit/HOURS))]
     (if (= current-hour (:current-hour stats))
       (-> stats
@@ -178,12 +178,11 @@
 
 
 (defn after-request [stats started-at content-length]
-  (let [now (stats/now)
-        dt  (Duration/between started-at now)]
+  (let [now (timer/now)]
     (swap! stats (fn [stats]
                    (-> stats
                        (assoc :last-request-at now)
-                       (update :total-request-time #(-> % (or 0) (+ (stats/micro-seconds dt))))
+                       (update :total-request-time #(-> % (or 0) (+ (timer/delta-micros started-at now))))
                        (update :request-count safe-inc)
                        (update :total-content-length #(-> % (or 0) (+ content-length)))
                        (update-current-day-stats content-length)
@@ -191,10 +190,9 @@
 
 
 (defn after-sql [stats started-at]
-  (let [now (stats/now)
-        dt  (Duration/between started-at now)]
+  (let [now (timer/now)]
     (swap! stats (fn [stats]
                    (-> stats
                        (assoc :last-sql-at now)
-                       (update :total-sql-time #(-> % (or 0) (+ (stats/micro-seconds dt))))
+                       (update :total-sql-time #(-> % (or 0) (+ (timer/delta-micros started-at now))))
                        (update :sql-count safe-inc))))))
