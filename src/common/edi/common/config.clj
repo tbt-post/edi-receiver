@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi.common.utils :as utils])
+            [edi.common.util.core :as utils])
   (:import (java.io Reader)
            (java.util Properties)))
 

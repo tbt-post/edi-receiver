@@ -1,4 +1,4 @@
-(ns edi.receiver.utils.jetty-client
+(ns edi.common.util.jetty-client
   (:import (clojure.lang Keyword)
            (java.util Base64)
            (java.util.concurrent TimeUnit)
@@ -25,8 +25,8 @@
 
 
 (defn- set-headers [^Request request headers]
-  (doseq [[^String k ^String v] headers]
-    (.header request k v))
+  (doseq [[^Keyword k ^String v] headers]
+    (.header request (name k) v))
   request)
 
 
@@ -37,13 +37,13 @@
 
 
 (defn request [^HttpClient client {:keys [^String uri
-                                               ^Keyword method
-                                               query-params
-                                               headers
-                                               auth
-                                               ^String body
-                                               ^long timeout
-                                               ^boolean throw-for-status]}]
+                                          ^Keyword method
+                                          query-params
+                                          headers
+                                          auth
+                                          ^String body
+                                          ^long timeout
+                                          ^boolean throw-for-status]}]
   (let [^ContentResponse
         response (-> (cond-> ^Request (.newRequest client uri)
                              method (.method (name method))

@@ -3,7 +3,7 @@
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi.common.utils :as utils])
+            [edi.common.util.core :as utils])
   (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
 
 

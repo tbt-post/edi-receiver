@@ -5,9 +5,9 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [ring.util.codec :as ring-coded]
-            [edi.receiver.utils.jetty-client :as http]
+            [edi.common.util.jetty-client :as http]
             [edi.common.db.models :as models]
-            [edi.common.utils :as utils])
+            [edi.common.util.core :as util])
   (:import (java.io File)))
 
 
@@ -97,7 +97,7 @@
             data
             (download-and-cache upstream ref)))
         (update :schemas #(->> (select-keys % (map keyword topics))
-                               (utils/map-vals json-schema/prepare-schema)))
+                               (util/map-vals json-schema/prepare-schema)))
         (update :tests #(filter (fn [test] (topics (:topic test))) %)))))
 
 
