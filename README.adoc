@@ -47,6 +47,12 @@ sudo make docker-run
 sudo make docker-run-mysql
 ----
 
+=== Benchmark
+
+----
+sudo make docker-run-load-pg
+----
+
 == Manual build
 
 === Running with docker
@@ -291,6 +297,7 @@ where fire-config.json is file with content like:
       "uri": "http://localhost:8000/api/topic/document",
       "method": "post",
       "auth": {
+        "enabled": true,
         "type": "basic",
         "username": "test",
         "password": "pass"
@@ -304,7 +311,8 @@ where fire-config.json is file with content like:
 }
 ----
 
-edi-control will run 10 threads with 1000 requests (with random payload) per thread and calculate average request time.
+edi-control will run 10 threads with 1000 requests per thread and calculate average request time and request count per second.
+If multiple payloads supplied, payload for each request will be selected randomly.
 
 == Development
 

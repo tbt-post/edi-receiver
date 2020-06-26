@@ -1,6 +1,6 @@
-(ns edi.common.util.stats
+(ns edi.common.util.timer
   (:require [clojure.string :as string])
-  (:import (java.time Clock Duration)
+  (:import (java.time Clock Duration Instant)
            (edi.common.util NanoClock)))
 
 
@@ -13,5 +13,7 @@
   (.instant clock))
 
 
-(defn micro-seconds [^Duration duration]
-  (-> duration .toNanos (/ 1000)))
+(defn delta-micros [^Instant start ^Instant stop]
+  (-> (Duration/between start stop)
+      .toNanos
+      (/ 1000)))
