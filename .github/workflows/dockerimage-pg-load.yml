@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run Load test in Docker
-      run: docker build -t edi-receiver -f docker/Dockerfile.load.pg . --tag tbt-edi-receiver-test:$(date +%s)
+    - name: Build Docker for Test
+      run: docker build -t edi-receiver-load-pg -f docker/Dockerfile.load.pg . --tag tbt-edi-receiver-test:$(date +%s)
+    - name: Run the Test
+      run: docker run -it edi-receiver-load-pg
