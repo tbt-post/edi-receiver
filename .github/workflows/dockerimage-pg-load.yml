@@ -17,4 +17,4 @@ jobs:
     - name: Build Docker for Test
       run: docker build -t edi-receiver-load-pg -f docker/Dockerfile.load.pg . --tag tbt-edi-receiver-test:$(date +%s)
     - name: Run the Test
-      run: docker run -it edi-receiver-load-pg
+      run: docker run --rm -i -t=false edi-receiver-load-pg
