@@ -4,7 +4,7 @@
       "uri": "http://localhost:8000/api/topic/document",
       "method": "post",
       "auth": {
-        "enabled": true,
+        "enabled": false,
         "type": "basic",
         "username": "test",
         "password": "pass"
