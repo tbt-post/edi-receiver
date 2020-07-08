@@ -6,7 +6,8 @@
                                            :doctype {:type :text :required true}
                                            :id {:type :uuid :required true}
                                            :body {:type :json :required true}
-                                           :checksum {:type :text})
+                                           :checksum {:type :text}
+                                           :msg_for {:type :uuid})
 
    :event_parcel_order_return   (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts}
@@ -18,7 +19,8 @@
                                            :total_price {:type :money :required true}
                                            :money_back {:type :boolean :required true}
                                            :money_dest {:type :text :required true}
-                                           :document_id {:type :text})
+                                           :document_id {:type :text}
+                                           :msg_for {:type :uuid})
 
    :event_parcel_change_state   (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts}
@@ -31,7 +33,8 @@
                                            :parcel_source {:type :text}
                                            :external_ref {:type :text}
                                            :delivery_service {:type :text}
-                                           :is_quasi {:type :boolean})
+                                           :is_quasi {:type :boolean}
+                                           :msg_for {:type :uuid})
 
    :fms_contragent_announcement (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts}
@@ -40,7 +43,8 @@
                                            :action {:type :text :required true}
                                            :reason {:type :text :required true}
                                            :merchant_id {:type :text}
-                                           :comment {:type :text})
+                                           :comment {:type :text}
+                                           :msg_for {:type :uuid})
 
    :fms_emoney_event            (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts}
@@ -58,7 +62,8 @@
                                            :merchant_id {:type :text}
                                            :note {:type :text}
                                            :source_wallet {:type :text}
-                                           :target_wallet {:type :text})
+                                           :target_wallet {:type :text}
+                                           :msg_for {:type :uuid})
 
    :order_payment               (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
@@ -72,7 +77,8 @@
                                            :payer_phone {:type :text}
                                            :comment {:type :text}
                                            :operation {:type :text}
-                                           :correction_id {:type :uuid})
+                                           :correction_id {:type :uuid}
+                                           :msg_for {:type :uuid})
 
    :refill_payment              (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
@@ -84,7 +90,8 @@
                                            :posorder_id {:type :text :required true}
                                            :merchant_id {:type :text :required true}
                                            :amount {:type :money :required true}
-                                           :comment {:type :text})
+                                           :comment {:type :text}
+                                           :msg_for {:type :uuid})
 
    :wms_event                   (array-map :serial {:type :uuid :required true}
                                            :items {:type :json :required true}
@@ -98,7 +105,8 @@
                                            :reason {:type :text}
                                            :version {:type :text}
                                            :origin {:type :uuid}
-                                           :owner {:type :uuid})
+                                           :owner {:type :uuid}
+                                           :msg_for {:type :uuid})
 
    :wms_item_announcement       (array-map :serial {:type :uuid :required true}
                                            :item {:type :json :required true}
@@ -107,7 +115,8 @@
                                            :reference {:type :uuid :required true}
                                            :version {:type :text}
                                            :origin {:type :uuid}
-                                           :owner {:type :uuid})
+                                           :owner {:type :uuid}
+                                           :msg_for {:type :uuid})
 
    :wms_registry_announcement   (array-map :source {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
@@ -115,7 +124,8 @@
                                            :serial {:type :integer :required true}
                                            :uid {:type :uuid :required true}
                                            :userial {:type :uuid :required true}
-                                           :state {:type :text :required true})
+                                           :state {:type :text :required true}
+                                           :msg_for {:type :uuid})
 
    :wms_stocktaking_message     (array-map :serial {:type :uuid :required true}
                                            :reference {:type :uuid :required true}
@@ -124,14 +134,26 @@
                                            :item {:type :json}
                                            :version {:type :text}
                                            :origin {:type :uuid}
-                                           :owner {:type :uuid})})
+                                           :owner {:type :uuid}
+                                           :msg_for {:type :uuid})})
 
 
-(def version 3)
+(def version 4)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
-                 3 {}})
+                 3 {}
+                 4 {:documents                   [[:add-column :msg_for {:type :uuid}]]
+                    :event_parcel_order_return   [[:add-column :msg_for {:type :uuid}]]
+                    :event_parcel_change_state   [[:add-column :msg_for {:type :uuid}]]
+                    :fms_contragent_announcement [[:add-column :msg_for {:type :uuid}]]
+                    :fms_emoney_event            [[:add-column :msg_for {:type :uuid}]]
+                    :order_payment               [[:add-column :msg_for {:type :uuid}]]
+                    :refill_payment              [[:add-column :msg_for {:type :uuid}]]
+                    :wms_event                   [[:add-column :msg_for {:type :uuid}]]
+                    :wms_item_announcement       [[:add-column :msg_for {:type :uuid}]]
+                    :wms_registry_announcement   [[:add-column :msg_for {:type :uuid}]]
+                    :wms_stocktaking_message     [[:add-column :msg_for {:type :uuid}]]}})
 
 
 ; migrations example
@@ -153,7 +175,8 @@
 (def tbtapi-docs-refs {0 "edi#v0.1.0"
                        1 "edi#v0.1.1"
                        2 "edi#v0.1.2"
-                       3 "edi#v0.1.3"})
+                       3 "edi#v0.1.3"
+                       4 "edi#v0.1.4"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
