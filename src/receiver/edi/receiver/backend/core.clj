@@ -31,10 +31,10 @@
        (into {})))
 
 
-(defn- wrap-condition [send condition-text]
-  (let [condition (-> condition-text edn/read-string expression/prepare)]
+(defn- wrap-condition [send text-condition]
+  (let [condition (-> text-condition edn/read-string expression/prepare)]
     (fn [backend topic message]
-      (log/debugf "applying condition %s to message\n%s" condition-text (utils/pretty message))
+      ;(log/debugf "applying condition %s to message\n%s" text-condition (utils/pretty message))
       (if (expression/evaluate condition message)
         (send backend topic message)
         (do (log/debugf "Proxying to %s, topic %s skipped via condition" (.getName (class backend)) topic)
@@ -45,7 +45,7 @@
   (let [rules (-> transform edn/read-string transform/prepare)]
     (fn [backend topic message]
       (let [message' (transform/transform rules message)]
-        (log/debugf "message after transform\n%s" (utils/pretty message))
+        ;(log/debugf "message after transform\n%s" (utils/pretty message))
         (send backend topic message')))))
 
 
