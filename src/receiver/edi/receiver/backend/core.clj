@@ -30,9 +30,10 @@
        (into {})))
 
 
-(defn- wrap-condition [send condition]
-  (let [condition (-> condition edn/read-string expression/prepare)]
+(defn- wrap-condition [send text-condition]
+  (let [condition (-> text-condition edn/read-string expression/prepare)]
     (fn [backend topic message]
+      ;(log/debugf "applying condition %s to message\n%s" text-condition (util/pretty message))
       (if (expression/evaluate condition message)
         (send backend topic message)
         (do (log/debugf "Proxying to %s, topic %s skipped via condition" (.getName (class backend)) topic)
@@ -42,7 +43,9 @@
 (defn- wrap-transform [send transform]
   (let [rules (-> transform edn/read-string transform/prepare)]
     (fn [backend topic message]
-      (send backend topic (transform/transform rules message)))))
+      (let [message' (transform/transform rules message)]
+        ;(log/debugf "message after transform\n%s" (util/pretty message))
+        (send backend topic message')))))
 
 
 (defn- wrap-unreliable [send]
@@ -62,8 +65,8 @@
 (defn- create-proxies [config backends]
   (let [create-proxy (fn [{:keys [backend reliable source target condition transform]}]
                        (let [send (cond-> protocol/send-message
-                                          condition (wrap-condition condition)
                                           transform (wrap-transform transform)
+                                          condition (wrap-condition condition)
                                           (not reliable) wrap-unreliable)]
                          {:source source
                           :send   (partial send (get backends (keyword backend)) target)}))]
