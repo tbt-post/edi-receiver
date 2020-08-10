@@ -28,12 +28,13 @@
 
 
 (defn prepare [rules]
-  (let [modifier (first rules)]
-    {:restrictive? (and (keyword? modifier) (= :restrictive modifier))
-     :rules        (map prepare-rule (cond-> rules (keyword? modifier) next))}))
+  (let [modifiers (set (filter keyword? rules))]
+    {:restrictive? (boolean (modifiers :restrictive))
+     :not-strip?   (not (modifiers :strip))
+     :rules        (map prepare-rule (remove keyword? rules))}))
 
 
-(defn transform [{:keys [restrictive? rules]} source]
+(defn transform [{:keys [restrictive? not-strip? rules]} source]
   (let [target (atom (if restrictive? {} source))]
     (doseq [[path expression condition] rules]
       (when (or (nil? condition)
@@ -41,7 +42,8 @@
         (if (= :dissoc expression)
           (swap! target #(medley/dissoc-in % path))
           (let [value (expression/evaluate expression source)]
-            (swap! target #(assoc-in % path value))))))
+            (when (or not-strip? (some? value))
+              (swap! target #(assoc-in % path value)))))))
     @target))
 
 
