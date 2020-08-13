@@ -12,12 +12,11 @@
   (-> {:common     {:boolean "boolean"
                     :integer "integer"
                     :text    "text"
-                    :money   "decimal(10,2)"}
-       :postgresql {:json      "json"
-                    :timestamp "timestamp with time zone"
+                    :money   "decimal(10,2)"
+                    :json    "json"}
+       :postgresql {:timestamp "timestamp with time zone"
                     :uuid      "uuid"}
-       :mysql      {:json      "json"
-                    :timestamp "datetime"
+       :mysql      {:timestamp "datetime"
                     :uuid      "binary(16)"}}
       (utils/merge-common :common)))
 

@@ -25,8 +25,9 @@
       (let [error (if (instance? ExceptionInfo e)
                     {:message (ex-message e)
                      :data    (dissoc (ex-data e) :bad-request?)}
-                    {:exception (.getName (class e))
-                     :message   (ex-message e)})]
+                    (do (.printStackTrace e)
+                        {:exception (.getName (class e))
+                         :message   (ex-message e)}))]
         (log/errorf "Error processing message:\n%s\nMessage caused error:\n%s"
                     (util/pretty error)
                     (util/pretty message))

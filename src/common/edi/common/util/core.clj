@@ -52,9 +52,11 @@
     (.array buffer)))
 
 
-(defn iso-datetime->java-util-date [^String v]
-  (->> v
-       (.parse DateTimeFormatter/ISO_INSTANT)
+(defn parse-java-util-date [^String v]
+  (->> (cond-> v
+               (= \space (nth v 10)) (#(str (subs % 0 10) "T" (subs % 11)))
+               (re-matches #".*[+-]\d\d$" (subs v 19)) (str ":00"))
+       (.parse DateTimeFormatter/ISO_OFFSET_DATE_TIME)
        Instant/from
        Date/from))
 
@@ -66,10 +68,11 @@
          (into {}))))
 
 
-(defn ordered-vals [d]
+(defn ordered-configs [d]
   (->> d
        keys
        sort
-       (map #(get d %))))
+       (map #(-> (get d %)
+                 (assoc :key %)))))
 
 

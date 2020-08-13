@@ -6,6 +6,7 @@
             [reitit.dev.pretty :as pretty]
             [reitit.http :as http]
             [reitit.http.coercion :as coercion]
+            [reitit.http.interceptors.exception :as exception]
             [reitit.http.interceptors.muuntaja :as muuntaja]
             [reitit.http.interceptors.parameters :as parameters]
             [reitit.pedestal :as pedestal]
@@ -36,7 +37,7 @@
                                   ;; encoding response body
                                   (muuntaja/format-response-interceptor)
                                   ;; exception handling
-                                  #_(exception/exception-interceptor)
+                                  (exception/exception-interceptor)
                                   ;; decoding request body
                                   (muuntaja/format-request-interceptor)
                                   ;; coercing exceptions

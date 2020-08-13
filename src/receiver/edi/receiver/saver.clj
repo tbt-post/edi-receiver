@@ -25,7 +25,7 @@
    :mysql      {:money     #(some-> % str bigdec)
                 :json      #(some-> % json/generate-string)
                 :timestamp #(when %
-                              (util/iso-datetime->java-util-date %))
+                              (util/parse-java-util-date %))
                 :uuid      #(some-> % UUID/fromString util/uuid->byte-array)}})
 
 
