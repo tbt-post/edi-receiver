@@ -52,11 +52,11 @@
     (.array buffer)))
 
 
-(def ^:private datetime-formatters (map #(DateTimeFormatter/ofPattern %)
-                                        ["yyyy-MM-dd'T'HH:mm:ss[.SSS]X"
-                                         "yyyy-MM-dd HH:mm:ss[.SSS]X"
-                                         "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX"
-                                         "yyyy-MM-dd HH:mm:ss.SSSSSSX"]))
+(def ^:private datetime-formatters (mapv #(DateTimeFormatter/ofPattern %)
+                                         ["yyyy-MM-dd'T'HH:mm:ss[.SSS]X"
+                                          "yyyy-MM-dd HH:mm:ss[.SSS]X"
+                                          "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX"
+                                          "yyyy-MM-dd HH:mm:ss.SSSSSSX"]))
 
 
 (defn parse-java-util-date [^String s]
