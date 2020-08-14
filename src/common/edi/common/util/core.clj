@@ -3,7 +3,7 @@
   (:import (java.io StringWriter)
            (java.nio ByteBuffer)
            (java.time Instant)
-           (java.time.format DateTimeFormatter)
+           (java.time.format DateTimeFormatter DateTimeParseException)
            (java.util UUID Date)))
 
 
@@ -52,13 +52,22 @@
     (.array buffer)))
 
 
-(defn parse-java-util-date [^String v]
-  (->> (cond-> v
-               (= \space (nth v 10)) (#(str (subs % 0 10) "T" (subs % 11)))
-               (re-matches #".*[+-]\d\d$" (subs v 19)) (str ":00"))
-       (.parse DateTimeFormatter/ISO_OFFSET_DATE_TIME)
-       Instant/from
-       Date/from))
+(def ^:private datetime-formatters (map #(DateTimeFormatter/ofPattern %)
+                                        ["yyyy-MM-dd'T'HH:mm:ss[.SSS]X"
+                                         "yyyy-MM-dd HH:mm:ss[.SSS]X"
+                                         "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX"
+                                         "yyyy-MM-dd HH:mm:ss.SSSSSSX"]))
+
+
+(defn parse-java-util-date [^String s]
+  (loop [formatters datetime-formatters]
+    (or
+      (try
+        (->> s (.parse (first formatters)) Instant/from Date/from)
+        (catch DateTimeParseException e
+          (when-not (second formatters)
+            (throw e))))
+      (recur (next formatters)))))
 
 
 (defn merge-common [d keyword]

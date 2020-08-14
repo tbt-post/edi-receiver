@@ -1,16 +1,16 @@
 (ns edi.receiver.saver
-  (:require [clojure.java.jdbc :as jdbc]
+  (:require [cheshire.core :as json]
+            [clojure.java.jdbc :as jdbc]
             [clojure.tools.logging :as log]
-            [edi.receiver.backend.core :as backend]
             [edi.common.db.jdbc :as db]
             [edi.common.db.models :as models]
-            [edi.receiver.upstream :as upstream]
             [edi.common.util.core :as util]
-            [cheshire.core :as json]
-            [edi.receiver.stats :as stats])
+            [edi.common.util.timer :as timer]
+            [edi.receiver.backend.core :as backend]
+            [edi.receiver.stats :as stats]
+            [edi.receiver.upstream :as upstream])
   (:import (java.util UUID)
-           (org.postgresql.util PGobject)
-           (java.time Instant)))
+           (org.postgresql.util PGobject)))
 
 
 (def type-coerce
@@ -55,7 +55,7 @@
 
 (defn- save! [db topic message stats]
   (let [[table values] (converter (:driver db) topic message)]
-    (let [started-at (Instant/now)]
+    (let [started-at (timer/now)]
       (let [rowcount (db/insert! db table values)]
         (when stats
           (stats/after-sql stats started-at))
