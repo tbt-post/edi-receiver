@@ -2,7 +2,7 @@
   (:require [edi.receiver.backend.protocol :as protocol]))
 
 
-(deftype DumpBackend []
+(deftype DumpBackend [fail?]
 
   protocol/Backend
 
@@ -11,10 +11,13 @@
     (println topic)
     (println "----------------------------------")
     (clojure.pprint/pprint message)
-    (println "----------------------------------"))
+    (println "----------------------------------")
+    (when fail?
+      (println "Performing test fail!")
+      (throw (ex-info "Test backend fail" {:some "data"}))))
 
   (close [_]))
 
 
-(defn create [_]
-  (DumpBackend.))
+(defn create [{:keys [fail]}]
+  (DumpBackend. fail))

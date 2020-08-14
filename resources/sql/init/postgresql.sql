@@ -13,3 +13,15 @@ SELECT table_name, 0
 FROM information_schema.tables
 WHERE table_schema = 'public' AND table_name != 'migrations'
     AND table_name NOT IN (SELECT table_name FROM migrations WHERE model_version=0);
+
+CREATE TABLE IF NOT EXISTS ringbuffer (
+	id serial,
+    instance_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    planned_at timestamp with time zone NOT NULL,
+    tries integer NOT NULL DEFAULT 0,
+    payload text NOT NULL,
+    error text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ringbuffer_tries_created_at ON ringbuffer USING btree (tries, created_at);
+CREATE INDEX IF NOT EXISTS idx_ringbuffer_instance_id ON ringbuffer USING hash (instance_id);

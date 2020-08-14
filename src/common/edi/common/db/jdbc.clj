@@ -29,6 +29,12 @@
   (first (jdbc/execute! pool query)))
 
 
+(def query jdbc/query)
+
+
+(def one (comp first query))
+
+
 (defn- insert-q [table fields]
   (str "INSERT INTO " (name table) " ("
        (string/join "," (map name fields))

@@ -5,9 +5,10 @@
             [edi.control.deploy :as deploy]
             [edi.receiver.api.core :as api]
             [edi.receiver.backend.core :as backend]
+            [edi.receiver.buffers :as buffers]
             [edi.receiver.saver :as saver]
-            [edi.receiver.upstream :as upstream]
-            [edi.receiver.stats :as stats]))
+            [edi.receiver.stats :as stats]
+            [edi.receiver.upstream :as upstream]))
 
 
 (defrecord Config [options config]
@@ -25,18 +26,31 @@
   component/Lifecycle
 
   (start [this]
-    (assoc this :db (db/connect (-> config :config))))
+    (assoc this :db (db/connect (:config config))))
 
   (stop [this]
     (db/close (-> this :db))
     (assoc this :db nil)))
 
 
-(defrecord Backend [config backend]
+(defrecord Buffers [config db buffers]
   component/Lifecycle
 
   (start [this]
-    (assoc this :backend (backend/create (-> config :config))))
+    (assoc this :buffers (buffers/create {:config (:config config)
+                                          :db     (:db db)})))
+
+  (stop [this]
+    (buffers/stop (-> this :buffers))
+    (assoc this :buffers nil)))
+
+
+(defrecord Backend [config buffers backend]
+  component/Lifecycle
+
+  (start [this]
+    (assoc this :backend (backend/create {:config  (:config config)
+                                          :buffers (:buffers buffers)})))
 
   (stop [this]
     (backend/close (-> this :backend))
@@ -64,7 +78,7 @@
     (assoc this :stats nil)))
 
 
-(defrecord Server [config upstream db backend stats server]
+(defrecord Server [config upstream db buffers backend stats server]
   component/Lifecycle
 
   (start [this]
@@ -75,6 +89,7 @@
                    :stats    (:stats stats)}]
       (deploy/deploy! context)
       (saver/run-tests context)
+      (buffers/start (:buffers buffers))
       (assoc this :server (api/start (-> config :config :api)
                                      context))))
 
@@ -88,11 +103,13 @@
     :config (map->Config {:options options})
     :db (-> (map->Db {})
             (component/using [:config]))
+    :buffers (-> (map->Buffers {})
+                 (component/using [:config :db]))
     :backend (-> (map->Backend {})
-                 (component/using [:config]))
+                 (component/using [:config :buffers]))
     :upstream (-> (map->Upstream {})
                   (component/using [:config]))
     :stats (-> (map->Stats {})
                (component/using [:config :db]))
     :server (-> (map->Server {})
-                (component/using [:config :db :backend :upstream :stats]))))
+                (component/using [:config :db :buffers :backend :upstream :stats]))))
