@@ -210,7 +210,7 @@ proxy.0.buffer.enabled=true         ; when true, if producer fails, keep message
 proxy.0.buffer.max-size=1000        ; maximum buffer size, will return 422 in case of buffer owerflow
 proxy.0.buffer.max-tries=3          ; retries number to send message, then message will be dropped
 proxy.0.buffer.expire-time-s=180    ; message expiration time, seconds, then message will be dropped, can be nil (= forever)
-proxy.0.tries-interval-ms=10000     ; minimal retry interval, default is 10000
+proxy.0.buffer.tries-interval-ms=10000     ; minimal retry interval, default is 10000
 
 proxy.1.backend="weak-connection-api"
 proxy.1.source="document"
