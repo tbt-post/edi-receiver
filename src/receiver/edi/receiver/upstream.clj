@@ -8,7 +8,8 @@
             [edi.common.util.jetty-client :as http]
             [edi.common.db.models :as models]
             [edi.common.util.core :as util])
-  (:import (java.io File)))
+  (:import (clojure.lang ExceptionInfo)
+           (java.io File)))
 
 
 (defn- log-download [url]
@@ -26,6 +27,17 @@
   (:body (http/request client {:uri url :throw-for-status true})))
 
 
+(defn- http-get-safe [url client]
+  (try
+    (http-get url client)
+    (catch ExceptionInfo e
+      (if-not (-> e ex-data :status (= 404))
+        (throw e)
+        (do
+          (log/warn "file not found (because of tag)")
+          nil)))))
+
+
 (defn- load-files-github [list-url ref]
   (let [client (http/client)]
     (->> (-> list-url
@@ -36,7 +48,7 @@
          (map (fn [url] [url (-> url
                                  (string/replace #"/master/" (str "/" (ring-coded/url-encode ref) "/"))
                                  log-download
-                                 (http-get client))])))))
+                                 (http-get-safe client))])))))
 
 (defn- load-files-local [dir]
   (->> (-> dir io/file file-seq next)
@@ -54,11 +66,13 @@
 (defn- download [{:keys [schema-list test-list]} ref]
   (log/debug "Downloading schemas")
   {:schemas (->> (load-files schema-list ref)
+                 (filter second)
                  (map (fn [[url body]]
                         [(keyword (split-topic url))
                          body]))
                  (into {}))
    :tests   (->> (load-files test-list ref)
+                 (filter second)
                  (map (fn [[url body]]
                         {:name    (split-name url)
                          :topic   (split-topic url)

@@ -5,6 +5,7 @@
                                            :timestamp {:type :timestamp :required true :alias :ts}
                                            :doctype {:type :text :required true}
                                            :id {:type :uuid :required true}
+                                           :office {:type :uuid}
                                            :body {:type :json :required true}
                                            :checksum {:type :text}
                                            :msg_for {:type :uuid})
@@ -20,6 +21,8 @@
                                            :money_back {:type :boolean :required true}
                                            :money_dest {:type :text :required true}
                                            :document_id {:type :text}
+                                           :origin {:type :uuid}
+                                           :owner {:type :uuid}
                                            :msg_for {:type :uuid})
 
    :event_parcel_change_state   (array-map :sender {:type :text :required true}
@@ -34,6 +37,8 @@
                                            :external_ref {:type :text}
                                            :delivery_service {:type :text}
                                            :is_quasi {:type :boolean}
+                                           :origin {:type :uuid}
+                                           :owner {:type :uuid}
                                            :msg_for {:type :uuid})
 
    :fms_contragent_announcement (array-map :sender {:type :text :required true}
@@ -114,6 +119,7 @@
                                            :zone_to {:type :text}
                                            :reference {:type :uuid :required true}
                                            :version {:type :text}
+                                           :flow {:type :text}
                                            :origin {:type :uuid}
                                            :owner {:type :uuid}
                                            :msg_for {:type :uuid})
@@ -135,10 +141,28 @@
                                            :version {:type :text}
                                            :origin {:type :uuid}
                                            :owner {:type :uuid}
+                                           :msg_for {:type :uuid})
+   :bms_contragent_update       (array-map :sender {:type :text :required :true}
+                                           :timestamp {:type :timestamp :required true :alias :ts}
+                                           :id {:type :uuid :required :true}
+                                           :origin {:type :uuid :required :true}
+                                           :action {:type :text :required :true}
+                                           :enabled {:type :json}
+                                           :bank_account {:type :json}
+                                           :bank_mfo {:type :json}
+                                           :bank_name {:type :json}
+                                           :name {:type :json}
+                                           :reg_id {:type :json}
+                                           :tax_id {:type :json}
+                                           :type {:type :json}
+                                           :vat {:type :json}
+                                           :is_proxy {:type :json}
+                                           :transit_enabled {:type :json}
+                                           :provides_processing_for {:type :json}
                                            :msg_for {:type :uuid})})
 
 
-(def version 4)
+(def version 5)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -153,7 +177,13 @@
                     :wms_event                   [[:add-column :msg_for {:type :uuid}]]
                     :wms_item_announcement       [[:add-column :msg_for {:type :uuid}]]
                     :wms_registry_announcement   [[:add-column :msg_for {:type :uuid}]]
-                    :wms_stocktaking_message     [[:add-column :msg_for {:type :uuid}]]}})
+                    :wms_stocktaking_message     [[:add-column :msg_for {:type :uuid}]]}
+                 5 {:event_parcel_order_return [[:add-column :origin {:type :uuid}]
+                                                [:add-column :owner {:type :uuid}]]
+                    :event_parcel_change_state [[:add-column :origin {:type :uuid}]
+                                                [:add-column :owner {:type :uuid}]]
+                    :documents                 [[:add-column :office {:type :uuid}]]
+                    :wms_item_announcement     [[:add-column :flow {:type :text}]]}})
 
 
 ; migrations example
@@ -176,7 +206,8 @@
                        1 "edi#v0.1.1"
                        2 "edi#v0.1.2"
                        3 "edi#v0.1.3"
-                       4 "edi#v0.1.4"})
+                       4 "edi#v0.1.4"
+                       5 "edi#v0.2.0"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
