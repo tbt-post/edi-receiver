@@ -127,7 +127,7 @@
    :wms_registry_announcement   (array-map :source {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
                                            :generated {:type :integer :required true :alias :gener}
-                                           :serial {:type :integer :required true}
+                                           :serial {:type :bigint :required true}
                                            :uid {:type :uuid :required true}
                                            :userial {:type :uuid :required true}
                                            :state {:type :text :required true}
@@ -142,6 +142,7 @@
                                            :origin {:type :uuid}
                                            :owner {:type :uuid}
                                            :msg_for {:type :uuid})
+
    :bms_contragent_update       (array-map :sender {:type :text :required :true}
                                            :timestamp {:type :timestamp :required true :alias :ts}
                                            :id {:type :uuid :required :true}
@@ -162,7 +163,7 @@
                                            :msg_for {:type :uuid})})
 
 
-(def version 5)
+(def version 6)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -183,7 +184,8 @@
                     :event_parcel_change_state [[:add-column :origin {:type :uuid}]
                                                 [:add-column :owner {:type :uuid}]]
                     :documents                 [[:add-column :office {:type :uuid}]]
-                    :wms_item_announcement     [[:add-column :flow {:type :text}]]}})
+                    :wms_item_announcement     [[:add-column :flow {:type :text}]]}
+                 6 {:wms_registry_announcement [[:alter-column :serial {:type :bigint :required true :default "0"}]]}})
 
 
 ; migrations example
@@ -207,7 +209,8 @@
                        2 "edi#v0.1.2"
                        3 "edi#v0.1.3"
                        4 "edi#v0.1.4"
-                       5 "edi#v0.2.0"})
+                       5 "edi#v0.2.0"
+                       6 "edi#v0.2.0"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
