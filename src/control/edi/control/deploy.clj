@@ -11,6 +11,7 @@
 (def ^:private type-sql
   (-> {:common     {:boolean "boolean"
                     :integer "integer"
+                    :bigint  "bigint"
                     :text    "text"
                     :money   "decimal(10,2)"
                     :json    "json"}
