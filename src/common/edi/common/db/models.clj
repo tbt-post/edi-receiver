@@ -185,7 +185,8 @@
                                                 [:add-column :owner {:type :uuid}]]
                     :documents                 [[:add-column :office {:type :uuid}]]
                     :wms_item_announcement     [[:add-column :flow {:type :text}]]}
-                 6 {:wms_registry_announcement [[:alter-column :serial {:type :bigint :required true :default "0"}]]}})
+                 6 {:wms_registry_announcement [[:alter-column :serial {:type :bigint :required true :default "0"}]
+                                                [:alter-column :gener {:type :bigint :required true :default "0"}]]}})
 
 
 ; migrations example
