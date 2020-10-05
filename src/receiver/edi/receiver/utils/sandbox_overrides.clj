@@ -7,4 +7,4 @@
 
 
 (defn or [& args]
-  (or (some identity args) false))
+  (clojure.core/or (some identity args) false))
