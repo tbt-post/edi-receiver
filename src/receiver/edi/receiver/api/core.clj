@@ -37,7 +37,7 @@
                                   ;; encoding response body
                                   (muuntaja/format-response-interceptor)
                                   ;; exception handling
-                                  (exception/exception-interceptor)
+                                  ;(exception/exception-interceptor) ; commented out to allow traceback in log
                                   ;; decoding request body
                                   (muuntaja/format-request-interceptor)
                                   ;; coercing exceptions
