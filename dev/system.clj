@@ -6,6 +6,7 @@
             [edi.receiver.api.core :as api]
             [edi.receiver.backend.core :as backend]
             [edi.receiver.buffers :as buffers]
+            [edi.receiver.proxylog :as proxylog]
             [edi.receiver.saver :as saver]
             [edi.receiver.stats :as stats]
             [edi.receiver.upstream :as upstream]))
@@ -45,12 +46,23 @@
     (assoc this :buffers nil)))
 
 
-(defrecord Backend [config buffers backend]
+(defrecord Proxylog [db proxylog]
   component/Lifecycle
 
   (start [this]
-    (assoc this :backend (backend/create {:config  (:config config)
-                                          :buffers (:buffers buffers)})))
+    (assoc this :proxylog (proxylog/create {:db (:db db)})))
+
+  (stop [this]
+    (assoc this :proxylog nil)))
+
+
+(defrecord Backend [config buffers backend proxylog]
+  component/Lifecycle
+
+  (start [this]
+    (assoc this :backend (backend/create {:config   (:config config)
+                                          :buffers  (:buffers buffers)
+                                          :proxylog (:proxylog proxylog)})))
 
   (stop [this]
     (backend/close (-> this :backend))
@@ -105,8 +117,10 @@
             (component/using [:config]))
     :buffers (-> (map->Buffers {})
                  (component/using [:config :db]))
+    :proxylog (-> (map->Proxylog {})
+                  (component/using [:db]))
     :backend (-> (map->Backend {})
-                 (component/using [:config :buffers]))
+                 (component/using [:config :buffers :proxylog]))
     :upstream (-> (map->Upstream {})
                   (component/using [:config]))
     :stats (-> (map->Stats {})

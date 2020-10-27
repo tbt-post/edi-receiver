@@ -47,3 +47,10 @@ SET @sql := (
 );
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
+
+CREATE TABLE IF NOT EXISTS proxylog (
+	created_at datetime NOT NULL,
+	context json NOT NULL,
+	reference json NOT NULL,
+	response json NOT NULL
+);

@@ -8,8 +8,11 @@
             [edi.receiver.backend.kafka :as kafka]
             [edi.receiver.backend.protocol :as protocol]
             [edi.receiver.buffers :as buffers]
+            [edi.receiver.proxylog :as proxylog]
             [edi.receiver.utils.expression :as expression]
-            [edi.receiver.utils.transform :as transform]))
+            [edi.receiver.utils.transform :as transform]
+            [clojure.string :as string]
+            [cheshire.core :as json]))
 
 
 (defn- create-backend [{:keys [name type] :as config}]
@@ -45,7 +48,8 @@
         {:error (exception->dict e)}))))
 
 
-(defn- create-proxy [backends buffers {:keys [key backend reliable buffer source target condition transform]}]
+(defn- create-proxy [backends buffers proxylog
+                     {:keys [key backend reliable buffer source target condition transform logging] :as proxy-conf}]
   (letfn [(wrap-transform [send transform]
             (let [rules (-> transform edn/read-string transform/prepare)]
               (fn [message]
@@ -62,9 +66,27 @@
                   (do (log/debugf "Proxying to %s, topic %s skipped via condition" backend target)
                       :skipped-via-condition)))))
 
-          (wrap-buffer [send buffers instance-id {:keys [enabled] :as config}]
+          (wrap-logging [send {:keys [enabled reference-fields] :as conf}]
             (if enabled
-              (let [instance (buffers/register! buffers instance-id (wrap-error send) config)]
+              (let [context          (-> proxy-conf
+                                         (select-keys [:key :target :backend])
+                                         json/generate-string)
+                    reference-fields (->> (string/split reference-fields #",")
+                                          (map string/trim)
+                                          (map keyword))]
+                (fn [message]
+                  (let [response (send message)]
+                    (proxylog/write! proxylog
+                                     context
+                                     (select-keys message reference-fields)
+                                     response)
+                    response)))
+              send))
+
+          (wrap-buffer [send {:keys [enabled] :as config}]
+            (if enabled
+              (let [instance-id (-> key name edn/read-string)
+                    instance    (buffers/register! buffers instance-id (wrap-error send) config)]
                 (fn [message]
                   (try
                     (send message)
@@ -96,30 +118,31 @@
      :send   (cond-> (partial protocol/send-message
                               (get backends (keyword backend))
                               target)
+                     logging (wrap-logging logging)
                      (not reliable) wrap-unreliable
-                     buffer (wrap-buffer buffers (-> key name edn/read-string) buffer)
+                     buffer (wrap-buffer buffer)
                      transform (wrap-transform transform)
                      condition (wrap-condition condition))}))
 
 
 
-(defn- create-proxies [config backends buffers]
+(defn- create-proxies [config backends buffers proxylog]
   (->> config
        util/ordered-configs
        (filter :enabled)
        (filter #(get backends (keyword (:backend %))))
-       (map (partial create-proxy backends buffers))
+       (map (partial create-proxy backends buffers proxylog))
        (group-by :source)
        (map (fn [[source proxies]] [(keyword source)
                                     (mapv :send proxies)]))
        (into {})))
 
 
-(defn create [{:keys [config buffers]}]
+(defn create [{:keys [config buffers proxylog]}]
   (let [{:keys [backend proxy]} config
         backends (create-backends backend)]
     {:backends backends
-     :proxies  (create-proxies proxy backends buffers)}))
+     :proxies  (create-proxies proxy backends buffers proxylog)}))
 
 
 (defn close [{:keys [backends]}]

@@ -58,8 +58,7 @@
                   #_:headers #_(->> response .getHeaders
                                     (map (fn [^HttpField h] [(.getName h) (.getValue h)]))
                                     (into {}))
-                  :body   (-> response .getContentAsString)
-                  :reason (-> response .getReason)}]
+                  :body   (-> response .getContentAsString)}]
     (if (and throw-for-status (>= status 300))
-      (throw (ex-info (format "Http status %s" status) result))
+      (throw (ex-info (format "Http status %s" status) (assoc result :reason (-> response .getReason))))
       result)))
