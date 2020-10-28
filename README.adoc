@@ -212,6 +212,10 @@ proxy.0.buffer.max-tries=3          ; retries number to send message, then messa
 proxy.0.buffer.expire-time-s=180    ; message expiration time, seconds, then message will be dropped, can be nil (= forever)
 proxy.0.buffer.tries-interval-ms=10000     ; minimal retry interval, default is 10000
 
+; optional logging configuration. Used to store backend responses in "log" table
+proxy.0.logging.enabled=true
+proxy.0.logging.reference-fields="doctype,id" ; selected field names, stored as reference
+
 proxy.1.backend="weak-connection-api"
 proxy.1.source="document"
 proxy.1.target="proxy_document"
@@ -220,6 +224,30 @@ proxy.1.transform="[[body (str body) (some? body)]]"
 proxy.1.enabled=true
 proxy.1.reliable=false          ; means to ignore api fails
 ----
+
+=== Logging backend responses
+
+Backend responses can be stored into `log` table.
+|===
+|Column|Postgresql type|Mysql type|Fescription
+
+|`created_at`|`timestamptz`|`datetime`|time record created at
+|`context`|`jsonb`|`json`|Proxy configuration, e.g.: `{"key":0,"target":"proxy_document","backend":"dear-kafka"}`
+|`reference`|`jsonb`|`json`|Message reference. Selected message keys, as defined in setting `reference-fields`.
+|`content`|`jsonb`|`json`|Backend response
+|`raw`|`bytea`|`blob`|Backend response raw content, HTTP backend only
+|===
+
+То enable logging, add following lines to proxy configuration:
+----
+proxy.0.logging.enabled=true
+proxy.0.logging.reference-fields="field1,field2"
+----
+Setting `reference-fields` is mandatory. `log.reference` will be stored like:
+----
+{"field1": "value1", "field2": "value2"}
+----
+
 
 == Transform
 

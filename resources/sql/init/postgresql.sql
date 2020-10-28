@@ -25,3 +25,12 @@ CREATE TABLE IF NOT EXISTS ringbuffer (
 );
 CREATE INDEX IF NOT EXISTS idx_ringbuffer_tries_created_at ON ringbuffer USING btree (tries, created_at);
 CREATE INDEX IF NOT EXISTS idx_ringbuffer_instance_id ON ringbuffer USING hash (instance_id);
+
+
+CREATE TABLE IF NOT EXISTS log (
+	created_at timestamp with time zone NOT NULL,
+	context jsonb not null,
+	reference jsonb NOT NULL,
+	content jsonb NOT NULL,
+	raw bytea
+);

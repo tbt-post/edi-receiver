@@ -54,12 +54,18 @@
                              body (.content (StringContentProvider. body)))
                      .send)
         status   (-> response .getStatus)
-        result   {:status status
+        result   {:status     status
                   #_:headers #_(->> response .getHeaders
                                     (map (fn [^HttpField h] [(.getName h) (.getValue h)]))
                                     (into {}))
-                  :body   (-> response .getContentAsString)
-                  :reason (-> response .getReason)}]
+                  :reason     (-> response .getReason)
+                  :media-type (-> response .getMediaType)
+                  :encoding   (-> response .getEncoding)
+                  :content    (-> response .getContent)
+                  :body       (try
+                                (-> response .getContentAsString)
+                                (catch Exception _ nil))}]
+
     (if (and throw-for-status (>= status 300))
       (throw (ex-info (format "Http status %s" status) result))
       result)))
