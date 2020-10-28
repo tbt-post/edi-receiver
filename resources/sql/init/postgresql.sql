@@ -27,9 +27,10 @@ CREATE INDEX IF NOT EXISTS idx_ringbuffer_tries_created_at ON ringbuffer USING b
 CREATE INDEX IF NOT EXISTS idx_ringbuffer_instance_id ON ringbuffer USING hash (instance_id);
 
 
-CREATE TABLE IF NOT EXISTS proxylog (
+CREATE TABLE IF NOT EXISTS log (
 	created_at timestamp with time zone NOT NULL,
 	context jsonb not null,
 	reference jsonb NOT NULL,
-	response jsonb NOT NULL
+	content jsonb NOT NULL,
+	raw bytea
 );

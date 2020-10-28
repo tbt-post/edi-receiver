@@ -6,7 +6,7 @@
             [edi.receiver.api.core :as api]
             [edi.receiver.backend.core :as backend]
             [edi.receiver.buffers :as buffers]
-            [edi.receiver.proxylog :as proxylog]
+            [edi.receiver.db-log :as db-log]
             [edi.receiver.saver :as saver]
             [edi.receiver.stats :as stats]
             [edi.receiver.upstream :as upstream]))
@@ -46,23 +46,23 @@
     (assoc this :buffers nil)))
 
 
-(defrecord Proxylog [db proxylog]
+(defrecord DbLog [db db-log]
   component/Lifecycle
 
   (start [this]
-    (assoc this :proxylog (proxylog/create {:db (:db db)})))
+    (assoc this :db-log (db-log/create {:db (:db db)})))
 
   (stop [this]
-    (assoc this :proxylog nil)))
+    (assoc this :db-log nil)))
 
 
-(defrecord Backend [config buffers backend proxylog]
+(defrecord Backend [config buffers backend db-log]
   component/Lifecycle
 
   (start [this]
-    (assoc this :backend (backend/create {:config   (:config config)
-                                          :buffers  (:buffers buffers)
-                                          :proxylog (:proxylog proxylog)})))
+    (assoc this :backend (backend/create {:config  (:config config)
+                                          :buffers (:buffers buffers)
+                                          :log     (:db-log db-log)})))
 
   (stop [this]
     (backend/close (-> this :backend))
@@ -117,10 +117,10 @@
             (component/using [:config]))
     :buffers (-> (map->Buffers {})
                  (component/using [:config :db]))
-    :proxylog (-> (map->Proxylog {})
-                  (component/using [:db]))
+    :db-log (-> (map->DbLog {})
+                (component/using [:db]))
     :backend (-> (map->Backend {})
-                 (component/using [:config :buffers :proxylog]))
+                 (component/using [:config :buffers :db-log]))
     :upstream (-> (map->Upstream {})
                   (component/using [:config]))
     :stats (-> (map->Stats {})

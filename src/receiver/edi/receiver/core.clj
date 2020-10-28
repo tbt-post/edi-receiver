@@ -6,7 +6,7 @@
             [edi.receiver.api.core :as api]
             [edi.receiver.backend.core :as backend]
             [edi.receiver.buffers :as buffers]
-            [edi.receiver.proxylog :as proxylog]
+            [edi.receiver.db-log :as db-log]
             [edi.receiver.saver :as saver]
             [edi.receiver.stats :as stats]
             [edi.receiver.upstream :as upstream]))
@@ -17,9 +17,9 @@
   (let [db      (db/connect config)
         buffers (buffers/create {:config config
                                  :db     db})
-        backend (backend/create {:config   config
-                                 :buffers  buffers
-                                 :proxylog (proxylog/create {:db db})})
+        backend (backend/create {:config  config
+                                 :buffers buffers
+                                 :log     (db-log/create {:db db})})
         context {:config   config
                  :upstream (upstream/create (:upstream config))
                  :db       db

@@ -12,9 +12,10 @@
     (println "----------------------------------")
     (clojure.pprint/pprint message)
     (println "----------------------------------")
-    (when fail?
-      (println "Performing test fail!")
-      (throw (ex-info "Test backend fail" {:some "data"}))))
+    (if fail?
+      (do (println "Performing test fail!")
+          (throw (ex-info "Test backend fail" {:some "data"})))
+      {:some "value"}))
 
   (close [_]))
 
