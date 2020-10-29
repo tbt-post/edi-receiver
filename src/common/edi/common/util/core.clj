@@ -10,10 +10,13 @@
 (defn map-vals [f m]
   (into {} (for [[k v] m] [k (f v)])))
 
-
 (defn map-keys [f m]
   (into {} (for [[k v] m] [(f k) v])))
 
+(defn remove-vals [f m]
+  (->> m
+       (remove #(-> % second f))
+       (into {})))
 
 (defn split-comma-separated [s]
   (->> (string/split s #",")
