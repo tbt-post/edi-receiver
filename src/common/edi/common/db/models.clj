@@ -211,7 +211,7 @@
                        3 "edi#v0.1.3"
                        4 "edi#v0.1.4"
                        5 "edi#v0.2.0"
-                       6 "edi#v0.2.0"})
+                       6 "edi#v0.2.1"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
