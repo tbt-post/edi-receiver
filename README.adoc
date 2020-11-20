@@ -6,7 +6,7 @@ image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20PG%20C
 image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20MySQL%20CI/badge.svg?branch=trunk[Docker Image MySQL CI]
 image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20PG%20Load%20Test/badge.svg?branch=trunk[Docker PG Load Test]
 
-A clojure application designed to receive and store EDI messages from the TbT Platform into a customer's local database.
+A clojure application designed to receive and store EDI messages from the TBT Cloud into a customer's local database.
 
 Latest release assets available https://github.com/tbt-post/edi-receiver/releases/latest[here].
 
