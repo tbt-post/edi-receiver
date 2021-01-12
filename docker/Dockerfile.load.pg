@@ -7,7 +7,7 @@ RUN lein upgrade
 
 RUN apt-get update && apt-get install -y gnupg
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ eoan-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql
 
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/12/main/postgresql.conf
