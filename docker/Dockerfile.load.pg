@@ -1,4 +1,4 @@
-FROM ubuntu:eoan
+FROM ubuntu:focal
 
 RUN apt-get update && apt-get install -y wget default-jdk-headless
 RUN wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -P /bin
