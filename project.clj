@@ -5,17 +5,18 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/tools.cli "1.0.194"]
+                 [org.clojure/tools.cli "1.0.194"]
                  [cheshire "5.10.0"]
-                 [org.clojure/java.data "1.0.78"]
+                 [org.clojure/java.data "1.0.86"]
 
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.11"]
                  [com.mchange/c3p0 "0.9.5.5"]
-                 [org.postgresql/postgresql "42.2.14"]
-                 [mysql/mysql-connector-java "8.0.20"]
+                 [org.postgresql/postgresql "42.2.18"]
+                 [mysql/mysql-connector-java "8.0.22"]
 
                  ;; HTTP client
-                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal uses
+                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal.jetty uses
 
                  ;; Logger
                  ; TODO: move logger to dev
@@ -37,7 +38,7 @@
              :dev      [:r-deps
                         {:source-paths ["dev" "src/common" "src/control" "src/receiver"]
                          :dependencies [[com.stuartsierra/component.repl "0.2.0"]
-                                        [org.clojure/tools.namespace "1.0.0"]
+                                        [org.clojure/tools.namespace "1.1.0"]
                                         [hawk "0.2.11"]]}]
              :common   [:precomp
                         {:source-paths ["src/common"]
@@ -63,13 +64,16 @@
                          :omit-source  true
                          :main         edi.receiver.core}]
              :r-deps   {:dependencies [[medley "1.3.0"]
-                                       [luposlip/json-schema "0.2.7"]
+                                       [luposlip/json-schema "0.2.9"]
 
                                        ;; HTTP server
                                        [io.pedestal/pedestal.service "0.5.8"]
                                        [io.pedestal/pedestal.jetty "0.5.8"]
-                                       [metosin/reitit "0.5.2"]
-                                       [metosin/reitit-pedestal "0.5.2"]
+                                       ; Note: With reitit 0.5.11 have compile error:
+                                       ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
+                                       ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
+                                       [metosin/reitit "0.5.10"]
+                                       [metosin/reitit-pedestal "0.5.10"]
 
                                        ;; Kafka
                                        [net.tbt-post/clj-kafka-x "0.4.1"]

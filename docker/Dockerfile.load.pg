@@ -1,4 +1,4 @@
-FROM ubuntu:eoan
+FROM ubuntu:focal
 
 RUN apt-get update && apt-get install -y wget default-jdk-headless
 RUN wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -P /bin
@@ -7,18 +7,18 @@ RUN lein upgrade
 
 RUN apt-get update && apt-get install -y gnupg
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ eoan-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql
 
-RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/12/main/postgresql.conf
-RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/12/main/pg_hba.conf
+RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/13/main/postgresql.conf
+RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/13/main/pg_hba.conf
 
 RUN apt-get install -y curl
 
-RUN pg_ctlcluster 12 main start &&\
+RUN pg_ctlcluster 13 main start &&\
     su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\"" &&\
     su - postgres -c "psql --command \"CREATE DATABASE edi;\"" &&\
-    pg_ctlcluster 12 main stop
+    pg_ctlcluster 13 main stop
 
 WORKDIR /opt/edi-receiver
 COPY resources resources

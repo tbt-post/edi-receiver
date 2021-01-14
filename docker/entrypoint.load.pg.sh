@@ -8,7 +8,7 @@ wait-for-url() {
     echo "OK!"
 }
 
-pg_ctlcluster 12 main start
+pg_ctlcluster 13 main start
 export LOGLEVEL=info
 java -jar target/edi-control-standalone.jar --db pg --deploy && \
 java -jar target/edi-receiver-standalone.jar --db pg & export PID=$!
