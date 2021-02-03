@@ -3,17 +3,17 @@
   :url "https://tbt-post.net/"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
-  :dependencies [[org.clojure/clojure "1.10.1"]
+  :dependencies [[org.clojure/clojure "1.10.2"]
                  [org.clojure/tools.cli "1.0.194"]
                  [org.clojure/tools.cli "1.0.194"]
                  [cheshire "5.10.0"]
                  [org.clojure/java.data "1.0.86"]
 
                  ;; jdbc
-                 [org.clojure/java.jdbc "0.7.11"]
+                 [org.clojure/java.jdbc "0.7.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
                  [org.postgresql/postgresql "42.2.18"]
-                 [mysql/mysql-connector-java "8.0.22"]
+                 [mysql/mysql-connector-java "8.0.23"]
 
                  ;; HTTP client
                  [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal.jetty uses
@@ -76,7 +76,7 @@
                                        [metosin/reitit-pedestal "0.5.10"]
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.4.1"]
+                                       [net.tbt-post/clj-kafka-x "0.5.0"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
