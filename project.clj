@@ -6,7 +6,14 @@
   :dependencies [[org.clojure/clojure "1.10.2"]
                  [org.clojure/tools.cli "1.0.194"]
                  [org.clojure/tools.cli "1.0.194"]
-                 [cheshire "5.10.0"]
+                 [cheshire "5.10.0"
+                  :exclusions [com.fasterxml.jackson.core/jackson-core
+                               com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
+                               com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.1"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.1"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.1"]
+
                  [org.clojure/java.data "1.0.86"]
 
                  ;; jdbc
@@ -72,11 +79,19 @@
                                        ; Note: With reitit 0.5.11 have compile error:
                                        ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
-                                       [metosin/reitit "0.5.12"]
+                                       [metosin/reitit "0.5.12"
+                                        :exclusions [com.fasterxml.jackson.core/jackson-databind]]
+                                       [com.fasterxml.jackson.core/jackson-databind "2.12.1"]
                                        [metosin/reitit-pedestal "0.5.12"]
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.5.0"]
+                                       [net.tbt-post/clj-kafka-x "0.5.0"
+                                        :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
+                                                     com.fasterxml.jackson.datatype/jackson-datatype-jdk8
+                                                     com.fasterxml.jackson.module/jackson-module-scala_2.12]]
+                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.1"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.1"]
+                                       [com.fasterxml.jackson.module/jackson-module-scala_2.12 "2.12.1"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
