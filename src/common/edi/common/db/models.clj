@@ -89,7 +89,9 @@
                                            :operation {:type :text}
                                            :correction_id {:type :uuid}
                                            :msg_for {:type :uuid}
-                                           :group {:type :uuid :alias :grp})
+                                           :group {:type :uuid :alias :grp}
+                                           :integration {:type :text}
+                                           :transit {:type :boolean})
 
    :refill_payment              (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
