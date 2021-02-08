@@ -177,7 +177,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 7)
+(def version 9)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
