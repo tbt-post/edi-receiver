@@ -89,7 +89,9 @@
                                            :operation {:type :text}
                                            :correction_id {:type :uuid}
                                            :msg_for {:type :uuid}
-                                           :group {:type :uuid :alias :grp})
+                                           :group {:type :uuid :alias :grp}
+                                           :integration {:type :text}
+                                           :transit {:type :boolean})
 
    :refill_payment              (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
@@ -135,7 +137,7 @@
 
    :wms_registry_announcement   (array-map :source {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts},
-                                           :generated {:type :integer :required true :alias :gener}
+                                           :generated {:type :bigint :required true :alias :gener}
                                            :serial {:type :bigint :required true}
                                            :uid {:type :uuid :required true}
                                            :userial {:type :uuid :required true}
@@ -175,7 +177,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 7)
+(def version 9)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -210,7 +212,9 @@
                     :wms_item_announcement       [[:add-column :grp {:type :uuid}]]
                     :wms_registry_announcement   [[:add-column :grp {:type :uuid}]]
                     :wms_stocktaking_message     [[:add-column :grp {:type :uuid}]]
-                    :bms_contragent_update       [[:add-column :grp {:type :uuid}]]}})
+                    :bms_contragent_update       [[:add-column :grp {:type :uuid}]]}
+                 8 {:order_payment [[:add-column :integration {:type :text}]]}
+                 9 {:order_payment [[:add-column :transit {:type :boolean}]]}})
 
 
 ; migrations example
@@ -236,7 +240,9 @@
                        4 "edi#v0.1.4"
                        5 "edi#v0.2.0"
                        6 "edi#v0.2.1"
-                       7 "edi#v0.2.2"})
+                       7 "edi#v0.2.2"
+                       8 "edi#v0.2.3"
+                       9 "edi#v0.2.4"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
