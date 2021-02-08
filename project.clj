@@ -72,8 +72,8 @@
                                        ; Note: With reitit 0.5.11 have compile error:
                                        ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
-                                       [metosin/reitit "0.5.10"]
-                                       [metosin/reitit-pedestal "0.5.10"]
+                                       [metosin/reitit "0.5.12"]
+                                       [metosin/reitit-pedestal "0.5.12"]
 
                                        ;; Kafka
                                        [net.tbt-post/clj-kafka-x "0.5.0"]
