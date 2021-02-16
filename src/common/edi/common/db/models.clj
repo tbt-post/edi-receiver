@@ -177,7 +177,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 9)
+(def version 10)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -233,16 +233,17 @@
                    2 {:documents [[:drop-column :alter_test nil]]}})
 
 
-(def tbtapi-docs-refs {0 "edi#v0.1.0"
-                       1 "edi#v0.1.1"
-                       2 "edi#v0.1.2"
-                       3 "edi#v0.1.3"
-                       4 "edi#v0.1.4"
-                       5 "edi#v0.2.0"
-                       6 "edi#v0.2.1"
-                       7 "edi#v0.2.2"
-                       8 "edi#v0.2.3"
-                       9 "edi#v0.2.4"})
+(def tbtapi-docs-refs {0  "edi#v0.1.0"
+                       1  "edi#v0.1.1"
+                       2  "edi#v0.1.2"
+                       3  "edi#v0.1.3"
+                       4  "edi#v0.1.4"
+                       5  "edi#v0.2.0"
+                       6  "edi#v0.2.1"
+                       7  "edi#v0.2.2"
+                       8  "edi#v0.2.3"
+                       9  "edi#v0.2.4"
+                       10 "edi#v0.2.5"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
