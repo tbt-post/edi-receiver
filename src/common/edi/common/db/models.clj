@@ -44,6 +44,17 @@
                                            :msg_for {:type :uuid}
                                            :group {:type :uuid :alias :grp})
 
+   :event_parcel_ttl_info       (array-map :sender {:type :text :required true}
+                                           :timestamp {:type :timestamp :required true :alias :ts}
+                                           :msgtype {:type :text :required true}
+                                           :id {:type :uuid :required true}
+                                           :starts_from {:type :text :required true}
+                                           :ttl_days {:type :integer :required true}
+                                           :origin {:type :uuid}
+                                           :owner {:type :uuid}
+                                           :msg_for {:type :uuid}
+                                           :group {:type :uuid :alias :grp})
+
    :fms_contragent_announcement (array-map :sender {:type :text :required true}
                                            :timestamp {:type :timestamp :required true :alias :ts}
                                            :contragent_id {:type :uuid :required true}
@@ -177,7 +188,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 10)
+(def version 11)
 (def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
                                     [:add-column :correction_id {:type :uuid}]]}
                  2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -243,16 +254,21 @@
                        7  "edi#v0.2.2"
                        8  "edi#v0.2.3"
                        9  "edi#v0.2.4"
-                       10 "edi#v0.2.5"})
+                       10 "edi#v0.2.5"
+                       11 "edi#v0.2.6"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
 
 (def topics
   {:event_parcel [{:table :event_parcel_order_return
-                   :when? #(not= "ChangeState" (:msgtype %))}
+                   :when? #(and
+                             (not= "ChangeState" (:msgtype %))
+                             (not= "TTLInfo" (:msgtype %)))}
                   {:table :event_parcel_change_state
-                   :when? #(= "ChangeState" (:msgtype %))}]
+                   :when? #(= "ChangeState" (:msgtype %))}
+                  {:table :event_parcel_ttl_info
+                   :when? #(= "TTLInfo" (:msgtype %))}]
    :document     [{:table :documents
                    :when? (constantly true)}]})
 
