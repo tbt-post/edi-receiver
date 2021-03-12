@@ -3,23 +3,22 @@
   :url "https://tbt-post.net/"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
-  :dependencies [[org.clojure/clojure "1.10.2"]
-                 [org.clojure/tools.cli "1.0.194"]
-                 [org.clojure/tools.cli "1.0.194"]
+  :dependencies [[org.clojure/clojure "1.10.3"]
+                 [org.clojure/tools.cli "1.0.206"]
                  [cheshire "5.10.0"
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
-                 [com.fasterxml.jackson.core/jackson-core "2.12.1"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.1"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.1"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.2"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.2"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.2"]
 
                  [org.clojure/java.data "1.0.86"]
 
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
-                 [org.postgresql/postgresql "42.2.18"]
+                 [org.postgresql/postgresql "42.2.19"]
                  [mysql/mysql-connector-java "8.0.23"]
 
                  ;; HTTP client
@@ -81,7 +80,7 @@
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
                                        [metosin/reitit "0.5.12"
                                         :exclusions [com.fasterxml.jackson.core/jackson-databind]]
-                                       [com.fasterxml.jackson.core/jackson-databind "2.12.1"]
+                                       [com.fasterxml.jackson.core/jackson-databind "2.12.2"]
                                        [metosin/reitit-pedestal "0.5.12"]
 
                                        ;; Kafka
@@ -89,9 +88,9 @@
                                         :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
                                                      com.fasterxml.jackson.datatype/jackson-datatype-jdk8
                                                      com.fasterxml.jackson.module/jackson-module-scala_2.12]]
-                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.1"]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.1"]
-                                       [com.fasterxml.jackson.module/jackson-module-scala_2.12 "2.12.1"]
+                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.2"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.2"]
+                                       [com.fasterxml.jackson.module/jackson-module-scala_2.12 "2.12.2"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
