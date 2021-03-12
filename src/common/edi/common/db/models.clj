@@ -121,6 +121,7 @@
    :wms_event                   (array-map :serial {:type :uuid :required true}
                                            :items {:type :json :required true}
                                            :condition {:type :text :required true :alias :cond}
+                                           :document_id {:type :uuid :alias :reference}
                                            :ev_type {:type :text}
                                            :ev_task {:type :text}
                                            :ev_stage {:type :text}
@@ -138,7 +139,7 @@
                                            :item {:type :json :required true}
                                            :zone_from {:type :text}
                                            :zone_to {:type :text}
-                                           :reference {:type :uuid :required true}
+                                           :reference {:type :uuid}
                                            :version {:type :text}
                                            :flow {:type :text}
                                            :origin {:type :uuid}
@@ -188,44 +189,46 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 11)
-(def migrations {1 {:order_payment [[:add-column :operation {:type :text}]
-                                    [:add-column :correction_id {:type :uuid}]]}
-                 2 {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
-                 3 {}
-                 4 {:documents                   [[:add-column :msg_for {:type :uuid}]]
-                    :event_parcel_order_return   [[:add-column :msg_for {:type :uuid}]]
-                    :event_parcel_change_state   [[:add-column :msg_for {:type :uuid}]]
-                    :fms_contragent_announcement [[:add-column :msg_for {:type :uuid}]]
-                    :fms_emoney_event            [[:add-column :msg_for {:type :uuid}]]
-                    :order_payment               [[:add-column :msg_for {:type :uuid}]]
-                    :refill_payment              [[:add-column :msg_for {:type :uuid}]]
-                    :wms_event                   [[:add-column :msg_for {:type :uuid}]]
-                    :wms_item_announcement       [[:add-column :msg_for {:type :uuid}]]
-                    :wms_registry_announcement   [[:add-column :msg_for {:type :uuid}]]
-                    :wms_stocktaking_message     [[:add-column :msg_for {:type :uuid}]]}
-                 5 {:event_parcel_order_return [[:add-column :origin {:type :uuid}]
-                                                [:add-column :owner {:type :uuid}]]
-                    :event_parcel_change_state [[:add-column :origin {:type :uuid}]
-                                                [:add-column :owner {:type :uuid}]]
-                    :documents                 [[:add-column :office {:type :uuid}]]
-                    :wms_item_announcement     [[:add-column :flow {:type :text}]]}
-                 6 {:wms_registry_announcement [[:alter-column :serial {:type :bigint :required true :default "0"}]
-                                                [:alter-column :gener {:type :bigint :required true :default "0"}]]}
-                 7 {:documents                   [[:add-column :grp {:type :uuid}]]
-                    :event_parcel_order_return   [[:add-column :grp {:type :uuid}]]
-                    :event_parcel_change_state   [[:add-column :grp {:type :uuid}]]
-                    :fms_contragent_announcement [[:add-column :grp {:type :uuid}]]
-                    :fms_emoney_event            [[:add-column :grp {:type :uuid}]]
-                    :order_payment               [[:add-column :grp {:type :uuid}]]
-                    :refill_payment              [[:add-column :grp {:type :uuid}]]
-                    :wms_event                   [[:add-column :grp {:type :uuid}]]
-                    :wms_item_announcement       [[:add-column :grp {:type :uuid}]]
-                    :wms_registry_announcement   [[:add-column :grp {:type :uuid}]]
-                    :wms_stocktaking_message     [[:add-column :grp {:type :uuid}]]
-                    :bms_contragent_update       [[:add-column :grp {:type :uuid}]]}
-                 8 {:order_payment [[:add-column :integration {:type :text}]]}
-                 9 {:order_payment [[:add-column :transit {:type :boolean}]]}})
+(def version 12)
+(def migrations {1  {:order_payment [[:add-column :operation {:type :text}]
+                                     [:add-column :correction_id {:type :uuid}]]}
+                 2  {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
+                 3  {}
+                 4  {:documents                   [[:add-column :msg_for {:type :uuid}]]
+                     :event_parcel_order_return   [[:add-column :msg_for {:type :uuid}]]
+                     :event_parcel_change_state   [[:add-column :msg_for {:type :uuid}]]
+                     :fms_contragent_announcement [[:add-column :msg_for {:type :uuid}]]
+                     :fms_emoney_event            [[:add-column :msg_for {:type :uuid}]]
+                     :order_payment               [[:add-column :msg_for {:type :uuid}]]
+                     :refill_payment              [[:add-column :msg_for {:type :uuid}]]
+                     :wms_event                   [[:add-column :msg_for {:type :uuid}]]
+                     :wms_item_announcement       [[:add-column :msg_for {:type :uuid}]]
+                     :wms_registry_announcement   [[:add-column :msg_for {:type :uuid}]]
+                     :wms_stocktaking_message     [[:add-column :msg_for {:type :uuid}]]}
+                 5  {:event_parcel_order_return [[:add-column :origin {:type :uuid}]
+                                                 [:add-column :owner {:type :uuid}]]
+                     :event_parcel_change_state [[:add-column :origin {:type :uuid}]
+                                                 [:add-column :owner {:type :uuid}]]
+                     :documents                 [[:add-column :office {:type :uuid}]]
+                     :wms_item_announcement     [[:add-column :flow {:type :text}]]}
+                 6  {:wms_registry_announcement [[:alter-column :serial {:type :bigint :required true :default "0"}]
+                                                 [:alter-column :gener {:type :bigint :required true :default "0"}]]}
+                 7  {:documents                   [[:add-column :grp {:type :uuid}]]
+                     :event_parcel_order_return   [[:add-column :grp {:type :uuid}]]
+                     :event_parcel_change_state   [[:add-column :grp {:type :uuid}]]
+                     :fms_contragent_announcement [[:add-column :grp {:type :uuid}]]
+                     :fms_emoney_event            [[:add-column :grp {:type :uuid}]]
+                     :order_payment               [[:add-column :grp {:type :uuid}]]
+                     :refill_payment              [[:add-column :grp {:type :uuid}]]
+                     :wms_event                   [[:add-column :grp {:type :uuid}]]
+                     :wms_item_announcement       [[:add-column :grp {:type :uuid}]]
+                     :wms_registry_announcement   [[:add-column :grp {:type :uuid}]]
+                     :wms_stocktaking_message     [[:add-column :grp {:type :uuid}]]
+                     :bms_contragent_update       [[:add-column :grp {:type :uuid}]]}
+                 8  {:order_payment [[:add-column :integration {:type :text}]]}
+                 9  {:order_payment [[:add-column :transit {:type :boolean}]]}
+                 12 {:wms_event             [[:add-column :reference {:type :uuid}]]
+                     :wms_item_announcement [[:alter-column :reference {:type :uuid :required false}]]}})
 
 
 ; migrations example
@@ -255,7 +258,8 @@
                        8  "edi#v0.2.3"
                        9  "edi#v0.2.4"
                        10 "edi#v0.2.5"
-                       11 "edi#v0.2.6"})
+                       11 "edi#v0.2.6"
+                       12 "edi#v0.2.7"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
