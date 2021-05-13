@@ -15,6 +15,7 @@
                                            :timestamp {:type :timestamp :required true :alias :ts}
                                            :msgtype {:type :text :required true}
                                            :id {:type :uuid :required true}
+                                           :code {:type :text}
                                            :order_id {:type :text :required true}
                                            :reason {:type :text :required true}
                                            :items {:type :json :required true}
@@ -31,6 +32,7 @@
                                            :timestamp {:type :timestamp :required true :alias :ts}
                                            :msgtype {:type :text :required true}
                                            :id {:type :uuid :required true}
+                                           :code {:type :text}
                                            :state {:type :text :required true}
                                            :pentity {:type :uuid}
                                            :weight {:type :integer}
@@ -48,6 +50,7 @@
                                            :timestamp {:type :timestamp :required true :alias :ts}
                                            :msgtype {:type :text :required true}
                                            :id {:type :uuid :required true}
+                                           :code {:type :text}
                                            :starts_from {:type :text :required true}
                                            :ttl_days {:type :integer :required true}
                                            :origin {:type :uuid}
@@ -189,7 +192,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 12)
+(def version 13)
 (def migrations {1  {:order_payment [[:add-column :operation {:type :text}]
                                      [:add-column :correction_id {:type :uuid}]]}
                  2  {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -228,7 +231,10 @@
                  8  {:order_payment [[:add-column :integration {:type :text}]]}
                  9  {:order_payment [[:add-column :transit {:type :boolean}]]}
                  12 {:wms_event             [[:add-column :reference {:type :uuid}]]
-                     :wms_item_announcement [[:alter-column :reference {:type :uuid :required false}]]}})
+                     :wms_item_announcement [[:alter-column :reference {:type :uuid :required false}]]}
+                 13 {:event_parcel_order_return [[:add-column :code {:type :text}]]
+                     :event_parcel_change_state [[:add-column :code {:type :text}]]
+                     :event_parcel_ttl_info     [[:add-column :code {:type :text}]]}})
 
 
 ; migrations example
@@ -259,7 +265,8 @@
                        9  "edi#v0.2.4"
                        10 "edi#v0.2.5"
                        11 "edi#v0.2.6"
-                       12 "edi#v0.2.7"})
+                       12 "edi#v0.2.7"
+                       13 "edi#v0.2.8"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
