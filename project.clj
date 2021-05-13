@@ -9,20 +9,20 @@
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
-                 [com.fasterxml.jackson.core/jackson-core "2.12.2"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.2"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.2"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.3"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.3"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.3"]
 
                  [org.clojure/java.data "1.0.86"]
 
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
-                 [org.postgresql/postgresql "42.2.19"]
-                 [mysql/mysql-connector-java "8.0.23"]
+                 [org.postgresql/postgresql "42.2.20"]
+                 [mysql/mysql-connector-java "8.0.25"]
 
                  ;; HTTP client
-                 [org.eclipse.jetty/jetty-client "9.4.18.v20190429"] ; same version as pedestal.jetty uses
+                 [org.eclipse.jetty/jetty-client "9.4.35.v20201120"] ; same version as pedestal.jetty uses
 
                  ;; Logger
                  ; TODO: move logger to dev
@@ -70,27 +70,27 @@
                          :omit-source  true
                          :main         edi.receiver.core}]
              :r-deps   {:dependencies [[medley "1.3.0"]
-                                       [luposlip/json-schema "0.2.9"]
+                                       [luposlip/json-schema "0.3.1"]
 
                                        ;; HTTP server
-                                       [io.pedestal/pedestal.service "0.5.8"]
-                                       [io.pedestal/pedestal.jetty "0.5.8"]
+                                       [io.pedestal/pedestal.service "0.5.9"]
+                                       [io.pedestal/pedestal.jetty "0.5.9"]
                                        ; Note: With reitit 0.5.11 have compile error:
                                        ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
-                                       [metosin/reitit "0.5.12"
-                                        :exclusions [com.fasterxml.jackson.core/jackson-databind]]
-                                       [com.fasterxml.jackson.core/jackson-databind "2.12.2"]
-                                       [metosin/reitit-pedestal "0.5.12"]
+                                       [metosin/reitit "0.5.13"
+                                        :exclusions [com.fasterxml.jackson.datatype/jackson-datatype-jsr310]]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.12.3"]
+                                       [metosin/reitit-pedestal "0.5.13"]
 
                                        ;; Kafka
                                        [net.tbt-post/clj-kafka-x "0.5.0"
                                         :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
                                                      com.fasterxml.jackson.datatype/jackson-datatype-jdk8
                                                      com.fasterxml.jackson.module/jackson-module-scala_2.12]]
-                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.2"]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.2"]
-                                       [com.fasterxml.jackson.module/jackson-module-scala_2.12 "2.12.2"]
+                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.3"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.3"]
+                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.12.3"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
