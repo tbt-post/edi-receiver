@@ -1,4 +1,6 @@
-= edi-receiver
+= EDI-Receiver
+
+image::https://raw.githubusercontent.com/tbt-post/edi-receiver/master/EDI-icon.svg[EDI-Receiver,200,200]
 
 image:https://github.com/tbt-post/edi-receiver/workflows/Clojure%20CI/badge.svg?branch=trunk[Clojure CI]
 
