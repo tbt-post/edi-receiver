@@ -53,6 +53,7 @@
                                            :code {:type :text}
                                            :starts_from {:type :text :required true}
                                            :ttl_days {:type :integer :required true}
+                                           :ttl_days_max {:type :integer}
                                            :origin {:type :uuid}
                                            :owner {:type :uuid}
                                            :msg_for {:type :uuid}
@@ -192,7 +193,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 13)
+(def version 14)
 (def migrations {1  {:order_payment [[:add-column :operation {:type :text}]
                                      [:add-column :correction_id {:type :uuid}]]}
                  2  {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -234,7 +235,8 @@
                      :wms_item_announcement [[:alter-column :reference {:type :uuid :required false}]]}
                  13 {:event_parcel_order_return [[:add-column :code {:type :text}]]
                      :event_parcel_change_state [[:add-column :code {:type :text}]]
-                     :event_parcel_ttl_info     [[:add-column :code {:type :text}]]}})
+                     :event_parcel_ttl_info     [[:add-column :code {:type :text}]]}
+                 14 {:event_parcel_ttl_info     [[:add-column :ttl_days_max {:type :integer}]]}})
 
 
 ; migrations example
@@ -266,7 +268,8 @@
                        10 "edi#v0.2.5"
                        11 "edi#v0.2.6"
                        12 "edi#v0.2.7"
-                       13 "edi#v0.2.8"})
+                       13 "edi#v0.2.8"
+                       14 "edi#v0.2.9"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
