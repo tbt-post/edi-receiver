@@ -95,4 +95,4 @@
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
 
-  :plugins [[lein-ancient "0.6.15"]])
+  :plugins [[lein-ancient "0.7.0"]])
