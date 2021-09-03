@@ -9,9 +9,9 @@
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
-                 [com.fasterxml.jackson.core/jackson-core "2.12.4"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.4"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.4"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.5"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.5"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.5"]
 
                  [org.clojure/java.data "1.0.86"]
 
@@ -26,7 +26,7 @@
 
                  ;; Logger
                  ; TODO: move logger to dev
-                 [ch.qos.logback/logback-classic "1.2.4"
+                 [ch.qos.logback/logback-classic "1.2.5"
                   :exclusions [org.slf4j/slf4j-api]]
                  [org.slf4j/jul-to-slf4j "1.7.32"]
                  [org.slf4j/jcl-over-slf4j "1.7.32"]
@@ -78,19 +78,19 @@
                                        ; Note: With reitit 0.5.11 have compile error:
                                        ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
-                                       [metosin/reitit "0.5.13"
+                                       [metosin/reitit "0.5.15"
                                         :exclusions [com.fasterxml.jackson.datatype/jackson-datatype-jsr310]]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.12.4"]
-                                       [metosin/reitit-pedestal "0.5.13"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.12.5"]
+                                       [metosin/reitit-pedestal "0.5.15"]
 
                                        ;; Kafka
                                        [net.tbt-post/clj-kafka-x "0.5.1"
                                         :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
                                                      com.fasterxml.jackson.datatype/jackson-datatype-jdk8
                                                      com.fasterxml.jackson.module/jackson-module-scala_2.12]]
-                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.4"]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.4"]
-                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.12.4"]
+                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.5"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.5"]
+                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.12.5"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
