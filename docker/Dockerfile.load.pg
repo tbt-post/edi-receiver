@@ -15,10 +15,10 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/14/main/pg_hba.conf
 
 RUN apt-get install -y curl
 
-RUN pg_ctlcluster 13 main start &&\
+RUN pg_ctlcluster 14 main start &&\
     su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\"" &&\
     su - postgres -c "psql --command \"CREATE DATABASE edi;\"" &&\
-    pg_ctlcluster 13 main stop
+    pg_ctlcluster 14 main stop
 
 WORKDIR /opt/edi-receiver
 COPY resources resources
