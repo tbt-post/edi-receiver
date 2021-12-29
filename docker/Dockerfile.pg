@@ -11,7 +11,7 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" >
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql
 
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/14/main/postgresql.conf
-RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/13/main/pg_hba.conf
+RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/14/main/pg_hba.conf
 
 RUN pg_ctlcluster 13 main start &&\
     su - postgres -c "psql --command \"ALTER USER postgres WITH PASSWORD 'postgres';\"" &&\
