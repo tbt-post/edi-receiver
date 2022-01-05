@@ -5,32 +5,32 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/tools.cli "1.0.206"]
-                 [cheshire "5.10.0"
+                 [cheshire "5.10.1"
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
-                 [com.fasterxml.jackson.core/jackson-core "2.12.3"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.3"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.3"]
+                 [com.fasterxml.jackson.core/jackson-core "2.12.5"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.12.5"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.12.5"]
 
                  [org.clojure/java.data "1.0.86"]
 
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
-                 [org.postgresql/postgresql "42.2.20"]
-                 [mysql/mysql-connector-java "8.0.25"]
+                 [org.postgresql/postgresql "42.2.23"]
+                 [mysql/mysql-connector-java "8.0.26"]
 
                  ;; HTTP client
                  [org.eclipse.jetty/jetty-client "9.4.35.v20201120"] ; same version as pedestal.jetty uses
 
                  ;; Logger
                  ; TODO: move logger to dev
-                 [ch.qos.logback/logback-classic "1.2.3"
+                 [ch.qos.logback/logback-classic "1.2.5"
                   :exclusions [org.slf4j/slf4j-api]]
-                 [org.slf4j/jul-to-slf4j "1.7.30"]
-                 [org.slf4j/jcl-over-slf4j "1.7.30"]
-                 [org.slf4j/log4j-over-slf4j "1.7.30"]
+                 [org.slf4j/jul-to-slf4j "1.7.32"]
+                 [org.slf4j/jcl-over-slf4j "1.7.32"]
+                 [org.slf4j/log4j-over-slf4j "1.7.32"]
                  [org.clojure/tools.logging "1.1.0"]]
 
   :source-paths []
@@ -78,21 +78,21 @@
                                        ; Note: With reitit 0.5.11 have compile error:
                                        ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
-                                       [metosin/reitit "0.5.13"
+                                       [metosin/reitit "0.5.15"
                                         :exclusions [com.fasterxml.jackson.datatype/jackson-datatype-jsr310]]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.12.3"]
-                                       [metosin/reitit-pedestal "0.5.13"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.12.5"]
+                                       [metosin/reitit-pedestal "0.5.15"]
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.5.0"
+                                       [net.tbt-post/clj-kafka-x "0.5.1"
                                         :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
                                                      com.fasterxml.jackson.datatype/jackson-datatype-jdk8
                                                      com.fasterxml.jackson.module/jackson-module-scala_2.12]]
-                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.3"]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.3"]
-                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.12.3"]
+                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.12.5"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.12.5"]
+                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.12.5"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
 
-  :plugins [[lein-ancient "0.6.15"]])
+  :plugins [[lein-ancient "0.7.0"]])
