@@ -193,7 +193,7 @@
                                            :group {:type :uuid :alias :grp})})
 
 
-(def version 14)
+(def version 15)
 (def migrations {1  {:order_payment [[:add-column :operation {:type :text}]
                                      [:add-column :correction_id {:type :uuid}]]}
                  2  {:event_parcel_change_state [[:add-column :external_ref {:type :text}]]}
@@ -236,7 +236,8 @@
                  13 {:event_parcel_order_return [[:add-column :code {:type :text}]]
                      :event_parcel_change_state [[:add-column :code {:type :text}]]
                      :event_parcel_ttl_info     [[:add-column :code {:type :text}]]}
-                 14 {:event_parcel_ttl_info     [[:add-column :ttl_days_max {:type :integer}]]}})
+                 14 {:event_parcel_ttl_info     [[:add-column :ttl_days_max {:type :integer}]]}
+                 15 {}})
 
 
 ; migrations example
@@ -269,7 +270,8 @@
                        11 "edi#v0.2.6"
                        12 "edi#v0.2.7"
                        13 "edi#v0.2.8"
-                       14 "edi#v0.2.9"})
+                       14 "edi#v0.2.9"
+                       15 "edi#v0.2.10"})
 
 (def tbtapi-docs-ref (tbtapi-docs-refs version))
 
