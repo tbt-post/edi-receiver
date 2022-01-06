@@ -31,7 +31,7 @@
                  [org.slf4j/jul-to-slf4j "1.7.32"]
                  [org.slf4j/jcl-over-slf4j "1.7.32"]
                  [org.slf4j/log4j-over-slf4j "1.7.32"]
-                 [org.clojure/tools.logging "1.2.3"]]
+                 [org.clojure/tools.logging "1.2.4"]]
 
   :source-paths []
   :aliases {"repl"      ["do" "with-profile" "precomp" "javac," "repl"]
@@ -70,7 +70,7 @@
                          :omit-source  true
                          :main         edi.receiver.core}]
              :r-deps   {:dependencies [[medley "1.3.0"]
-                                       [luposlip/json-schema "0.3.2"]
+                                       [luposlip/json-schema "0.3.3"]
 
                                        ;; HTTP server
                                        [io.pedestal/pedestal.service "0.5.9"]
