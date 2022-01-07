@@ -12,7 +12,7 @@ A clojure application designed to receive and store EDI messages from the TBT Cl
 
 Latest release assets available https://github.com/tbt-post/edi-receiver/releases/latest[here].
 
-NOTE:: Default configuration implies PG
+NOTE:: Default configuration implies PG and rely on upstream versioning
 
 == Makefile build
 
@@ -20,6 +20,8 @@ In order to build and run with Makefile you should first https://docs.docker.com
 have https://leiningen.org/#install[Leiningen] installed and resolve build dependencies.
 
 === Install dependencies
+
+NOTE:: Default JDK/JRE may vary between distros, but by default Java 11+ is intended
 
 ----
 sudo apt-get install make default-jdk-headless
@@ -360,7 +362,7 @@ Execute (go) in repl to start development profile with autoreload and local.prop
 
 Copyright © 2020 Kasta Group LLC
 
-Copyright © 2020-2021 TBT LLC
+Copyright © 2020-2022 TBT LLC
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
