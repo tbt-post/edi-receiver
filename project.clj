@@ -5,7 +5,7 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/tools.cli "1.0.206"]
-                 [cheshire "5.10.1"
+                 [cheshire "5.10.2"
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
@@ -19,18 +19,18 @@
                  [org.clojure/java.jdbc "0.7.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
                  [org.postgresql/postgresql "42.3.1"]
-                 [mysql/mysql-connector-java "8.0.27"]
+                 [mysql/mysql-connector-java "8.0.28"]
 
                  ;; HTTP client
-                 [org.eclipse.jetty/jetty-client "9.4.35.v20201120"] ; same version as pedestal.jetty uses
+                 [org.eclipse.jetty/jetty-client "9.4.44.v20210927"] ; same version as pedestal.jetty uses
 
                  ;; Logger
                  ; TODO: move logger to dev
                  [ch.qos.logback/logback-classic "1.2.10"
                   :exclusions [org.slf4j/slf4j-api]]
-                 [org.slf4j/jul-to-slf4j "1.7.32"]
-                 [org.slf4j/jcl-over-slf4j "1.7.32"]
-                 [org.slf4j/log4j-over-slf4j "1.7.32"]
+                 [org.slf4j/jul-to-slf4j "1.7.35"]
+                 [org.slf4j/jcl-over-slf4j "1.7.35"]
+                 [org.slf4j/log4j-over-slf4j "1.7.35"]
                  [org.clojure/tools.logging "1.2.4"]]
 
   :source-paths []
@@ -73,8 +73,8 @@
                                        [luposlip/json-schema "0.3.3"]
 
                                        ;; HTTP server
-                                       [io.pedestal/pedestal.service "0.5.9"]
-                                       [io.pedestal/pedestal.jetty "0.5.9"]
+                                       [io.pedestal/pedestal.service "0.5.10"]
+                                       [io.pedestal/pedestal.jetty "0.5.10"]
                                        ; Note: With reitit 0.5.11 have compile error:
                                        ; ClassNotFoundException: com.fasterxml.jackson.core.util.JacksonFeature
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
