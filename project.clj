@@ -5,7 +5,7 @@
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.cli "1.0.206"]
-                 [cheshire "5.10.2"
+                 [cheshire "5.11.0"
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
@@ -18,19 +18,19 @@
                  ;; jdbc
                  [org.clojure/java.jdbc "0.7.12"]
                  [com.mchange/c3p0 "0.9.5.5"]
-                 [org.postgresql/postgresql "42.3.5"]
-                 [mysql/mysql-connector-java "8.0.29"]
+                 [org.postgresql/postgresql "42.5.0"]
+                 [mysql/mysql-connector-java "8.0.30"]
 
                  ;; HTTP client
                  [org.eclipse.jetty/jetty-client "9.4.44.v20210927"] ; same version as pedestal.jetty uses
 
                  ;; Logger
                  ; TODO: move logger to dev
-                 [ch.qos.logback/logback-classic "1.2.11"
+                 [ch.qos.logback/logback-classic "1.4.0"
                   :exclusions [org.slf4j/slf4j-api]]
-                 [org.slf4j/jul-to-slf4j "1.7.36"]
-                 [org.slf4j/jcl-over-slf4j "1.7.36"]
-                 [org.slf4j/log4j-over-slf4j "1.7.36"]
+                 [org.slf4j/jul-to-slf4j "2.0.0"]
+                 [org.slf4j/jcl-over-slf4j "2.0.0"]
+                 [org.slf4j/log4j-over-slf4j "2.0.0"]
                  [org.clojure/tools.logging "1.2.4"]]
 
   :source-paths []
@@ -84,7 +84,7 @@
                                        [metosin/reitit-pedestal "0.5.18"]
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.6.0"
+                                       [net.tbt-post/clj-kafka-x "0.7.2"
                                         :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
                                                      com.fasterxml.jackson.datatype/jackson-datatype-jdk8
                                                      com.fasterxml.jackson.module/jackson-module-scala_2.12]]
