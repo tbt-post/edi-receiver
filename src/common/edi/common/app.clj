@@ -5,7 +5,7 @@
             [clojure.tools.cli :as cli]
             [clojure.tools.logging :as log]
             [edi.common.config :as config]
-            [edi.common.util.core :as utils]))
+            [java-properties.core :as jconf]))
 
 
 (def ^:private default-option-specs
@@ -14,7 +14,7 @@
     :parse-fn string/trim
     :validate [#(-> % io/file .exists) "Config file does not exist"]]
    ["-t" "--topics TOPICS" "comma separated topic list"
-    :parse-fn utils/split-comma-separated
+    :parse-fn jconf/split-comma-separated
     :validate [(fn [topics]
                  (every?
                    #(if (io/resource (format "sql/tables/%s.sql" %))

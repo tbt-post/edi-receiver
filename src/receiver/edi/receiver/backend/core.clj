@@ -3,7 +3,7 @@
             [clojure.string :as string]
             [clojure.tools.logging :as log]
             [clojure.tools.reader.edn :as edn]
-            [edi.common.util.core :as util]
+            [java-properties.core :as jconf]
             [edi.receiver.backend.dump :as dump]
             [edi.receiver.backend.http :as http]
             [edi.receiver.backend.javamail :as javamail]
@@ -28,7 +28,7 @@
 
 (defn- create-backends [config]
   (->> config
-       util/ordered-configs
+       jconf/ordered-configs
        (filter :enabled)
        (map create-backend)
        (into {})))
@@ -52,9 +52,9 @@
                      {:keys [key backend reliable buffer source target condition transform logging] :as proxy-conf}]
   (letfn [(wrap-logging [send {:keys [enabled reference-fields]}]
             (if enabled
-              (let [context          (-> proxy-conf
-                                         (select-keys [:key :target :backend])
-                                         json/generate-string)
+              (let [context (-> proxy-conf
+                                (select-keys [:key :target :backend])
+                                json/generate-string)
                     reference-fields (->> (string/split reference-fields #",")
                                           (map string/trim)
                                           (map keyword))]
@@ -66,7 +66,7 @@
                     (db-log/write! log
                                    context
                                    (select-keys message reference-fields)
-                                   (util/remove-vals nil? content)
+                                   (jconf/remove-vals nil? content)
                                    raw)
                     response)))
               send))
@@ -76,11 +76,11 @@
               (try
                 (send message)
                 (catch Exception e
-                  (let [e-class   (-> e class .getName)
+                  (let [e-class (-> e class .getName)
                         e-message (ex-message e)
-                        e-data    (ex-data e)]
+                        e-data (ex-data e)]
                     (log/warnf "cant send to unreliable %s, topic %s: %s: %s\ndata:\n%s\ndropped message:\n%s"
-                               backend target e-class e-message (util/pretty e-data) (util/pretty message))
+                               backend target e-class e-message (jconf/pretty e-data) (jconf/pretty message))
                     {:action  :dropped-by-unreliable-backend
                      :error   e-class
                      :message e-message
@@ -89,7 +89,7 @@
           (wrap-buffer [send {:keys [enabled] :as config}]
             (if enabled
               (let [instance-id (-> key name edn/read-string)
-                    instance    (buffers/register! buffers instance-id (wrap-error send) config)]
+                    instance (buffers/register! buffers instance-id (wrap-error send) config)]
                 (fn [message]
                   (try
                     (send message)
@@ -133,7 +133,7 @@
 
 (defn- create-proxies [config backends buffers log]
   (->> config
-       util/ordered-configs
+       jconf/ordered-configs
        (filter :enabled)
        (filter #(get backends (keyword (:backend %))))
        (map (partial create-proxy backends buffers log))
@@ -159,4 +159,4 @@
 (defn send-message [{:keys [proxies]} topic message]
   (doseq [proxy (get proxies topic)]
     (let [result (proxy message)]
-      (log/debug "proxying result" (util/pretty (dissoc result :media-type :encoding :content))))))
+      (log/debug "proxying result" (jconf/pretty (dissoc result :media-type :encoding :content))))))

@@ -4,8 +4,8 @@
             [edi.common.db.jdbc :as db]
             [edi.common.db.models :as models]
             [clojure.string :as string]
-            [edi.common.util.core :as utils]
-            [edi.common.config :as config]))
+            [edi.common.config :as config]
+            [java-properties.core :as jconf]))
 
 
 (def ^:private type-sql
@@ -19,7 +19,7 @@
                     :uuid      "uuid"}
        :mysql      {:timestamp "datetime"
                     :uuid      "binary(16)"}}
-      (utils/merge-common :common)))
+      (jconf/merge-common :common)))
 
 
 (def ^:private column-sql
@@ -38,7 +38,7 @@
                     :alter-type-set-not-null
                     (str "UPDATE %1$s SET %2$s = %4$s WHERE %2$s IS NULL;\n"
                          "ALTER TABLE %1$s MODIFY %2$s %3$s NOT NULL;")}}
-      (utils/merge-common :common)))
+      (jconf/merge-common :common)))
 
 
 (defn- type-q [driver type]

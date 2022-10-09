@@ -3,7 +3,7 @@
             [clojure.java.jdbc :as jdbc]
             [clojure.tools.logging :as log]
             [edi.common.db.jdbc :as db]
-            [edi.common.util.core :as utils]))
+            [java-properties.core :as jconf]))
 
 
 (def ^:private sqls
@@ -33,7 +33,7 @@
                      "WHERE now(6) > planned_at "
                      "ORDER BY tries, created_at "
                      "LIMIT 1")}}
-      (utils/merge-common :common)))
+      (jconf/merge-common :common)))
 
 
 (defn- sql [{:keys [driver]} name]

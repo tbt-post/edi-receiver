@@ -7,7 +7,7 @@
             [ring.util.codec :as ring-coded]
             [edi.common.util.jetty-client :as http]
             [edi.common.db.models :as models]
-            [edi.common.util.core :as util])
+            [java-properties.core :as jconf])
   (:import (clojure.lang ExceptionInfo)
            (java.io File)))
 
@@ -111,7 +111,7 @@
             data
             (download-and-cache upstream ref)))
         (update :schemas #(->> (select-keys % (map keyword topics))
-                               (util/map-vals json-schema/prepare-schema)))
+                               (jconf/map-vals json-schema/prepare-schema)))
         (update :tests #(filter (fn [test] (topics (:topic test))) %)))))
 
 

@@ -1,9 +1,9 @@
 (ns edi.receiver.api.handlers.topic
   (:require [clojure.tools.logging :as log]
-            [edi.common.util.core :as util]
             [edi.common.util.timer :as timer]
             [edi.receiver.saver :as saver]
-            [edi.receiver.stats :as stats])
+            [edi.receiver.stats :as stats]
+            [java-properties.core :as jconf])
   (:import (clojure.lang ExceptionInfo)))
 
 
@@ -29,8 +29,8 @@
                         {:exception (.getName (class e))
                          :message   (ex-message e)}))]
         (log/errorf "Error processing message:\n%s\nMessage caused error:\n%s"
-                    (util/pretty error)
-                    (util/pretty message))
+                    (jconf/pretty error)
+                    (jconf/pretty message))
         {:status (if (and (instance? ExceptionInfo e)
                           (:bad-request? (ex-data e)))
                    400

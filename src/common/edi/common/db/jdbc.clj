@@ -3,7 +3,7 @@
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [edi.common.util.core :as utils])
+            [java-properties.core :as jconf])
   (:import (com.mchange.v2.c3p0 ComboPooledDataSource)))
 
 
@@ -13,7 +13,7 @@
         props (-> props
                   (dissoc :driver :host :port :database :query-string)
                   (assoc :jdbc-url (format "jdbc:%s://%s:%s/%s%s" driver host port database query-string))
-                  utils/kebab-conf-to-camelcase)]
+                  jconf/kebab-conf-to-camelcase)]
     (log/infof "Creating %s pool" driver)
     (System/setProperty "user.timezone" "UTC")
     {:driver     (keyword driver)

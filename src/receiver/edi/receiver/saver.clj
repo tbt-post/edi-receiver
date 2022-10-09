@@ -8,7 +8,8 @@
             [edi.common.util.timer :as timer]
             [edi.receiver.backend.core :as backend]
             [edi.receiver.stats :as stats]
-            [edi.receiver.upstream :as upstream])
+            [edi.receiver.upstream :as upstream]
+            [java-properties.core :as jconf])
   (:import (java.util UUID)
            (org.postgresql.util PGobject)))
 
@@ -25,7 +26,7 @@
    :mysql      {:money     #(some-> % str bigdec)
                 :json      #(some-> % json/generate-string)
                 :timestamp #(when %
-                              (util/parse-java-util-date %))
+                              (jconf/parse-java-util-date %))
                 :uuid      #(some-> % UUID/fromString util/uuid->byte-array)}})
 
 
