@@ -25,7 +25,7 @@
                  [org.eclipse.jetty/jetty-client "9.4.44.v20210927"] ; same version as pedestal.jetty uses
 
                  ;; Configuration reader
-                 [ai.z7/java-properties "1.1.0"]
+                 [ai.z7/java-properties "1.1.1"]
 
                  ;; Logger
                  ; TODO: move logger to dev
