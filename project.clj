@@ -4,14 +4,14 @@
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/tools.cli "1.0.206"]
+                 [org.clojure/tools.cli "1.0.214"]
                  [cheshire "5.11.0"
                   :exclusions [com.fasterxml.jackson.core/jackson-core
                                com.fasterxml.jackson.dataformat/jackson-dataformat-cbor
                                com.fasterxml.jackson.dataformat/jackson-dataformat-smile]]
-                 [com.fasterxml.jackson.core/jackson-core "2.13.3"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.13.3"]
-                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.13.3"]
+                 [com.fasterxml.jackson.core/jackson-core "2.13.4"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-cbor "2.13.4"]
+                 [com.fasterxml.jackson.dataformat/jackson-dataformat-smile "2.13.4"]
 
                  [org.clojure/java.data "1.0.95"]
 
@@ -29,11 +29,11 @@
 
                  ;; Logger
                  ; TODO: move logger to dev
-                 [ch.qos.logback/logback-classic "1.4.0"
+                 [ch.qos.logback/logback-classic "1.4.3"
                   :exclusions [org.slf4j/slf4j-api]]
-                 [org.slf4j/jul-to-slf4j "2.0.0"]
-                 [org.slf4j/jcl-over-slf4j "2.0.0"]
-                 [org.slf4j/log4j-over-slf4j "2.0.0"]
+                 [org.slf4j/jul-to-slf4j "2.0.3"]
+                 [org.slf4j/jcl-over-slf4j "2.0.3"]
+                 [org.slf4j/log4j-over-slf4j "2.0.3"]
                  [org.clojure/tools.logging "1.2.4"]]
 
   :source-paths []
@@ -73,7 +73,7 @@
                          :omit-source  true
                          :main         edi.receiver.core}]
              :r-deps   {:dependencies [[medley "1.4.0"]
-                                       [luposlip/json-schema "0.3.4"]
+                                       [luposlip/json-schema "0.4.0"]
 
                                        ;; HTTP server
                                        [io.pedestal/pedestal.service "0.5.10"]
@@ -83,17 +83,17 @@
                                        ; error may be related with update to jsonista 0.3.0 with jackson 2.12.0
                                        [metosin/reitit "0.5.18"
                                         :exclusions [com.fasterxml.jackson.datatype/jackson-datatype-jsr310]]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.13.3"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.13.4"]
                                        [metosin/reitit-pedestal "0.5.18"]
 
                                        ;; Kafka
-                                       [net.tbt-post/clj-kafka-x "0.7.2"
+                                       [net.tbt-post/clj-kafka-x "0.7.3"
                                         :exclusions [com.fasterxml.jackson.dataformat/jackson-dataformat-csv
                                                      com.fasterxml.jackson.datatype/jackson-datatype-jdk8
                                                      com.fasterxml.jackson.module/jackson-module-scala_2.12]]
-                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.13.3"]
-                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.13.3"]
-                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.13.3"]
+                                       [com.fasterxml.jackson.dataformat/jackson-dataformat-csv "2.13.4"]
+                                       [com.fasterxml.jackson.datatype/jackson-datatype-jdk8 "2.13.4"]
+                                       [com.fasterxml.jackson.module/jackson-module-scala_2.13 "2.13.4"]
 
                                        ;; SMTP
                                        [com.sun.mail/javax.mail "1.6.2"]]}}
