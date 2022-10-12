@@ -8,7 +8,7 @@ image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20PG%20C
 image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20Image%20MySQL%20CI/badge.svg?branch=trunk[Docker Image MySQL CI]
 image:https://github.com/tbt-post/edi-receiver/workflows/Docker%20PG%20Load%20Test/badge.svg?branch=trunk[Docker PG Load Test]
 
-A clojure application designed to receive and store EDI messages from the https://tbt-post.net/[TBT Cloud] into a customer's local database. The solution is intended to be quite universal so is actively used to integrate other platforms (like, for example, https://dkdhub.com/[DKDHUB]) and applications into the robust and flexible digital environment. 
+A clojure application designed to receive and store EDI messages from the https://tbt-post.net/[TBT Cloud] or https://dkdhub.com/[DKDHUB] into a customer's local database. The solution is intended to be quite universal so is actively used to integrate other platforms (like, for example, https://dkdhub.com/[DKDHUB]) and applications into the robust and flexible digital environment. 
 
 Latest release assets available https://github.com/tbt-post/edi-receiver/releases/latest[here].
 
@@ -364,9 +364,11 @@ Execute (go) in repl to start development profile with autoreload and local.prop
 
 == License
 
-Copyright © 2020 Kasta Group LLC
+Copyright © 2022 Innologis, UPD Consulting and partners
 
 Copyright © 2020-2022 TBT LLC
+
+Copyright © 2020 Kasta Group LLC
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
